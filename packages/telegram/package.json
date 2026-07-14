@@ -9,8 +9,9 @@
   },
   "scripts": {
     "build": "pnpm run clean && tsup && tsc-alias",
+    "build:notify": "tsup --config tsup.notify.config.ts",
     "dev": "tsup --watch",
-    "notify": "pnpm run build && node dist/cli.cjs",
+    "notify": "pnpm run build:notify && node dist/cli.cjs",
     "clean": "rimraf dist",
     "clear:force": "rimraf *.js --force",
     "type-check": "tsc --noEmit"
@@ -29,6 +30,7 @@
   },
   "dependencies": {
     "@repo/dto": "workspace:*",
+    "@repo/logger": "workspace:*",
     "@repo/types": "workspace:*",
     "@repo/utils": "workspace:*",
     "bullmq": "^5.7.9",
