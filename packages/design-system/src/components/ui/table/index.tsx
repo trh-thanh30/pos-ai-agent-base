@@ -1,7 +1,7 @@
 'use client';
 import { TableSkeleton } from '@repo/design-system/components/ui/loading-skeleton-table';
+import { numericalOrder } from '@repo/utils';
 import * as React from 'react';
-import { numericalOrder } from '../../../../../../apps/web/main/src/utils';
 import { Pagination } from '../pagination';
 import { Select } from '../select';
 export type TableProps<T> = {
@@ -83,7 +83,7 @@ export function Table<T>({
                     className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
                   >
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      {numericalOrder(idx, page, limit, total)}
+                      {numericalOrder(idx, page, limit || pageSize)}
                     </td>
                     {renderRow(item, idx)}
                   </tr>

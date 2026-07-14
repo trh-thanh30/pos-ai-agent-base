@@ -1,5 +1,5 @@
 import { LineChart as MantineLineChart } from '@mantine/charts';
-import { formatCompactNumber, formatCurrency } from '../../../../../../apps/web/main/src/utils';
+import { formatCompactNumber, formatCurrency } from '@repo/utils';
 import SlidingTabs from './sliding-line-chart';
 
 export type ChartPoint = {

@@ -36,6 +36,29 @@ export function formatNumber(
   return new Intl.NumberFormat(locale).format(number);
 }
 
+export function formatCompactNumber(number: number): string {
+  if (number < 1000) return number.toString();
+
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(number);
+}
+
+export function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+
+  return `${text.substring(0, maxLength - 3)}...`;
+}
+
+export function numericalOrder(
+  idx: number,
+  page = 1,
+  limit = 10
+): number {
+  return (page - 1) * limit + idx + 1;
+}
+
 /**
  * Format date
  * @param date - Date to format

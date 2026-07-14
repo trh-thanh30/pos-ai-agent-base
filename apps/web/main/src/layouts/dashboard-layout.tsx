@@ -1,4 +1,5 @@
 'use client';
+import { Loading } from '@repo/design-system/components/ui';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import {
   accessTokenAtom,
@@ -7,46 +8,38 @@ import {
 } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
-import api from '../../../../../apps/web/main/src/libs/axios';
-import HeaderSidebar from '../../../../../apps/web/main/src/sections/dashboard/components/header-sidebar';
-import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
-import { Loading } from '../ui';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import api from '../libs/axios';
+import HeaderSidebar from '../sections/dashboard/components/header-sidebar';
+import Sidebar from '../sections/dashboard/components/sidebar-screen';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // state
   const [isExpand, setIsExpand] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
   const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
   const [, setCurrentUser] = useAtom(currentUserAtom);
   const [, setCurrentStore] = useAtom(currentStoreAtom);
-  // nextjs
   const pathName = usePathname();
-  const isSalesPages = pathName.endsWith('/sales');
+  const isSalesPages = pathName?.endsWith('/sales') ?? false;
   const router = useRouter();
   const isFetched = useRef(false);
-  // custom hook
   const { showErrorToast } = useToast();
 
-  const handleAuthError = () => {
+  const handleAuthError = useCallback(() => {
     showErrorToast('Phiên làm việc hết hạn, vui lòng đăng nhập lại!');
     setAccessToken(null);
     setCurrentUser(null);
     setCurrentStore(null);
     router.push(`${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
-  };
+  }, [router, setAccessToken, setCurrentStore, setCurrentUser, showErrorToast]);
+
   useEffect(() => {
     setHydrated(true);
   }, []);
+
   useEffect(() => {
     if (!hydrated || isFetched.current) return;
-
-    // if (accessToken) {
-    //   setIsSyncing(false);
-    //   isFetched.current = true;
-    //   return;
-    // }
 
     const syncSession = async () => {
       try {
@@ -66,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
 
     syncSession();
-  }, [hydrated, router, showErrorToast]);
+  }, [handleAuthError, hydrated, setAccessToken, setCurrentStore, setCurrentUser]);
 
   const shouldShowContent = hydrated && !isSyncing && !!accessToken;
 

@@ -1,14 +1,17 @@
+'use client';
+import { formatCurrency, truncateText } from '@repo/utils';
 import Image from 'next/image';
 import { useEffect } from 'react';
-import useStatistics from '../../../../../../apps/web/main/src/hooks/statistics/use-statistics';
-import { formatCurrency, truncateText } from '../../../../../../apps/web/main/src/utils';
+import useStatistics from '../../../hooks/statistics/use-statistics';
 
 export function ItemTopProducts() {
   const { topsProducts, getTopProducts } = useStatistics();
-  console.log(topsProducts);
+
   useEffect(() => {
     getTopProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <>
       {topsProducts.length === 0 ? (

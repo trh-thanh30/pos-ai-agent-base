@@ -1,5 +1,4 @@
 'use client';
-import { Notification } from '@repo/design-system/components/shared/item';
 import { Loading } from '@repo/design-system/components/ui';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import { currentStoreAtom, currentUserAtom } from '@repo/design-system/stores/auth';
@@ -10,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { GoSignOut } from 'react-icons/go';
 import useAuth from '../../../hooks/auth/use-auth';
 import useStatistics from '../../../hooks/statistics/use-statistics';
+import { Notification } from './notification';
 export default function HeaderSidebar() {
   const [isShowNotification, setIsShowNotifications] = useState<boolean>(false);
   const [isShowUserManagement, setIsShowUserManagement] = useState(false);

@@ -1,4 +1,4 @@
-import DashboardLayout from "@repo/design-system/components/layout/dashboard-layout";
+import DashboardLayout from '../../../../main/src/layouts/dashboard-layout';
 export default function DashLayout({
   children,
 }: Readonly<{

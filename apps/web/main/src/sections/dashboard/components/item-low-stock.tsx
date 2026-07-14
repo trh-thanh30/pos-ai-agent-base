@@ -1,11 +1,11 @@
 'use client';
-import React from 'react';
+import { truncateText } from '@repo/utils';
 import Image from 'next/image';
-import useStatistics from '../../../../../../apps/web/main/src/hooks/statistics/use-statistics';
-import { truncateText } from '../../../../../../apps/web/main/src/utils';
+import useStatistics from '../../../hooks/statistics/use-statistics';
 
 export function ItemLowStock() {
   const { lowStockProducts } = useStatistics();
+
   return (
     <>
       {lowStockProducts?.length === 0 ? (
@@ -25,7 +25,6 @@ export function ItemLowStock() {
                     : 'bg-white'
               }`}
             >
-              {/* Hình ảnh + số thứ tự */}
               <div className="flex items-center gap-5">
                 <span className="font-semibold text-gray-700">#{idx + 1}</span>
                 <Image
@@ -37,7 +36,6 @@ export function ItemLowStock() {
                 />
               </div>
 
-              {/* Thông tin sản phẩm */}
               <div className="flex flex-col justify-between flex-1 mx-3">
                 <h3 title={item.product.name} className="text-sm text-pos-blue-800 font-semibold">
                   {truncateText(item.product.name, 45)}
@@ -50,7 +48,6 @@ export function ItemLowStock() {
                 </span>
               </div>
 
-              {/* Thông tin bổ sung */}
               <div className="flex flex-col items-end">
                 <span
                   className={`text-sm font-semibold ${

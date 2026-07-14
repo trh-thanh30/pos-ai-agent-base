@@ -1,18 +1,19 @@
+import SlidingTabs from '@repo/design-system/components/shared/chart-screen/sliding-line-chart';
+import { Loading } from '@repo/design-system/components/ui';
+import { formatCurrency } from '@repo/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {
   getPaymentMethodLabel,
   getStockMovementStatusLabel,
-} from '../../../../../../apps/web/main/src/constants/status';
-import {
+} from '../../../constants/status';
+import type {
   Notification as NotificationType,
   TypeNotification,
-} from '../../../../../../apps/web/main/src/hooks/statistics/use-statistics';
-import { formatCurrency } from '../../../../../../apps/web/main/src/utils';
-import { Loading } from '../../ui';
-import SlidingTabs from '../chart-screen/sliding-line-chart';
+} from '../../../hooks/statistics/use-statistics';
 
 dayjs.extend(relativeTime);
+
 export function Notification({
   notifications,
   handleChangeTypeNotification,
@@ -67,6 +68,7 @@ export function Notification({
     </>
   );
 }
+
 const NotificationItemContent = ({ item }: { item: NotificationType }) => {
   const time = dayjs(item.createdAt).fromNow();
 

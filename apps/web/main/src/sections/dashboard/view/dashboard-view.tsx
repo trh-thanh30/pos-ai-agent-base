@@ -6,14 +6,12 @@ import {
   LineChart,
 } from '@repo/design-system/components/shared/chart-screen';
 import SlidingTabs from '@repo/design-system/components/shared/chart-screen/sliding-line-chart';
-import {
-  ItemBoxChart,
-  ItemLowStock,
-  ItemTopProducts,
-} from '@repo/design-system/components/shared/item';
+import { ItemBoxChart } from '@repo/design-system/components/shared/item';
 import { Select } from '@repo/design-system/components/ui';
 import { Download, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { ItemLowStock } from '../components/item-low-stock';
+import { ItemTopProducts } from '../components/item-top-products';
 import useStatistics, {
   SummaryRevenue,
 } from '../../../../../main/src/hooks/statistics/use-statistics';

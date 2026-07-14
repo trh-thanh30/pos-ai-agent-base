@@ -14,15 +14,5 @@
     }
   },
   "include": ["src"],
-  "exclude": [
-    "dist",
-    "build",
-    "node_modules",
-    "src/components/layout/dashboard-layout.tsx",
-    "src/components/shared/chart-screen/bar-chart.tsx",
-    "src/components/shared/chart-screen/line-chart.tsx",
-    "src/components/shared/item/item-low-stock.tsx",
-    "src/components/shared/item/item-notification.tsx",
-    "src/components/shared/item/item-top-products.tsx"
-  ]
+  "exclude": ["dist", "build", "node_modules"]
 }
