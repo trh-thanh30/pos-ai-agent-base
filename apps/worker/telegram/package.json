@@ -1,0 +1,35 @@
+{
+  "name": "@pos/worker-telegram",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup && tsc-alias",
+    "start": "concurrently \"node dist/main-bot-service.js\" \"node dist/index.js\"",
+    "start:dev": "dotenv -e ../../../.env.development -- pnpm run start",
+    "dev": "tsup --watch --onSuccess \"pnpm run start:dev\"",
+    "playground": "node playground/test_telegram_queue.js",
+    "start:main-bot": "node dist/main-bot-service.js",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "clear:force": "rimraf *.js --force"
+  },
+  "dependencies": {
+    "@repo/dto": "workspace:*",
+    "@repo/logger": "workspace:*",
+    "@repo/telegram": "workspace:*",
+    "bullmq": "^5.7.9",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "^5.0.0",
+    "eslint": "latest",
+    "rimraf": "^6.0.1",
+    "tsc-alias": "^1.8.10",
+    "tsup": "^8.2.4",
+    "ts-node": "^10.9.2"
+  }
+}

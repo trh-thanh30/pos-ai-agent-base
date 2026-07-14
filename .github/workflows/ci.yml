@@ -1,0 +1,147 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PNPM_VERSION: 9.15.9
+
+jobs:
+  packages:
+    name: Packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:packages
+      - run: pnpm typecheck:packages
+      - run: pnpm build:packages
+
+  api:
+    name: API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:api
+      - run: pnpm typecheck:api
+      - run: pnpm test:api
+      - run: pnpm build:api
+
+  web-main:
+    name: Web Main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:web-main
+      - run: pnpm build:web-main
+        continue-on-error: true
+
+  web-retail:
+    name: Web Retail
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:web-retail
+      - run: pnpm build:web-retail
+        continue-on-error: true
+
+  workers:
+    name: Workers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck:workers
+      - run: pnpm build:workers
+
+  notify:
+    name: Telegram Notify
+    runs-on: ubuntu-latest
+    needs:
+      - packages
+      - api
+      - web-main
+      - web-retail
+      - workers
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - id: jobs
+        run: node .github/scripts/collect-github-actions-jobs.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Send notification
+        run: >
+          pnpm notify:telegram
+          --event ci
+          --status "${{ contains(needs.*.result, 'failure') && 'failed' || 'success' }}"
+          --project pos-system
+          --repository "${{ github.repository }}"
+          --branch "${{ github.ref_name }}"
+          --workflow "${{ github.workflow }}"
+          --actor "${{ github.actor }}"
+          --commit "${{ github.sha }}"
+          --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          --jobs-json '${{ steps.jobs.outputs.jobs_json }}'
+          --passed "${{ steps.jobs.outputs.passed }}"
+          --failed "${{ steps.jobs.outputs.failed }}"
+          --running "${{ steps.jobs.outputs.running }}"
+          --cancelled "${{ steps.jobs.outputs.cancelled }}"
+        env:
+          CI_TELEGRAM_BOT_TOKEN: ${{ secrets.CI_TELEGRAM_BOT_TOKEN }}
+          CI_TELEGRAM_CHAT_ID: ${{ secrets.CI_TELEGRAM_CHAT_ID }}

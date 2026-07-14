@@ -1,0 +1,42 @@
+{
+  "name": "@pos/worker-email",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Worker service for processing and sending emails via a queue.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup && tsc-alias",
+    "start": "node dist/index.js",
+    "start:dev": "dotenv -e ../../../.env.development -- node dist/index.js",
+    "dev": "tsup --watch --onSuccess \"pnpm run start:dev\"",
+    "playground": "node playground/test_email_queue.js",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "clear:force": "rimraf *.js --force"
+  },
+  "keywords": [
+    "email",
+    "worker",
+    "queue",
+    "bullmq",
+    "notifications"
+  ],
+  "dependencies": {
+    "bullmq": "^5.7.9",
+    "@repo/logger": "workspace:*",
+    "@repo/dto": "workspace:*",
+    "@repo/email": "workspace:*",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "eslint": "^8.57.0",
+    "rimraf": "^5.0.7",
+    "tsup": "^8.1.0",
+    "typescript": "^5.4.5"
+  },
+  "author": "Your Name <your.email@example.com>",
+  "license": "ISC"
+}

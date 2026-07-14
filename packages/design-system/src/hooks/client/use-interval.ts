@@ -1,0 +1,44 @@
+import { useEffect, useRef, useState } from 'react';
+import { clearInterval, setInterval } from 'worker-timers';
+
+export default function useInterval(fn: () => void, interval: number): {
+	start: () => void;
+	stop: () => void;
+	toggle: () => void;
+	active: boolean;
+} {
+	const [active, setActive] = useState(false);
+	const intervalRef = useRef<number>();
+	const fnRef = useRef<() => void>();
+
+	useEffect(() => {
+		fnRef.current = fn;
+	}, [fn]);
+
+	const start = () => {
+		setActive((old) => {
+			if (!old && !intervalRef.current) {
+				intervalRef.current = setInterval(fnRef.current!, interval);
+			}
+			return true;
+		});
+	};
+
+	const stop = () => {
+		if (intervalRef.current) {
+			clearInterval(intervalRef.current);
+			intervalRef.current = undefined;
+		}
+		setActive(false);
+	};
+
+	const toggle = () => {
+		if (active) {
+			stop();
+		} else {
+			start();
+		}
+	};
+
+	return { start, stop, toggle, active };
+}
