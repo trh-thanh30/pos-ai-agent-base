@@ -63,8 +63,9 @@ export interface PaginationInfo {
 /**
  * Paginated response interface
  */
-export interface PaginatedSuccessResponse<T = unknown>
-  extends SuccessResponse<T[]> {
+export interface PaginatedSuccessResponse<T = unknown> extends SuccessResponse<
+  T[]
+> {
   /** Pagination information */
   pagination: PaginationInfo;
 }

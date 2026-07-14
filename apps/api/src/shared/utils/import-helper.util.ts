@@ -43,7 +43,7 @@ export class ImportHelper {
     const upper = raw.toUpperCase();
 
     for (const key of Object.keys(enumObj)) {
-      const value = enumObj[key] as unknown as string | number;
+      const value = enumObj[key];
 
       // match theo key (ACTIVE) hoặc theo value ("ACTIVE")
       if (String(key).toUpperCase() === upper) return enumObj[key] as TValue;

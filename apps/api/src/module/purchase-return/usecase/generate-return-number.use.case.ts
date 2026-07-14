@@ -13,9 +13,7 @@ export interface IGenerateNumberReturnUseCase {
 }
 
 @Injectable()
-export class GeneratePurchaseReturnNumberUseCase
-  implements IGenerateNumberReturnUseCase
-{
+export class GeneratePurchaseReturnNumberUseCase implements IGenerateNumberReturnUseCase {
   private prefix = 'DTHNCC';
   private padLength = 5;
 

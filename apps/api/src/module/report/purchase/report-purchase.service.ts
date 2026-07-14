@@ -168,8 +168,7 @@ export class ReportPurchaseService {
     }
 
     const orderBy = query.prismaQuery.orderBy as
-      | Record<string, 'asc' | 'desc'>
-      | undefined;
+      Record<string, 'asc' | 'desc'> | undefined;
     const sortKey = orderBy ? Object.keys(orderBy)[0] : 'createdAt';
     const sortDir = orderBy ? orderBy[sortKey] : 'desc';
 

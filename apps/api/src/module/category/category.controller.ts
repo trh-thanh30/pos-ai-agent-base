@@ -122,10 +122,7 @@ export class CategoryController {
 
   @Get('/excel/export')
   @ApiSuccess('Tải danh sách danh mục thành công!')
-  async export(
-    @Res() res: Response,
-    @Param('storeId') storeId: string,
-  ) {
+  async export(@Res() res: Response, @Param('storeId') storeId: string) {
     const buffer = await this.excelCategory.getCategoryExcel(storeId);
     res.setHeader('Content-Disposition', 'attachment; filename=category.xlsx');
     res.setHeader(

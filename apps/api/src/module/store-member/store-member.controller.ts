@@ -156,10 +156,7 @@ export class StoreMemberController {
    */
   @Get('excel/export')
   @RequirePermissions([PERMISSIONS.MEMBER_READ])
-  async exportStoreMembersExcel(
-    @User() user: IUser,
-    @Res() res: Response,
-  ) {
+  async exportStoreMembersExcel(@User() user: IUser, @Res() res: Response) {
     const buffer = await this.storeMemberExcelService.exportStoreMembers(
       user.storeId || '',
       user,

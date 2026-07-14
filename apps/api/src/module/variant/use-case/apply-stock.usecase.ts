@@ -76,10 +76,8 @@ export class ApplyStockUseCase {
     delta: number,
     tx: Prisma.TransactionClient,
   ) {
-    await Promise.all([
-      this.validateDelta(delta),
-      this.validateMovementType(type),
-    ]);
+    this.validateDelta(delta);
+    this.validateMovementType(type);
     // Check variant exists and is active
     await this.validateVariant(variantId, productId, storeId, tx);
 

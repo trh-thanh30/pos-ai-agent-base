@@ -157,8 +157,7 @@ export class ReportStockLedgerService {
     }
 
     const orderBy = query.prismaQuery.orderBy as
-      | Record<string, 'asc' | 'desc'>
-      | undefined;
+      Record<string, 'asc' | 'desc'> | undefined;
     const sortDirection = orderBy?.createdAt ?? 'desc';
 
     rows.sort((a, b) => {

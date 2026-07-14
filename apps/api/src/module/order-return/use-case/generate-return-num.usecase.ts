@@ -13,9 +13,7 @@ export interface IGenerateReturnOrderNumberUseCase {
 }
 
 @Injectable()
-export class GenerateReturnOrderUseCase
-  implements IGenerateReturnOrderNumberUseCase
-{
+export class GenerateReturnOrderUseCase implements IGenerateReturnOrderNumberUseCase {
   private prefix = 'THKH';
   private padLength = 5;
 

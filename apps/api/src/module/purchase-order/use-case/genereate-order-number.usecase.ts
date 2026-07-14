@@ -13,9 +13,7 @@ export interface IGenerateOrderNumberUseCase {
 }
 
 @Injectable()
-export class GeneratePurchaseCodeUseCase
-  implements IGenerateOrderNumberUseCase
-{
+export class GeneratePurchaseCodeUseCase implements IGenerateOrderNumberUseCase {
   private prefix = 'DNH';
   private padLength = 5;
 

@@ -5,9 +5,7 @@ import {
 } from 'class-validator';
 
 @ValidatorConstraint({ name: 'isUniqueUnitNames', async: false })
-export class IsUniqueUnitNamesConstraint
-  implements ValidatorConstraintInterface
-{
+export class IsUniqueUnitNamesConstraint implements ValidatorConstraintInterface {
   validate(conversions: any[], args: ValidationArguments) {
     console.log(args);
     if (!conversions || !Array.isArray(conversions)) {

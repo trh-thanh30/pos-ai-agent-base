@@ -156,10 +156,7 @@ export class VariantController {
   // EXCEL
   @Get('/excel/export/')
   @RequirePermission([PERMISSIONS.VARIANT_READ, PERMISSIONS.VARIANT_ALL])
-  async exportInventoryExcel(
-    @Res() res: Response,
-    @User() { storeId }: IUser,
-  ) {
+  async exportInventoryExcel(@Res() res: Response, @User() { storeId }: IUser) {
     const buffer = await this.variantExcelService.exportInventory(
       storeId || '',
     );

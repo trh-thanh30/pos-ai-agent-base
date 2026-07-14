@@ -1,5 +1,3 @@
-import { PaginationInfo } from 'app/common/types/response.types';
-
 /**
  * Success Response Class
  * Provides standardized success responses following API structure guidelines
@@ -127,7 +125,7 @@ export class PaginatedResponse<T> extends ApiResponse<T[]> {
    */
   toJSON() {
     const response = super.toJSON();
-    response.pagination = this.pagination as PaginationInfo;
+    response.pagination = this.pagination;
     return response;
   }
 }

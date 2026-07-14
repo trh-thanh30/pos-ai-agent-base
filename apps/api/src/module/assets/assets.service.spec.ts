@@ -122,20 +122,14 @@ describe('AssetsService', () => {
         access_type: asset_access_type.PRIVATE,
       };
       const otherUser: IUser = { ...mockUser, id: 'user-2' };
-      const result = service.checkPermission(
-        privateAsset as Asset,
-        otherUser,
-        'READ',
-      );
+      const result = service.checkPermission(privateAsset, otherUser, 'READ');
       expect(result).toBe(false);
     });
   });
 
   describe('getAsset', () => {
     it('should return asset if found', async () => {
-      jest
-        .spyOn(prisma.asset, 'findUnique')
-        .mockResolvedValue(mockAsset as any);
+      jest.spyOn(prisma.asset, 'findUnique').mockResolvedValue(mockAsset);
       const result = await service.getAsset('asset-1');
       expect(result.id).toBe('asset-1');
       expect(result.url).toContain('https://cdn.example.com');
@@ -154,9 +148,7 @@ describe('AssetsService', () => {
         access_type: asset_access_type.TEMP,
         id: 'old-1',
       };
-      jest
-        .spyOn(prisma.asset, 'findMany')
-        .mockResolvedValue([oldTempAsset as any]);
+      jest.spyOn(prisma.asset, 'findMany').mockResolvedValue([oldTempAsset]);
       const updateSpy = jest
         .spyOn(prisma.asset, 'update')
         .mockResolvedValue({} as any);

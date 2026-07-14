@@ -138,10 +138,7 @@ export class SuppliersController {
 
   @Get('/excel/export/:storeId')
   @ApiSuccess('Tải danh sách danh mục thành công!')
-  async export(
-    @Res() res: Response,
-    @Param('storeId') storeId: string,
-  ) {
+  async export(@Res() res: Response, @Param('storeId') storeId: string) {
     const buffer = await this.excelSupplier.exportSupplierExcel(storeId);
     res.setHeader('Content-Disposition', 'attachment; filename=supplier.xlsx');
     res.setHeader(

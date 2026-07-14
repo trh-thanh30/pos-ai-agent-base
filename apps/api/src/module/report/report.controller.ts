@@ -363,10 +363,7 @@ export class ReportController {
   // excel
   @Get('/excel/suppliers')
   @RequirePermission([PERMISSIONS.REPORT_READ])
-  async exportExcelSuppliers(
-    @Res() res: Response,
-    @User() user: IUser,
-  ) {
+  async exportExcelSuppliers(@Res() res: Response, @User() user: IUser) {
     const buffer = await this.excel.exportReportSuppliers(user.storeId || '');
     res.setHeader('Content-Disposition', 'attachment; filename=orders.xlsx');
     res.setHeader(
@@ -378,10 +375,7 @@ export class ReportController {
 
   @Get('/excel/customers')
   @RequirePermission([PERMISSIONS.REPORT_READ])
-  async exportExcelCustomers(
-    @Res() res: Response,
-    @User() user: IUser,
-  ) {
+  async exportExcelCustomers(@Res() res: Response, @User() user: IUser) {
     const buffer = await this.excel.exportReportCustomers(user.storeId || '');
     res.setHeader('Content-Disposition', 'attachment; filename=orders.xlsx');
     res.setHeader(
@@ -393,10 +387,7 @@ export class ReportController {
 
   @Get('/excel/order-items')
   @RequirePermission([PERMISSIONS.REPORT_READ])
-  async exportExcelOrderItems(
-    @Res() res: Response,
-    @User() user: IUser,
-  ) {
+  async exportExcelOrderItems(@Res() res: Response, @User() user: IUser) {
     const buffer = await this.excel.exportReportOrderItems(user.storeId || '');
     res.setHeader(
       'Content-Disposition',
@@ -411,10 +402,7 @@ export class ReportController {
 
   @Get('/excel/store-members')
   @RequirePermission([PERMISSIONS.REPORT_READ])
-  async exportExcelStoreMembers(
-    @Res() res: Response,
-    @User() user: IUser,
-  ) {
+  async exportExcelStoreMembers(@Res() res: Response, @User() user: IUser) {
     const buffer = await this.excel.exportReportStoreMembers(
       user.storeId || '',
     );
@@ -444,10 +432,7 @@ export class ReportController {
   }
 
   @Get('/excel/stock-ledger')
-  async exportExcelStockLedger(
-    @Res() res: Response,
-    @User() user: IUser,
-  ) {
+  async exportExcelStockLedger(@Res() res: Response, @User() user: IUser) {
     const buffer = await this.excel.exportReportStockLedger(user.storeId || '');
     res.setHeader(
       'Content-Disposition',
@@ -461,10 +446,7 @@ export class ReportController {
   }
 
   @Get('/excel/purchase-returns')
-  async exportExcelPurchaseReturns(
-    @Res() res: Response,
-    @User() user: IUser,
-  ) {
+  async exportExcelPurchaseReturns(@Res() res: Response, @User() user: IUser) {
     const buffer = await this.excel.exportReportPurchaseReturns(
       user.storeId || '',
     );
@@ -480,10 +462,7 @@ export class ReportController {
   }
 
   @Get('/excel/purchase-invoices')
-  async exportExcelPurchaseInvoices(
-    @Res() res: Response,
-    @User() user: IUser,
-  ) {
+  async exportExcelPurchaseInvoices(@Res() res: Response, @User() user: IUser) {
     const buffer = await this.excel.exportReportPurchaseInvoices(
       user.storeId || '',
     );
@@ -499,10 +478,7 @@ export class ReportController {
   }
 
   @Get('/excel/order-returns')
-  async exportExcelOrderReturns(
-    @Res() res: Response,
-    @User() user: IUser,
-  ) {
+  async exportExcelOrderReturns(@Res() res: Response, @User() user: IUser) {
     const buffer = await this.excel.exportReportOrderReturns(
       user.storeId || '',
     );

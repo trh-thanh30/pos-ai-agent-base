@@ -59,14 +59,16 @@ export class OauthController {
         secure: this.configCookie.secure,
       });
 
-      res.cookie('provider_id', result.user.provider_id, {
-        httpOnly: this.configCookie.httpOnly,
-        sameSite: this.configCookie.sameSite,
-        path: '/',
-        domain: this.configCookie.domain || undefined,
-        maxAge: this.configCookie.maxAge,
-        secure: this.configCookie.secure,
-      });
+      if (result.user.provider_id) {
+        res.cookie('provider_id', result.user.provider_id, {
+          httpOnly: this.configCookie.httpOnly,
+          sameSite: this.configCookie.sameSite,
+          path: '/',
+          domain: this.configCookie.domain || undefined,
+          maxAge: this.configCookie.maxAge,
+          secure: this.configCookie.secure,
+        });
+      }
 
       const redirectUrl = `${this.configApi.fe_url}/oauth?hasStore=${result.hasStore}`;
       return res.redirect(redirectUrl);

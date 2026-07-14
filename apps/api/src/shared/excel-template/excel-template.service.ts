@@ -195,10 +195,7 @@ export class ExcelTemplateService {
         if (!parsed.success) {
           errors.push({
             row: rowNumber,
-            errors: parsed.error.flatten().fieldErrors as Record<
-              string,
-              string[]
-            >,
+            errors: parsed.error.flatten().fieldErrors,
           });
         } else {
           validRows.push(parsed.data as T);

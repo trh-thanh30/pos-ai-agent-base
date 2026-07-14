@@ -30,7 +30,10 @@ const expandEnv = (str: string): string => {
   let iterations = 0;
   // Limit iterations to prevent infinite loop on circular references
   while (expanded.includes('${') && iterations < 10) {
-    const next = expanded.replace(/\${([^}]+)}/g, (_, name) => process.env[name] || '');
+    const next = expanded.replace(
+      /\${([^}]+)}/g,
+      (_, name) => process.env[name] || '',
+    );
     if (next === expanded) break;
     expanded = next;
     iterations++;
