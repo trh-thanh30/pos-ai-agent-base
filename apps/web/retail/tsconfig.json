@@ -6,9 +6,12 @@
       "@retail/*": [
         "./src/*"
       ],
+      "@main/*": [
+        "../main/src/*"
+      ],
       "@repo/design-system/*": [
         "../../../packages/design-system/src/*"
-      ],
+      ]
     },
     "plugins": [
       {

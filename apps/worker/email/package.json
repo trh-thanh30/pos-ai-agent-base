@@ -34,6 +34,7 @@
     "@repo/typescript-config": "workspace:*",
     "eslint": "^8.57.0",
     "rimraf": "^5.0.7",
+    "tsc-alias": "^1.8.10",
     "tsup": "^8.1.0",
     "typescript": "^5.4.5"
   },

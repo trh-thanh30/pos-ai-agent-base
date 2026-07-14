@@ -202,7 +202,7 @@ export function InventoryManageView() {
       </DashboardViewLayout>
       {selectedVariant && selectedVariant.id && selectedVariant?.product?.id && (
         <FormVariant
-          isEdit={true || isOpenModalVariant}
+          isEdit={isOpenModalVariant}
           opened={isOpenModalVariant}
           onClose={() => setIsOpenModalVariant(false)}
           variantId={selectedVariant?.id || ''}

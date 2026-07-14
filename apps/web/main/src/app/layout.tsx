@@ -1,13 +1,7 @@
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { MantineProvider, ThemeProvider } from '@repo/design-system/providers';
 import { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
 import './global.css';
-
-const fontSans = Inter({
-  variable: '--font-sans',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'EraPOS - Phần mềm quản lý bán hàng',
@@ -58,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className="h-full overscroll-contain scroll-smooth">
-      <body className={`${fontSans.className} min-h-dvh font-sans antialiased`}>
+      <body className="min-h-dvh font-sans antialiased">
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
         <MantineProvider>
           <ThemeProvider

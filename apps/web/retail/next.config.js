@@ -7,7 +7,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  transpilePackages: ['@repo/design-system'],
+  transpilePackages: ['@repo/design-system', '@pos/web-main'],
+  experimental: {
+    externalDir: true,
+  },
   images: {
     remotePatterns: [
       {

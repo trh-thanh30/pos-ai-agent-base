@@ -86,7 +86,7 @@ export function FormAcceptPayment({
                   <div className="flex flex-col gap-1">
                     <NumberInput
                       {...field}
-                      value={field.value ?? Number(orderReturn?.suggest_total) ?? 0}
+                      value={field.value ?? Number(orderReturn?.suggest_total || 0)}
                       onChange={(value) => field.onChange(Number(value) || 0)}
                       min={0}
                       max={Number(orderReturn?.suggest_total)}

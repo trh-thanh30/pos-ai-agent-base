@@ -224,10 +224,7 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
                   blurDataURL={
                     store.store_payment[0].bank_qr_image_url || '/qr_code_placholder.svg'
                   }
-                  src={
-                    `${store.store_payment[0].bank_qr_image_url}&amount=${order?.customer_pay_amount}` ||
-                    ''
-                  }
+                  src={`${store.store_payment[0].bank_qr_image_url}&amount=${order?.customer_pay_amount}`}
                   className="object-cover"
                   alt="qr_code"
                   width={240}
