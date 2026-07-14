@@ -8,8 +8,8 @@ export const statusLabels: Record<TelegramStatus, string> = {
 };
 
 export const statusSymbols: Record<TelegramStatus, string> = {
-  success: 'SUCCESS',
-  failed: 'FAILED',
-  running: 'RUNNING',
-  cancelled: 'CANCELLED',
+  success: '✅',
+  failed: '❌',
+  running: '🔄',
+  cancelled: '⏹',
 };
