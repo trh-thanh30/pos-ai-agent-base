@@ -10,6 +10,18 @@ export default registerAs('storage', () => ({
   publicDirName: process.env.STORAGE_PUBLIC_DIR_NAME ?? 'public',
   privateDirName: process.env.STORAGE_PRIVATE_DIR_NAME ?? 'private',
   tempDirName: process.env.STORAGE_TEMP_DIR_NAME ?? 'temp',
+  minio: {
+    endpoint: process.env.MINIO_ENDPOINT ?? 'localhost',
+    port: parseInt(process.env.MINIO_PORT ?? '9000', 10),
+    useSSL: process.env.MINIO_USE_SSL === 'true',
+    accessKey: process.env.MINIO_ACCESS_KEY ?? 'minioadmin',
+    secretKey: process.env.MINIO_SECRET_KEY ?? 'minioadmin',
+    buckets: {
+      public: process.env.MINIO_BUCKET_PUBLIC ?? 'pos-system-public',
+      private: process.env.MINIO_BUCKET_PRIVATE ?? 'pos-system-private',
+      temp: process.env.MINIO_BUCKET_TEMP ?? 'pos-system-temp',
+    },
+  },
   cdnUrl: (process.env.ASSET_CDN_URL ?? 'http://localhost:3000/cdn').replace(
     /\/$/,
     '',

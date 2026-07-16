@@ -1,16 +1,12 @@
 import { NotFoundException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import { Asset, asset_access_type, user_role } from '@prisma/client';
 import { IUser } from 'app/common/types/user.type';
-import { storageConfig } from 'app/config';
-import { PrismaService } from 'app/prisma/prisma.service';
 import { AssetsService } from './assets.service';
-import { FileValidatorService } from './services/file-validator.service';
+import { AssetPermissionPolicy } from './policies/asset-permission.policy';
+import { CleanupTempAssetsUseCase } from './use-cases/cleanup-temp-assets.use-case';
 
-describe('AssetsService', () => {
-  let service: AssetsService;
-  let prisma: PrismaService;
-  let storage: any;
+describe('AssetPermissionPolicy', () => {
+  const policy = new AssetPermissionPolicy();
 
   const mockUser: IUser = {
     id: 'user-1',
@@ -22,12 +18,9 @@ describe('AssetsService', () => {
   };
 
   const mockAdmin: IUser = {
+    ...mockUser,
     id: 'admin-1',
-    email: 'admin@example.com',
-    username: 'adminuser',
     role: user_role.ADMIN,
-    status: 'ACTIVE',
-    storeId: 'store-1',
   };
 
   const mockAsset: Asset = {
@@ -48,118 +41,143 @@ describe('AssetsService', () => {
     updated_at: new Date(),
   };
 
-  beforeEach(async () => {
-    storage = {
-      save: jest.fn(),
-      delete: jest.fn(),
-      getStream: jest.fn(),
+  it('allows admin to do anything', () => {
+    expect(policy.can(mockAsset, mockAdmin, 'DELETE')).toBe(true);
+  });
+
+  it('allows owner to do anything', () => {
+    expect(policy.can(mockAsset, mockUser, 'DELETE')).toBe(true);
+  });
+
+  it('allows anyone to read public assets', () => {
+    const otherUser: IUser = { ...mockUser, id: 'user-2' };
+    expect(policy.can(mockAsset, otherUser, 'READ')).toBe(true);
+  });
+
+  it('does not allow other users to delete assets', () => {
+    const otherUser: IUser = { ...mockUser, id: 'user-2' };
+    expect(policy.can(mockAsset, otherUser, 'DELETE')).toBe(false);
+  });
+
+  it('does not allow other users to read private assets', () => {
+    const privateAsset = {
+      ...mockAsset,
+      access_type: asset_access_type.PRIVATE,
     };
+    const otherUser: IUser = { ...mockUser, id: 'user-2' };
+    expect(policy.can(privateAsset, otherUser, 'READ')).toBe(false);
+  });
+});
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AssetsService,
-        {
-          provide: PrismaService,
-          useValue: {
-            asset: {
-              findUnique: jest.fn(),
-              create: jest.fn(),
-              update: jest.fn(),
-              findMany: jest.fn(),
-              count: jest.fn(),
-            },
-          },
-        },
-        {
-          provide: 'IStorageService',
-          useValue: storage,
-        },
-        {
-          provide: FileValidatorService,
-          useValue: {
-            validateFile: jest.fn(),
-          },
-        },
-        {
-          provide: storageConfig.KEY,
-          useValue: {
-            cdnUrl: 'https://cdn.example.com',
-          },
-        },
-      ],
-    }).compile();
+describe('AssetsService', () => {
+  const mockUser = {
+    id: 'user-1',
+    storeId: 'store-1',
+  } as IUser;
 
-    service = module.get<AssetsService>(AssetsService);
-    prisma = module.get<PrismaService>(PrismaService);
+  const createService = () => {
+    const uploadAssetUseCase = { execute: jest.fn() };
+    const getAssetDetailUseCase = { execute: jest.fn() };
+    const listAssetsUseCase = { execute: jest.fn() };
+    const deleteAssetUseCase = { execute: jest.fn() };
+    const streamPrivateAssetUseCase = { execute: jest.fn() };
+    const cleanupTempAssetsUseCase = { execute: jest.fn() };
+    const listEntityAssetsUseCase = { execute: jest.fn() };
+    const linkAssetToEntityUseCase = { execute: jest.fn() };
+    const assetPermissionPolicy = new AssetPermissionPolicy();
+
+    const service = new AssetsService(
+      uploadAssetUseCase as never,
+      getAssetDetailUseCase as never,
+      listAssetsUseCase as never,
+      deleteAssetUseCase as never,
+      streamPrivateAssetUseCase as never,
+      cleanupTempAssetsUseCase as never,
+      listEntityAssetsUseCase as never,
+      linkAssetToEntityUseCase as never,
+      assetPermissionPolicy,
+    );
+
+    return {
+      service,
+      getAssetDetailUseCase,
+      cleanupTempAssetsUseCase,
+    };
+  };
+
+  it('delegates getAsset to GetAssetDetailUseCase', async () => {
+    const { service, getAssetDetailUseCase } = createService();
+    getAssetDetailUseCase.execute.mockResolvedValue({ id: 'asset-1' });
+
+    await expect(service.getAsset('asset-1')).resolves.toEqual({
+      id: 'asset-1',
+    });
+    expect(getAssetDetailUseCase.execute).toHaveBeenCalledWith('asset-1');
   });
 
-  describe('checkPermission', () => {
-    it('should allow Admin to do anything', () => {
-      const result = service.checkPermission(mockAsset, mockAdmin, 'DELETE');
-      expect(result).toBe(true);
-    });
+  it('delegates not found errors from GetAssetDetailUseCase', async () => {
+    const { service, getAssetDetailUseCase } = createService();
+    getAssetDetailUseCase.execute.mockRejectedValue(
+      new NotFoundException('Asset not found'),
+    );
 
-    it('should allow Owner to do anything', () => {
-      const result = service.checkPermission(mockAsset, mockUser, 'DELETE');
-      expect(result).toBe(true);
-    });
-
-    it('should allow anyone to READ public assets', () => {
-      const otherUser: IUser = { ...mockUser, id: 'user-2' };
-      const result = service.checkPermission(mockAsset, otherUser, 'READ');
-      expect(result).toBe(true);
-    });
-
-    it('should NOT allow other users to DELETE assets', () => {
-      const otherUser: IUser = { ...mockUser, id: 'user-2' };
-      const result = service.checkPermission(mockAsset, otherUser, 'DELETE');
-      expect(result).toBe(false);
-    });
-
-    it('should NOT allow other users to READ private assets', () => {
-      const privateAsset = {
-        ...mockAsset,
-        access_type: asset_access_type.PRIVATE,
-      };
-      const otherUser: IUser = { ...mockUser, id: 'user-2' };
-      const result = service.checkPermission(privateAsset, otherUser, 'READ');
-      expect(result).toBe(false);
-    });
+    await expect(service.getAsset('none')).rejects.toThrow(NotFoundException);
   });
 
-  describe('getAsset', () => {
-    it('should return asset if found', async () => {
-      jest.spyOn(prisma.asset, 'findUnique').mockResolvedValue(mockAsset);
-      const result = await service.getAsset('asset-1');
-      expect(result.id).toBe('asset-1');
-      expect(result.url).toContain('https://cdn.example.com');
-    });
+  it('delegates cleanupTempAssets to CleanupTempAssetsUseCase', async () => {
+    const { service, cleanupTempAssetsUseCase } = createService();
+    cleanupTempAssetsUseCase.execute.mockResolvedValue(undefined);
 
-    it('should throw NotFoundException if not found', async () => {
-      jest.spyOn(prisma.asset, 'findUnique').mockResolvedValue(null);
-      await expect(service.getAsset('none')).rejects.toThrow(NotFoundException);
-    });
+    await service.cleanupTempAssets();
+
+    expect(cleanupTempAssetsUseCase.execute).toHaveBeenCalledWith();
   });
 
-  describe('cleanupTempAssets', () => {
-    it('should delete temp assets older than 24h', async () => {
-      const oldTempAsset = {
-        ...mockAsset,
-        access_type: asset_access_type.TEMP,
-        id: 'old-1',
-      };
-      jest.spyOn(prisma.asset, 'findMany').mockResolvedValue([oldTempAsset]);
-      const updateSpy = jest
-        .spyOn(prisma.asset, 'update')
-        .mockResolvedValue({} as any);
+  it('delegates linkAssetToEntity to LinkAssetToEntityUseCase', async () => {
+    const { service } = createService();
+    const linkAssetToEntityUseCase = (
+      service as unknown as {
+        linkAssetToEntityUseCase: { execute: jest.Mock };
+      }
+    ).linkAssetToEntityUseCase;
+    linkAssetToEntityUseCase.execute.mockResolvedValue({ id: 'link-1' });
 
-      await service.cleanupTempAssets();
-
-      expect(storage.delete).toHaveBeenCalledWith(oldTempAsset.path);
-      expect(updateSpy).toHaveBeenCalledWith({
-        where: { id: 'old-1' },
-        data: { is_deleted: true },
-      });
+    await service.linkAssetToEntity(mockUser, {
+      assetId: 'asset-1',
+      entityId: 'entity-1',
+      entityType: 'product',
     });
+
+    expect(linkAssetToEntityUseCase.execute).toHaveBeenCalledWith(mockUser, {
+      assetId: 'asset-1',
+      entityId: 'entity-1',
+      entityType: 'product',
+    });
+  });
+});
+
+describe('CleanupTempAssetsUseCase', () => {
+  it('deletes temp assets older than 24h', async () => {
+    const oldTempAsset = {
+      id: 'old-1',
+      filename: 'old.png',
+      path: 'temp/old.png',
+    };
+    const assetsRepository = {
+      findExpiredTempAssets: jest.fn().mockResolvedValue([oldTempAsset]),
+      markDeleted: jest.fn().mockResolvedValue(undefined),
+    };
+    const storage = {
+      delete: jest.fn().mockResolvedValue(undefined),
+    };
+    const useCase = new CleanupTempAssetsUseCase(
+      assetsRepository as never,
+      storage as never,
+    );
+
+    await useCase.execute();
+
+    expect(storage.delete).toHaveBeenCalledWith(oldTempAsset.path);
+    expect(assetsRepository.markDeleted).toHaveBeenCalledWith(oldTempAsset.id);
   });
 });

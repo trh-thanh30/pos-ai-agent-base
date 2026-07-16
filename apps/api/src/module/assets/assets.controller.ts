@@ -2,6 +2,7 @@ import {
   Controller,
   Delete,
   Get,
+  Body,
   Param,
   ParseUUIDPipe,
   Post,
@@ -19,13 +20,28 @@ import { ListAssetsDto } from 'app/module/assets/dto/list-assets.dto';
 import { JwtAuthGuard } from 'app/module/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'app/module/auth/guards/roles.guard';
 import { type Response } from 'express';
-import { AssetsService } from './assets.service';
+import { LinkAssetDto } from './dto/link-asset.dto';
 import { UploadAssetDto } from './dto/upload-asset.dto';
+import { DeleteAssetUseCase } from './use-cases/delete-asset.use-case';
+import { GetAssetDetailUseCase } from './use-cases/get-asset-detail.use-case';
+import { LinkAssetToEntityUseCase } from './use-cases/link-asset-to-entity.use-case';
+import { ListAssetsUseCase } from './use-cases/list-assets.use-case';
+import { ListEntityAssetsUseCase } from './use-cases/list-entity-assets.use-case';
+import { StreamPrivateAssetUseCase } from './use-cases/stream-private-asset.use-case';
+import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
 
 @Controller('assets')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AssetsController {
-  constructor(private readonly assetsService: AssetsService) {}
+  constructor(
+    private readonly uploadAssetUseCase: UploadAssetUseCase,
+    private readonly getAssetDetailUseCase: GetAssetDetailUseCase,
+    private readonly listAssetsUseCase: ListAssetsUseCase,
+    private readonly deleteAssetUseCase: DeleteAssetUseCase,
+    private readonly streamPrivateAssetUseCase: StreamPrivateAssetUseCase,
+    private readonly linkAssetToEntityUseCase: LinkAssetToEntityUseCase,
+    private readonly listEntityAssetsUseCase: ListEntityAssetsUseCase,
+  ) {}
 
   /**
    * Upload a file
@@ -37,7 +53,7 @@ export class AssetsController {
     @UploadedFile() file: Express.Multer.File,
     @Query() dto: UploadAssetDto,
   ) {
-    return this.assetsService.uploadFile(user, file, dto);
+    return this.uploadAssetUseCase.execute(user, file, dto);
   }
 
   /**
@@ -45,7 +61,7 @@ export class AssetsController {
    */
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.assetsService.getAsset(id);
+    return this.getAssetDetailUseCase.execute(id);
   }
 
   /**
@@ -54,7 +70,33 @@ export class AssetsController {
   @Get()
   @Roles(['ADMIN'])
   async findAll(@Query() dto: ListAssetsDto) {
-    return this.assetsService.listAssets(dto);
+    return this.listAssetsUseCase.execute(dto);
+  }
+
+  @Get('entities/:entityType/:entityId')
+  async findByEntity(
+    @User() user: IUser,
+    @Param('entityType') entityType: string,
+    @Param('entityId', ParseUUIDPipe) entityId: string,
+  ) {
+    return this.listEntityAssetsUseCase.execute({
+      storeId: user.storeId || '',
+      entityType,
+      entityId,
+    });
+  }
+
+  @Post(':id/link')
+  async linkToEntity(
+    @User() user: IUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: LinkAssetDto,
+  ) {
+    return this.linkAssetToEntityUseCase.execute(user, {
+      assetId: id,
+      entityId: dto.entityId,
+      entityType: dto.entityType,
+    });
   }
 
   /**
@@ -62,7 +104,7 @@ export class AssetsController {
    */
   @Delete(':id')
   async remove(@User() user: IUser, @Param('id', ParseUUIDPipe) id: string) {
-    return this.assetsService.deleteAsset(id, user);
+    return this.deleteAssetUseCase.execute(id, user);
   }
 
   /**
@@ -74,7 +116,7 @@ export class AssetsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Res() res: Response,
   ) {
-    const { stream, asset } = await this.assetsService.getDownloadStream(
+    const { stream, asset } = await this.streamPrivateAssetUseCase.execute(
       id,
       user,
     );

@@ -33,11 +33,17 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { ImportExcelProductDto } from './dto/import-product-by-excel.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductService } from './product.service';
+import { DeleteProductUseCase } from './use-cases/delete-product.use-case';
+import { FilterProductsUseCase } from './use-cases/filter-products.use-case';
+import { GetProductDetailUseCase } from './use-cases/get-product-detail.use-case';
 @Controller('products')
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
     private readonly excel: ProductExcelService,
+    private readonly filterProductsUseCase: FilterProductsUseCase,
+    private readonly getProductDetailUseCase: GetProductDetailUseCase,
+    private readonly deleteProductUseCase: DeleteProductUseCase,
   ) {}
 
   @Get('filter-product')
@@ -72,7 +78,7 @@ export class ProductController {
     query: FilterParseResult<any>,
     @User() user: IUser,
   ) {
-    const { data, total } = await this.productService.filterProducts(
+    const { data, total } = await this.filterProductsUseCase.execute(
       user.storeId || '',
       query.prismaQuery,
     );
@@ -100,7 +106,7 @@ export class ProductController {
   @ApiSuccess('Lấy chi tiết sản phẩm!')
   @RequirePermissions([PERMISSIONS.PRODUCT_READ, PERMISSIONS.PRODUCT_ALL])
   findOne(@User() user: IUser, @Param('id') id: string) {
-    return this.productService.findOne(user.storeId || '', id);
+    return this.getProductDetailUseCase.execute(user.storeId || '', id);
   }
 
   @Patch(':id')
@@ -126,7 +132,7 @@ export class ProductController {
   @RequirePermissions([PERMISSIONS.PRODUCT_DELETE])
   @ApiSuccess('Xóa sản phẩm thành công!')
   remove(@User() user: IUser, @Param('id') id: string) {
-    return this.productService.remove(user.storeId || '', id);
+    return this.deleteProductUseCase.execute(user.storeId || '', id);
   }
 
   // Excel

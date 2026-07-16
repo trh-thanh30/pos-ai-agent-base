@@ -104,6 +104,11 @@ services:
       MINIO_USE_SSL: "false"
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET_PUBLIC: ${MINIO_BUCKET_PUBLIC:-pos-system-public}
+      MINIO_BUCKET_PRIVATE: ${MINIO_BUCKET_PRIVATE:-pos-system-private}
+      MINIO_BUCKET_TEMP: ${MINIO_BUCKET_TEMP:-pos-system-temp}
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-minio}
+      ASSET_CDN_URL: ${ASSET_CDN_URL:-http://localhost:19000/pos-system-public}
       HEALTH_ENDPOINTS_ENABLED: "true"
       TZ: ${TZ:-Asia/Ho_Chi_Minh}
     ports:

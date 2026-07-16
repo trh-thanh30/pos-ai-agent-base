@@ -7,17 +7,25 @@ import { AssetsModule } from '../assets/assets.module';
 import { StockMovementModule } from '../stock-movement/stock-movement.module';
 import { GenerateVariantSkuUseCase } from '../variant/use-case/genereate-sku-variant.usecase';
 import { ProductController } from './product.controller';
+import { ProductRepository } from './repository/product.repository';
 import { ProductService } from './product.service';
 import { GenerateProductSkuUseCase } from './use-case/generate-sku.usecase';
+import { DeleteProductUseCase } from './use-cases/delete-product.use-case';
+import { FilterProductsUseCase } from './use-cases/filter-products.use-case';
+import { GetProductDetailUseCase } from './use-cases/get-product-detail.use-case';
 
 @Module({
   controllers: [ProductController],
   imports: [StockMovementModule, AssetsModule],
   providers: [
     ProductService,
+    ProductRepository,
     PermissionService,
     GenerateProductSkuUseCase,
     GenerateVariantSkuUseCase,
+    FilterProductsUseCase,
+    GetProductDetailUseCase,
+    DeleteProductUseCase,
     ProductExcelService,
     ExcelTemplateService,
     Format,

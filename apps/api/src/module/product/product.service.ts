@@ -10,21 +10,11 @@ import { IUser } from 'app/common/types/user.type';
 import { AssetsService } from '../assets/assets.service';
 import { StockMovementService } from '../stock-movement/stock-movement.service';
 import { GenerateVariantSkuUseCase } from '../variant/use-case/genereate-sku-variant.usecase';
+import { PRODUCT_ERROR_MESSAGES } from './product.errors';
 
 @Injectable()
 export class ProductService {
-  private readonly errorMessages = {
-    // Product Management
-    PRODUCT_NOT_FOUND: 'Không tìm thấy sản phẩm!',
-    PRODUCT_SKU_EXISTS:
-      'Mã sản phẩm đã tồn tại trong cửa hàng. Vui lòng thử lập mã khác!',
-    BARCODE_ALREADY_EXISTS:
-      'Mã vạch (barcode) của thuộc tính đã tồn tại ở sản phẩm khác',
-    // File
-    FILE_NOT_FOUND: 'File not found',
-    FILE_EMPTY: 'File is empty',
-    FILE_TOO_LARGE: 'File size is too large, maximum allowed is 500 rows',
-  };
+  private readonly errorMessages = PRODUCT_ERROR_MESSAGES;
 
   constructor(
     private readonly prisma: PrismaService,

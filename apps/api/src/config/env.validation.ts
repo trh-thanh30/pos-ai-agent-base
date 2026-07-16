@@ -61,11 +61,22 @@ export const envSchema = z.object({
   ALLOWED_MIME_TYPES: z.string().optional(),
 
   // --- STORAGE CONFIGURATION ---
-  STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
+  STORAGE_DRIVER: z.enum(['local', 's3', 'minio']).default('local'),
   STORAGE_ROOT_DIR: z.string().default('/app/storage'),
   STORAGE_PUBLIC_DIR_NAME: z.string().default('public'),
   STORAGE_PRIVATE_DIR_NAME: z.string().default('private'),
   STORAGE_TEMP_DIR_NAME: z.string().default('temp'),
+  MINIO_ENDPOINT: z.string().default('localhost'),
+  MINIO_PORT: z.coerce.number().int().min(1).max(65535).default(9000),
+  MINIO_USE_SSL: z
+    .string()
+    .transform((val) => val === 'true')
+    .default(false),
+  MINIO_ACCESS_KEY: z.string().default('minioadmin'),
+  MINIO_SECRET_KEY: z.string().default('minioadmin'),
+  MINIO_BUCKET_PUBLIC: z.string().default('pos-system-public'),
+  MINIO_BUCKET_PRIVATE: z.string().default('pos-system-private'),
+  MINIO_BUCKET_TEMP: z.string().default('pos-system-temp'),
 
   // --- CDN / PUBLIC ACCESS ---
   ASSET_CDN_URL: z.string().url().default('https://cdn.example.com'),
