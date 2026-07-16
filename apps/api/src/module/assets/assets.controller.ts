@@ -4,8 +4,10 @@ import {
   Get,
   Body,
   Param,
+  ParseEnumPipe,
   ParseUUIDPipe,
   Post,
+  Put,
   Query,
   Res,
   UploadedFile,
@@ -21,13 +23,17 @@ import { JwtAuthGuard } from 'app/module/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'app/module/auth/guards/roles.guard';
 import { type Response } from 'express';
 import { LinkAssetDto } from './dto/link-asset.dto';
+import { ReplaceEntityAssetsDto } from './dto/replace-entity-assets.dto';
 import { UploadAssetDto } from './dto/upload-asset.dto';
+import { AssetEntityType } from './types/asset-entity.type';
 import { DeleteAssetUseCase } from './use-cases/delete-asset.use-case';
 import { GetAssetDetailUseCase } from './use-cases/get-asset-detail.use-case';
 import { LinkAssetToEntityUseCase } from './use-cases/link-asset-to-entity.use-case';
 import { ListAssetsUseCase } from './use-cases/list-assets.use-case';
 import { ListEntityAssetsUseCase } from './use-cases/list-entity-assets.use-case';
+import { ReplaceEntityAssetsUseCase } from './use-cases/replace-entity-assets.use-case';
 import { StreamPrivateAssetUseCase } from './use-cases/stream-private-asset.use-case';
+import { UnlinkAssetFromEntityUseCase } from './use-cases/unlink-asset-from-entity.use-case';
 import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
 
 @Controller('assets')
@@ -41,6 +47,8 @@ export class AssetsController {
     private readonly streamPrivateAssetUseCase: StreamPrivateAssetUseCase,
     private readonly linkAssetToEntityUseCase: LinkAssetToEntityUseCase,
     private readonly listEntityAssetsUseCase: ListEntityAssetsUseCase,
+    private readonly unlinkAssetFromEntityUseCase: UnlinkAssetFromEntityUseCase,
+    private readonly replaceEntityAssetsUseCase: ReplaceEntityAssetsUseCase,
   ) {}
 
   /**
@@ -76,7 +84,8 @@ export class AssetsController {
   @Get('entities/:entityType/:entityId')
   async findByEntity(
     @User() user: IUser,
-    @Param('entityType') entityType: string,
+    @Param('entityType', new ParseEnumPipe(AssetEntityType))
+    entityType: AssetEntityType,
     @Param('entityId', ParseUUIDPipe) entityId: string,
   ) {
     return this.listEntityAssetsUseCase.execute({
@@ -96,6 +105,34 @@ export class AssetsController {
       assetId: id,
       entityId: dto.entityId,
       entityType: dto.entityType,
+    });
+  }
+
+  @Delete(':id/link')
+  async unlinkFromEntity(
+    @User() user: IUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: LinkAssetDto,
+  ) {
+    return this.unlinkAssetFromEntityUseCase.execute(user, {
+      assetId: id,
+      entityId: dto.entityId,
+      entityType: dto.entityType,
+    });
+  }
+
+  @Put('entities/:entityType/:entityId')
+  async replaceEntityAssets(
+    @User() user: IUser,
+    @Param('entityType', new ParseEnumPipe(AssetEntityType))
+    entityType: AssetEntityType,
+    @Param('entityId', ParseUUIDPipe) entityId: string,
+    @Body() dto: ReplaceEntityAssetsDto,
+  ) {
+    return this.replaceEntityAssetsUseCase.execute(user, {
+      entityType,
+      entityId,
+      assetIds: dto.assetIds,
     });
   }
 

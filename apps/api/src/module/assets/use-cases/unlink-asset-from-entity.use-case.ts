@@ -9,7 +9,7 @@ import { AssetsRepository } from '../repository/assets.repository';
 import { AssetEntityType } from '../types/asset-entity.type';
 
 @Injectable()
-export class LinkAssetToEntityUseCase {
+export class UnlinkAssetFromEntityUseCase {
   constructor(
     private readonly assetsRepository: AssetsRepository,
     private readonly assetLinksRepository: AssetLinksRepository,
@@ -35,11 +35,15 @@ export class LinkAssetToEntityUseCase {
       throw new ForbiddenException('Asset belongs to another store');
     }
 
-    return this.assetLinksRepository.link({
+    const result = await this.assetLinksRepository.unlink({
       storeId: user.storeId,
       assetId: input.assetId,
       entityId: input.entityId,
       entityType: input.entityType,
     });
+
+    if (result.count === 0) {
+      throw new NotFoundException('Asset link not found');
+    }
   }
 }

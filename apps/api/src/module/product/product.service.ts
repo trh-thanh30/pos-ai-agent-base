@@ -4,10 +4,11 @@ import { BadRequestError } from 'app/common/response';
 import { PrismaService } from 'app/prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { GenerateProductSkuUseCase } from './use-case/generate-sku.usecase';
+import { GenerateProductSkuUseCase } from './use-cases/generate-product-sku.use-case';
 
 import { IUser } from 'app/common/types/user.type';
 import { AssetsService } from '../assets/assets.service';
+import { AssetEntityType } from '../assets/types/asset-entity.type';
 import { StockMovementService } from '../stock-movement/stock-movement.service';
 import { GenerateVariantSkuUseCase } from '../variant/use-case/genereate-sku-variant.usecase';
 import { PRODUCT_ERROR_MESSAGES } from './product.errors';
@@ -66,7 +67,7 @@ export class ProductService {
       if (file) {
         const asset = await this.assetsService.uploadFile(user, file, {
           entityId: newProduct.id,
-          entityType: 'product',
+          entityType: AssetEntityType.PRODUCT,
           folder: 'products',
         });
         imageUrl = asset.url;
@@ -203,7 +204,7 @@ export class ProductService {
     if (file) {
       const asset = await this.assetsService.uploadFile(user, file, {
         entityId: id,
-        entityType: 'product',
+        entityType: AssetEntityType.PRODUCT,
         folder: 'products',
       });
       imageUrl = asset.url;

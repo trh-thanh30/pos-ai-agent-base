@@ -3,13 +3,13 @@ import { asset_access_type } from '@prisma/client';
 import { type IUser } from 'app/common/types/user.type';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { determineAssetType } from '../assets.types';
-import { AssetWithUrl } from '../dto/asset-response.dto';
 import { UploadAssetDto } from '../dto/upload-asset.dto';
 import { AssetsRepository } from '../repository/assets.repository';
 import { AssetUrlResolverService } from '../services/asset-url-resolver.service';
 import { FileValidatorService } from '../services/file-validator.service';
 import type { IStorageService } from '../services/storage.interface';
+import { AssetWithUrl } from '../types/asset-response.type';
+import { AssetTypeResolver } from '../utils/asset-type-resolver.util';
 
 @Injectable()
 export class UploadAssetUseCase {
@@ -18,6 +18,7 @@ export class UploadAssetUseCase {
     @Inject('IStorageService') private readonly storage: IStorageService,
     private readonly fileValidator: FileValidatorService,
     private readonly assetUrlResolver: AssetUrlResolverService,
+    private readonly assetTypeResolver: AssetTypeResolver,
   ) {}
 
   async execute(
@@ -59,7 +60,7 @@ export class UploadAssetUseCase {
       size,
       path: relativePath,
       access_type: accessType,
-      type: determineAssetType(file.mimetype),
+      type: this.assetTypeResolver.resolve(file.mimetype),
       uploaded_by: { connect: { id: user.id } },
       folder: dto.folder || null,
       metadata: {},

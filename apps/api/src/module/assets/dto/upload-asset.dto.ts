@@ -5,6 +5,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
+import { AssetEntityType } from '../types/asset-entity.type';
 
 export enum AssetAccessTypeDto {
   PUBLIC = 'PUBLIC',
@@ -23,9 +24,8 @@ export class UploadAssetDto {
   entityId?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  entityType?: string;
+  @IsEnum(AssetEntityType)
+  entityType?: AssetEntityType;
 
   @IsOptional()
   @IsEnum(AssetAccessTypeDto)

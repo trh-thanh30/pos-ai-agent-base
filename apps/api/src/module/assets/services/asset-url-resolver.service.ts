@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { Asset, asset_access_type } from '@prisma/client';
 import { storageConfig } from 'app/config';
-import { AssetWithUrl } from '../dto/asset-response.dto';
+import { AssetWithUrl } from '../types/asset-response.type';
 
 @Injectable()
 export class AssetUrlResolverService {

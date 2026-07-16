@@ -10,7 +10,7 @@ import {
 import { BadRequestError } from 'app/common/response';
 import { GenerateVariantSkuUseCase } from '../variant/use-case/genereate-sku-variant.usecase';
 import { ImportExcelProductDto } from './dto/import-product-by-excel.dto';
-import { GenerateProductSkuUseCase } from './use-case/generate-sku.usecase';
+import { GenerateProductSkuUseCase } from './use-cases/generate-product-sku.use-case';
 
 @Injectable()
 export class ProductExcelService {

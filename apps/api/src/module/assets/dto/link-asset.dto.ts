@@ -1,10 +1,10 @@
-import { IsString, IsUUID, MaxLength } from 'class-validator';
+import { IsEnum, IsUUID } from 'class-validator';
+import { AssetEntityType } from '../types/asset-entity.type';
 
 export class LinkAssetDto {
   @IsUUID()
   entityId: string;
 
-  @IsString()
-  @MaxLength(50)
-  entityType: string;
+  @IsEnum(AssetEntityType)
+  entityType: AssetEntityType;
 }

@@ -21,8 +21,11 @@ import { GetAssetDetailUseCase } from './use-cases/get-asset-detail.use-case';
 import { LinkAssetToEntityUseCase } from './use-cases/link-asset-to-entity.use-case';
 import { ListAssetsUseCase } from './use-cases/list-assets.use-case';
 import { ListEntityAssetsUseCase } from './use-cases/list-entity-assets.use-case';
+import { ReplaceEntityAssetsUseCase } from './use-cases/replace-entity-assets.use-case';
 import { StreamPrivateAssetUseCase } from './use-cases/stream-private-asset.use-case';
+import { UnlinkAssetFromEntityUseCase } from './use-cases/unlink-asset-from-entity.use-case';
 import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
+import { AssetTypeResolver } from './utils/asset-type-resolver.util';
 
 @Module({
   imports: [
@@ -40,6 +43,7 @@ import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
     AssetLinksRepository,
     AssetPermissionPolicy,
     AssetUrlResolverService,
+    AssetTypeResolver,
     FileValidatorService,
     UploadAssetUseCase,
     GetAssetDetailUseCase,
@@ -49,6 +53,8 @@ import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
     CleanupTempAssetsUseCase,
     ListEntityAssetsUseCase,
     LinkAssetToEntityUseCase,
+    UnlinkAssetFromEntityUseCase,
+    ReplaceEntityAssetsUseCase,
     {
       provide: 'IStorageService',
       useFactory: (config: ConfigType<typeof storageConfig>) => {
@@ -66,7 +72,9 @@ import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
     AssetLinksRepository,
     AssetsRepository,
     LinkAssetToEntityUseCase,
+    UnlinkAssetFromEntityUseCase,
     ListEntityAssetsUseCase,
+    ReplaceEntityAssetsUseCase,
   ],
 })
 export class AssetsModule {}

@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AssetLinksRepository } from '../repository/asset-links.repository';
 import { AssetUrlResolverService } from '../services/asset-url-resolver.service';
+import { AssetEntityType } from '../types/asset-entity.type';
 
 @Injectable()
 export class ListEntityAssetsUseCase {
@@ -12,7 +13,7 @@ export class ListEntityAssetsUseCase {
   async execute(input: {
     storeId: string;
     entityId: string;
-    entityType: string;
+    entityType: AssetEntityType;
   }) {
     if (!input.storeId) {
       throw new ForbiddenException('store_id is required');

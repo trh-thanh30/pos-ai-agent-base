@@ -5,16 +5,19 @@ import { type IUser } from 'app/common/types/user.type';
 import { Readable } from 'stream';
 import { AssetPermissionAction } from './policies/asset-permission.policy';
 import { AssetPermissionPolicy } from './policies/asset-permission.policy';
-import { AssetWithUrl } from './dto/asset-response.dto';
+import { AssetEntityType } from './types/asset-entity.type';
 import { ListAssetsDto } from './dto/list-assets.dto';
 import { UploadAssetDto } from './dto/upload-asset.dto';
+import { AssetWithUrl } from './types/asset-response.type';
 import { CleanupTempAssetsUseCase } from './use-cases/cleanup-temp-assets.use-case';
 import { DeleteAssetUseCase } from './use-cases/delete-asset.use-case';
 import { GetAssetDetailUseCase } from './use-cases/get-asset-detail.use-case';
 import { LinkAssetToEntityUseCase } from './use-cases/link-asset-to-entity.use-case';
 import { ListAssetsUseCase } from './use-cases/list-assets.use-case';
 import { ListEntityAssetsUseCase } from './use-cases/list-entity-assets.use-case';
+import { ReplaceEntityAssetsUseCase } from './use-cases/replace-entity-assets.use-case';
 import { StreamPrivateAssetUseCase } from './use-cases/stream-private-asset.use-case';
+import { UnlinkAssetFromEntityUseCase } from './use-cases/unlink-asset-from-entity.use-case';
 import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
 
 @Injectable()
@@ -28,6 +31,8 @@ export class AssetsService {
     private readonly cleanupTempAssetsUseCase: CleanupTempAssetsUseCase,
     private readonly listEntityAssetsUseCase: ListEntityAssetsUseCase,
     private readonly linkAssetToEntityUseCase: LinkAssetToEntityUseCase,
+    private readonly unlinkAssetFromEntityUseCase: UnlinkAssetFromEntityUseCase,
+    private readonly replaceEntityAssetsUseCase: ReplaceEntityAssetsUseCase,
     private readonly assetPermissionPolicy: AssetPermissionPolicy,
   ) {}
 
@@ -61,16 +66,34 @@ export class AssetsService {
   listEntityAssets(input: {
     storeId: string;
     entityId: string;
-    entityType: string;
+    entityType: AssetEntityType;
   }) {
     return this.listEntityAssetsUseCase.execute(input);
   }
 
   linkAssetToEntity(
     user: IUser,
-    input: { assetId: string; entityId: string; entityType: string },
+    input: { assetId: string; entityId: string; entityType: AssetEntityType },
   ) {
     return this.linkAssetToEntityUseCase.execute(user, input);
+  }
+
+  unlinkAssetFromEntity(
+    user: IUser,
+    input: { assetId: string; entityId: string; entityType: AssetEntityType },
+  ) {
+    return this.unlinkAssetFromEntityUseCase.execute(user, input);
+  }
+
+  replaceEntityAssets(
+    user: IUser,
+    input: {
+      entityId: string;
+      entityType: AssetEntityType;
+      assetIds: string[];
+    },
+  ) {
+    return this.replaceEntityAssetsUseCase.execute(user, input);
   }
 
   checkPermission(

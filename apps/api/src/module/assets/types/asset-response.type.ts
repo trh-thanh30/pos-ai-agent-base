@@ -1,8 +1,5 @@
 import { asset_access_type, asset_type } from '@prisma/client';
 
-/**
- * Asset with resolved URL, returned from all asset API responses
- */
 export type AssetWithUrl = {
   id: string;
   original_name: string;
@@ -18,6 +15,5 @@ export type AssetWithUrl = {
   uploaded_by_id: string | null;
   created_at: Date;
   updated_at: Date;
-  /** Resolved URL: CDN URL for PUBLIC, private stream URL for PRIVATE */
   url: string;
 };

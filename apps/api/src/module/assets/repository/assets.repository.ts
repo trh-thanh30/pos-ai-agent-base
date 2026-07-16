@@ -15,6 +15,16 @@ export class AssetsRepository {
     return this.prisma.asset.findUnique({ where: { id } });
   }
 
+  findManyActiveByIds(storeId: string, ids: string[]) {
+    return this.prisma.asset.findMany({
+      where: {
+        id: { in: ids },
+        store_id: storeId,
+        is_deleted: false,
+      },
+    });
+  }
+
   list(dto: ListAssetsDto) {
     const {
       page = 1,
