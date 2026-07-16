@@ -19,8 +19,8 @@ export const envSchema = z.object({
   DB_NAME: z.string().default('app'),
   DB_SCHEMA: z.string().default('public'),
 
-  // Database URL (will be validated but can be constructed from above)
-  DATABASE_URL: z.string().url(),
+  // Database URL (can be constructed from DB_* values when omitted)
+  DATABASE_URL: z.string().url().optional(),
 
   // Docker Database Config (optional, used by docker-compose)
   POSTGRES_USER: z.string().optional(),
@@ -61,13 +61,13 @@ export const envSchema = z.object({
   ALLOWED_MIME_TYPES: z.string().optional(),
 
   // --- STORAGE CONFIGURATION ---
-  STORAGE_DRIVER: z.enum(['local', 's3', 'minio']).default('local'),
-  STORAGE_ROOT_DIR: z.string().default('/app/storage'),
+  STORAGE_DRIVER: z.enum(['local', 's3', 'minio']).default('minio'),
+  STORAGE_ROOT_DIR: z.string().default('./storage'),
   STORAGE_PUBLIC_DIR_NAME: z.string().default('public'),
   STORAGE_PRIVATE_DIR_NAME: z.string().default('private'),
   STORAGE_TEMP_DIR_NAME: z.string().default('temp'),
   MINIO_ENDPOINT: z.string().default('localhost'),
-  MINIO_PORT: z.coerce.number().int().min(1).max(65535).default(9000),
+  MINIO_PORT: z.coerce.number().int().min(1).max(65535).default(19000),
   MINIO_USE_SSL: z
     .string()
     .transform((val) => val === 'true')
@@ -79,7 +79,10 @@ export const envSchema = z.object({
   MINIO_BUCKET_TEMP: z.string().default('pos-system-temp'),
 
   // --- CDN / PUBLIC ACCESS ---
-  ASSET_CDN_URL: z.string().url().default('https://cdn.example.com'),
+  ASSET_CDN_URL: z
+    .string()
+    .url()
+    .default('http://localhost:19000/pos-system-public'),
 
   // Logging Configuration
   LOG_LEVEL: z
@@ -138,20 +141,6 @@ export type Env = z.infer<typeof envSchema>;
 
 // validate the environment variables
 export function validateEnv(input: Record<string, unknown>): Env {
-  // Construct DATABASE_URL if not provided but individual components are
-  if (
-    !input.DATABASE_URL &&
-    input.DB_USER &&
-    input.DB_PASSWORD &&
-    input.DB_HOST &&
-    input.DB_PORT &&
-    input.DB_NAME &&
-    input.DB_SCHEMA
-  ) {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    input.DATABASE_URL = `postgresql://${input.DB_USER}:${input.DB_PASSWORD}@${input.DB_HOST}:${input.DB_PORT}/${input.DB_NAME}?schema=${input.DB_SCHEMA}`;
-  }
-
   // Parse CORS_ORIGINS into array if provided
   if (input.CORS_ORIGINS && typeof input.CORS_ORIGINS === 'string') {
     // Keep as string for now, can be split in the app configuration
@@ -173,6 +162,10 @@ export function validateEnv(input: Record<string, unknown>): Env {
   // Log successful validation in development
   if (parsed.data.NODE_ENV === 'development') {
     console.log('✅ Environment variables validated successfully');
+  }
+
+  if (!parsed.data.DATABASE_URL) {
+    parsed.data.DATABASE_URL = `postgresql://${parsed.data.DB_USER}:${parsed.data.DB_PASSWORD}@${parsed.data.DB_HOST}:${parsed.data.DB_PORT}/${parsed.data.DB_NAME}?schema=${parsed.data.DB_SCHEMA}`;
   }
 
   return parsed.data;

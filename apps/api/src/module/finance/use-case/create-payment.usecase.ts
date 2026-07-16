@@ -12,7 +12,6 @@ import {
   transaction_type,
   TransactionReferenceType,
 } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from 'app/prisma/prisma.service';
 import { CreatePaymentDto } from '../dto/create-payment.dto';
 import { GenerateTransactionCodeUseCase } from './generate-transaction-code.usecase';
@@ -84,7 +83,7 @@ export class CreatePaymentUseCase {
         store_id: storeId,
         transaction_type: transaction_type.PAYMENT,
         transaction_source: dto.transaction_source,
-        amount: new Decimal(dto.amount),
+        amount: new Prisma.Decimal(dto.amount),
         payment_method: dto.payment_method,
 
         // Contact info
@@ -170,7 +169,7 @@ export class CreatePaymentUseCase {
         contact_type: dto.contact_type,
 
         transaction_source: dto.transaction_source,
-        amount: new Decimal(dto.amount),
+        amount: new Prisma.Decimal(dto.amount),
         payment_method: dto.payment_method,
 
         // Reference info
@@ -242,7 +241,7 @@ export class CreatePaymentUseCase {
         store_id: storeId,
         transaction_type: transaction_type.PAYMENT,
         transaction_source: dto.transaction_source,
-        amount: new Decimal(dto.amount),
+        amount: new Prisma.Decimal(dto.amount),
         payment_method: dto.payment_method,
 
         // Snapshot contact from Order Return -> Order -> Customer

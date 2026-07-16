@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CashTransaction, Prisma, transaction_status } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from 'app/prisma/prisma.service';
 import { UpdateTransactionDto } from '../dto/update-transaction.dto';
 import { SyncCashBookUseCase } from './sync-cash-book.usecase';
@@ -67,7 +66,9 @@ export class UpdateTransactionUseCase {
 
     // 5. Build update data - Only update fields that are provided
     const updateData: any = {
-      ...(dto.amount !== undefined && { amount: new Decimal(dto.amount) }),
+      ...(dto.amount !== undefined && {
+        amount: new Prisma.Decimal(dto.amount),
+      }),
       ...(dto.payment_method && { payment_method: dto.payment_method }),
       ...(dto.transaction_source && {
         transaction_source: dto.transaction_source,

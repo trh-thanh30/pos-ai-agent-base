@@ -5,7 +5,6 @@ import {
   transaction_status,
   transaction_type,
 } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from 'app/prisma/prisma.service';
 
 /**
@@ -53,7 +52,7 @@ export class CalculateCashBookUseCase {
 
     const openingBalance = previousEntry
       ? previousEntry.closing_balance
-      : new Decimal(0);
+      : new Prisma.Decimal(0);
 
     // 2. Tính tổng thu trong ngày (chỉ CONFIRMED)
     const receiptsResult = await prisma.cashTransaction.aggregate({
@@ -71,7 +70,7 @@ export class CalculateCashBookUseCase {
       },
     });
 
-    const totalReceipts = receiptsResult._sum.amount || new Decimal(0);
+    const totalReceipts = receiptsResult._sum.amount || new Prisma.Decimal(0);
 
     // 3. Tính tổng chi trong ngày (chỉ CONFIRMED)
     const paymentsResult = await prisma.cashTransaction.aggregate({
@@ -89,10 +88,10 @@ export class CalculateCashBookUseCase {
       },
     });
 
-    const totalPayments = paymentsResult._sum.amount || new Decimal(0);
+    const totalPayments = paymentsResult._sum.amount || new Prisma.Decimal(0);
 
     // 4. Tính số dư cuối ngày
-    const closingBalance = new Decimal(openingBalance)
+    const closingBalance = new Prisma.Decimal(openingBalance)
       .plus(totalReceipts)
       .minus(totalPayments);
 
@@ -131,7 +130,7 @@ export class CalculateCashBookUseCase {
   async getCurrentBalance(
     storeId: string,
     tx?: Prisma.TransactionClient,
-  ): Promise<Decimal> {
+  ): Promise<Prisma.Decimal> {
     const prisma = tx || this.prisma;
     // Lấy entry gần nhất
     const latestEntry = await prisma.cashBookEntry.findFirst({
@@ -167,9 +166,9 @@ export class CalculateCashBookUseCase {
       }),
     ]);
 
-    const receipts = receiptsSum._sum.amount || new Decimal(0);
-    const payments = paymentsSum._sum.amount || new Decimal(0);
+    const receipts = receiptsSum._sum.amount || new Prisma.Decimal(0);
+    const payments = paymentsSum._sum.amount || new Prisma.Decimal(0);
 
-    return new Decimal(receipts).minus(payments);
+    return new Prisma.Decimal(receipts).minus(payments);
   }
 }

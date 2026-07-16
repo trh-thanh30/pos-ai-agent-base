@@ -12,7 +12,6 @@ import {
   transaction_type,
   TransactionReferenceType,
 } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from 'app/prisma/prisma.service';
 import { ExcelTemplateService } from 'app/shared/excel-template/excel-template.service';
 import {
@@ -302,21 +301,21 @@ export class FinanceService {
     // Calculate totals
     const totalReceipts = entries.reduce(
       (sum, entry) => sum.plus(entry.total_receipts),
-      new Decimal(0),
+      new Prisma.Decimal(0),
     );
 
     const totalPayments = entries.reduce(
       (sum, entry) => sum.plus(entry.total_payments),
-      new Decimal(0),
+      new Prisma.Decimal(0),
     );
 
     const openingBalance =
-      entries.length > 0 ? entries[0].opening_balance : new Decimal(0);
+      entries.length > 0 ? entries[0].opening_balance : new Prisma.Decimal(0);
 
     const closingBalance =
       entries.length > 0
         ? entries[entries.length - 1].closing_balance
-        : new Decimal(0);
+        : new Prisma.Decimal(0);
 
     return {
       entries,
@@ -337,7 +336,7 @@ export class FinanceService {
   async getCurrentBalance(
     storeId: string,
     tx?: Prisma.TransactionClient,
-  ): Promise<Decimal> {
+  ): Promise<Prisma.Decimal> {
     return this.calculateCashBookUseCase.getCurrentBalance(storeId, tx);
   }
 
@@ -694,23 +693,23 @@ export class FinanceService {
 
       const totalReceipts = monthEntries.reduce(
         (sum, e) => sum.plus(e.total_receipts),
-        new Decimal(0),
+        new Prisma.Decimal(0),
       );
 
       const totalPayments = monthEntries.reduce(
         (sum, e) => sum.plus(e.total_payments),
-        new Decimal(0),
+        new Prisma.Decimal(0),
       );
 
       const openingBalance =
         monthEntries.length > 0
           ? monthEntries[0].opening_balance
-          : new Decimal(0);
+          : new Prisma.Decimal(0);
 
       const closingBalance =
         monthEntries.length > 0
           ? monthEntries[monthEntries.length - 1].closing_balance
-          : new Decimal(0);
+          : new Prisma.Decimal(0);
 
       monthlyData.push({
         month: month + 1,
@@ -824,7 +823,7 @@ export class FinanceService {
           total: todayPayments._sum.amount?.toString() || '0',
           count: todayPayments._count,
         },
-        net: new Decimal(todayReceipts._sum.amount || 0)
+        net: new Prisma.Decimal(todayReceipts._sum.amount || 0)
           .minus(todayPayments._sum.amount || 0)
           .toString(),
       },
@@ -837,7 +836,7 @@ export class FinanceService {
           total: weekPayments._sum.amount?.toString() || '0',
           count: weekPayments._count,
         },
-        net: new Decimal(weekReceipts._sum.amount || 0)
+        net: new Prisma.Decimal(weekReceipts._sum.amount || 0)
           .minus(weekPayments._sum.amount || 0)
           .toString(),
       },
@@ -850,7 +849,7 @@ export class FinanceService {
           total: monthPayments._sum.amount?.toString() || '0',
           count: monthPayments._count,
         },
-        net: new Decimal(monthReceipts._sum.amount || 0)
+        net: new Prisma.Decimal(monthReceipts._sum.amount || 0)
           .minus(monthPayments._sum.amount || 0)
           .toString(),
       },
@@ -924,7 +923,7 @@ export class FinanceService {
       total_payments: this.format.formatCurrency(entry.total_payments),
       closing_balance: this.format.formatCurrency(entry.closing_balance),
       net_change: this.format.formatCurrency(
-        new Decimal(entry.total_receipts).minus(entry.total_payments),
+        new Prisma.Decimal(entry.total_receipts).minus(entry.total_payments),
       ),
     }));
 
@@ -947,7 +946,7 @@ export class FinanceService {
         cashBook.summary.closing_balance,
       ),
       net_change: this.format.formatCurrency(
-        new Decimal(cashBook.summary.total_receipts).minus(
+        new Prisma.Decimal(cashBook.summary.total_receipts).minus(
           cashBook.summary.total_payments,
         ),
       ),

@@ -41,8 +41,6 @@ import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
     AssetPermissionPolicy,
     AssetUrlResolverService,
     FileValidatorService,
-    LocalStorageService,
-    MinioStorageService,
     UploadAssetUseCase,
     GetAssetDetailUseCase,
     ListAssetsUseCase,
@@ -53,18 +51,14 @@ import { UploadAssetUseCase } from './use-cases/upload-asset.use-case';
     LinkAssetToEntityUseCase,
     {
       provide: 'IStorageService',
-      useFactory: (
-        config: ConfigType<typeof storageConfig>,
-        localStorage: LocalStorageService,
-        minioStorage: MinioStorageService,
-      ) => {
+      useFactory: (config: ConfigType<typeof storageConfig>) => {
         if (config.driver === 'minio' || config.driver === 's3') {
-          return minioStorage;
+          return new MinioStorageService(config);
         }
 
-        return localStorage;
+        return new LocalStorageService(config);
       },
-      inject: [storageConfig.KEY, LocalStorageService, MinioStorageService],
+      inject: [storageConfig.KEY],
     },
   ],
   exports: [
