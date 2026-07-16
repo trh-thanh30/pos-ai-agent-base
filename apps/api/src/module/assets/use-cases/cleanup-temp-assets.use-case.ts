@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { AssetsRepository } from '../repository/assets.repository';
 import type { IStorageService } from '../services/storage.interface';
 
@@ -11,6 +12,7 @@ export class CleanupTempAssetsUseCase {
     @Inject('IStorageService') private readonly storage: IStorageService,
   ) {}
 
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async execute(): Promise<void> {
     this.logger.log('Starting cleanup of temporary assets...');
     const yesterday = new Date();

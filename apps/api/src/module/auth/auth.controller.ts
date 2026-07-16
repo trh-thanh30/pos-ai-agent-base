@@ -18,16 +18,36 @@ import { UnauthorizedError } from 'app/common/response';
 import type { IUser } from 'app/common/types/user.type';
 import { cookieConfig } from 'app/config';
 import type { Request, Response } from 'express';
-import { AuthService } from './auth.service';
 import { EmailRequestDto } from './dto/email-request.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { FindUserByRefreshTokenUseCase } from './use-cases/find-user-by-refresh-token.use-case';
+import { ForgotPasswordUseCase } from './use-cases/forgot-password.use-case';
+import { GetProfileUseCase } from './use-cases/get-profile.use-case';
+import { LoginUseCase } from './use-cases/login.use-case';
+import { LogoutUseCase } from './use-cases/logout.use-case';
+import { RefreshTokenUseCase } from './use-cases/refresh-token.use-case';
+import { RegisterUserUseCase } from './use-cases/register-user.use-case';
+import { ResendVerificationEmailUseCase } from './use-cases/resend-verification-email.use-case';
+import { ResetPasswordUseCase } from './use-cases/reset-password.use-case';
+import { SetCurrentStoreUseCase } from './use-cases/set-current-store.use-case';
+import { VerifyEmailUseCase } from './use-cases/verify-email.use-case';
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
+    private readonly registerUserUseCase: RegisterUserUseCase,
+    private readonly loginUseCase: LoginUseCase,
+    private readonly verifyEmailUseCase: VerifyEmailUseCase,
+    private readonly resendVerificationEmailUseCase: ResendVerificationEmailUseCase,
+    private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
+    private readonly resetPasswordUseCase: ResetPasswordUseCase,
+    private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly findUserByRefreshTokenUseCase: FindUserByRefreshTokenUseCase,
+    private readonly logoutUseCase: LogoutUseCase,
+    private readonly getProfileUseCase: GetProfileUseCase,
+    private readonly setCurrentStoreUseCase: SetCurrentStoreUseCase,
     @Inject(cookieConfig.KEY)
     private readonly configCookie: ConfigType<typeof cookieConfig>,
   ) {}
@@ -39,7 +59,7 @@ export class AuthController {
     'Tạo tài khoản thành công. Vui lòng kiểm tra email để xác thực tài khoản!',
   )
   async register(@Body() dto: RegisterDto) {
-    const result = await this.authService.register(dto);
+    const result = await this.registerUserUseCase.execute(dto);
     return {
       user: {
         id: result.user.id,
@@ -57,7 +77,7 @@ export class AuthController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.login(dto);
+    const result = await this.loginUseCase.execute(dto);
 
     res.cookie('refresh_token', result.refresh_token, {
       httpOnly: this.configCookie.httpOnly,
@@ -82,7 +102,7 @@ export class AuthController {
   @Post('verify-email')
   @ApiSuccess('Tài khoản xác thực thành công!')
   async verifyEmail(@Body() dto: VerifyEmailDto) {
-    await this.authService.verifyEmail(dto);
+    await this.verifyEmailUseCase.execute(dto);
   }
 
   @Public()
@@ -90,21 +110,21 @@ export class AuthController {
   @Post('reverify-email')
   @ApiSuccess('Gửi mã xác thực tài khoản thành công. Vui lòng kiểm tra email!')
   async resendVerificationEmail(@Body() dto: EmailRequestDto) {
-    await this.authService.resendVerificationEmail(dto);
+    await this.resendVerificationEmailUseCase.execute(dto);
   }
 
   @Public()
   @Post('forgot-password')
   @ApiSuccess('Mã đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email!')
   async forgotPassword(@Body() dto: EmailRequestDto) {
-    await this.authService.forgotPassword(dto);
+    await this.forgotPasswordUseCase.execute(dto);
   }
 
   @Public()
   @Post('reset-password')
   @ApiSuccess('Đặt lại mật khẩu thành công!')
   async resetPassword(@Body() dto: ResetPasswordDto) {
-    await this.authService.resetPassword(dto);
+    await this.resetPasswordUseCase.execute(dto);
   }
 
   @Public()
@@ -123,7 +143,7 @@ export class AuthController {
 
     try {
       // Call service với refresh token
-      const result = await this.authService.refreshToken(refreshToken);
+      const result = await this.refreshTokenUseCase.execute(refreshToken);
 
       res.cookie('refresh_token', result.refresh_token, {
         httpOnly: this.configCookie.httpOnly,
@@ -162,9 +182,10 @@ export class AuthController {
   ) {
     const refreshToken: string = req.cookies?.refresh_token;
     if (refreshToken) {
-      const user = await this.authService.findUserByRefreshToken(refreshToken);
+      const user =
+        await this.findUserByRefreshTokenUseCase.execute(refreshToken);
       if (user) {
-        await this.authService.logout(user.id);
+        await this.logoutUseCase.execute(user.id);
       }
     }
     res.clearCookie('refresh_token');
@@ -174,7 +195,7 @@ export class AuthController {
   @Get('profile')
   @ApiSuccess('Thông tin tài khoản')
   async profile(@User() user: IUser) {
-    return await this.authService.profile(user.id, user.storeId!);
+    return await this.getProfileUseCase.execute(user.id, user.storeId!);
   }
 
   @Post('set-current-store/:storeId')
@@ -184,7 +205,7 @@ export class AuthController {
     @Param('storeId') storeId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.setCurrentStore(user.id, storeId);
+    const result = await this.setCurrentStoreUseCase.execute(user.id, storeId);
     res.cookie('refresh_token', result.refresh_token, {
       httpOnly: this.configCookie.httpOnly,
       sameSite: this.configCookie.sameSite,

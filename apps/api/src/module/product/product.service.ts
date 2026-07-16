@@ -7,8 +7,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { GenerateProductSkuUseCase } from './use-cases/generate-product-sku.use-case';
 
 import { IUser } from 'app/common/types/user.type';
-import { AssetsService } from '../assets/assets.service';
 import { AssetEntityType } from '../assets/types/asset-entity.type';
+import { UploadAssetUseCase } from '../assets/use-cases/upload-asset.use-case';
 import { StockMovementService } from '../stock-movement/stock-movement.service';
 import { GenerateVariantSkuUseCase } from '../variant/use-case/genereate-sku-variant.usecase';
 import { PRODUCT_ERROR_MESSAGES } from './product.errors';
@@ -22,7 +22,7 @@ export class ProductService {
     private readonly generateSku: GenerateProductSkuUseCase,
     private readonly generateVariantSku: GenerateVariantSkuUseCase,
     private readonly stockMovementService: StockMovementService,
-    private readonly assetsService: AssetsService,
+    private readonly uploadAssetUseCase: UploadAssetUseCase,
   ) {}
 
   async create(
@@ -65,7 +65,7 @@ export class ProductService {
       // Handle file upload if present
       let imageUrl = newProduct.image_url;
       if (file) {
-        const asset = await this.assetsService.uploadFile(user, file, {
+        const asset = await this.uploadAssetUseCase.execute(user, file, {
           entityId: newProduct.id,
           entityType: AssetEntityType.PRODUCT,
           folder: 'products',
@@ -202,7 +202,7 @@ export class ProductService {
     // Handle file upload if present
     let imageUrl = res.image_url;
     if (file) {
-      const asset = await this.assetsService.uploadFile(user, file, {
+      const asset = await this.uploadAssetUseCase.execute(user, file, {
         entityId: id,
         entityType: AssetEntityType.PRODUCT,
         folder: 'products',

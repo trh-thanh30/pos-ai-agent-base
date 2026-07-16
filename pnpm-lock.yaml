@@ -186,6 +186,9 @@ importers:
       '@prisma/config':
         specifier: ^7.8.0
         version: 7.8.0
+      '@repo/email':
+        specifier: workspace:*
+        version: link:../../packages/email
       '@tailwindcss/cli':
         specifier: ^4.1.13
         version: 4.3.2

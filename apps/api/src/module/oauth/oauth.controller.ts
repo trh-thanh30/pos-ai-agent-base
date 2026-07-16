@@ -14,7 +14,8 @@ import { UnauthorizedError } from 'app/common/response';
 import { GoogleProfile } from 'app/common/types/google-profile.type';
 import { apiConfig, cookieConfig } from 'app/config';
 import type { Request, Response } from 'express';
-import { OauthService } from './oauth.service';
+import { OauthRefreshTokenUseCase } from './use-cases/oauth-refresh-token.use-case';
+import { ValidateOauthUseCase } from './use-cases/validate-oauth.use-case';
 
 @Controller('oauth')
 export class OauthController {
@@ -23,7 +24,8 @@ export class OauthController {
     private readonly configCookie: ConfigType<typeof cookieConfig>,
     @Inject(apiConfig.KEY)
     private readonly configApi: ConfigType<typeof apiConfig>,
-    private readonly oauthService: OauthService,
+    private readonly validateOauthUseCase: ValidateOauthUseCase,
+    private readonly oauthRefreshTokenUseCase: OauthRefreshTokenUseCase,
   ) {}
   @Public()
   @UseGuards(AuthGuard('google'))
@@ -42,7 +44,7 @@ export class OauthController {
   ) {
     // Handle the Google OAuth callback
     try {
-      const result = await this.oauthService.validateOauth(req.user);
+      const result = await this.validateOauthUseCase.execute(req.user);
 
       if (!result.user.is_verified) {
         return res.redirect(
@@ -97,7 +99,7 @@ export class OauthController {
 
     try {
       // Call service với refresh token
-      const result = await this.oauthService.refreshToken(refreshToken);
+      const result = await this.oauthRefreshTokenUseCase.execute(refreshToken);
 
       res.cookie('refresh_token', result.refresh_token, {
         httpOnly: this.configCookie.httpOnly,

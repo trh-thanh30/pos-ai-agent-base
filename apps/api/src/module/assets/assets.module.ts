@@ -7,7 +7,6 @@ import { JwtAuthGuard } from 'app/module/auth/guards/jwt-auth.guard';
 import { PrismaService } from 'app/prisma/prisma.service';
 import { memoryStorage } from 'multer';
 import { AssetsController } from './assets.controller';
-import { AssetsService } from './assets.service';
 import { AssetPermissionPolicy } from './policies/asset-permission.policy';
 import { AssetLinksRepository } from './repository/asset-links.repository';
 import { AssetsRepository } from './repository/assets.repository';
@@ -38,7 +37,6 @@ import { AssetTypeResolver } from './utils/asset-type-resolver.util';
   providers: [
     PrismaService,
     JwtAuthGuard,
-    AssetsService,
     AssetsRepository,
     AssetLinksRepository,
     AssetPermissionPolicy,
@@ -68,9 +66,9 @@ import { AssetTypeResolver } from './utils/asset-type-resolver.util';
     },
   ],
   exports: [
-    AssetsService,
     AssetLinksRepository,
     AssetsRepository,
+    UploadAssetUseCase,
     LinkAssetToEntityUseCase,
     UnlinkAssetFromEntityUseCase,
     ListEntityAssetsUseCase,
