@@ -25,11 +25,19 @@ const posts = [
     excerpt:
       "Doanh thu, tồn kho, sản phẩm bán chạy và ca bán bất thường là các tín hiệu nên được xem thường xuyên.",
   },
+  {
+    href: "#",
+    date: "12 Tháng 8, 2025",
+    category: "AI & Vận hành",
+    title: "Ứng dụng AI trợ lý ảo dự báo tồn kho và tối ưu ca bán tự động",
+    excerpt:
+      "Cách các chuỗi bán lẻ hiện đại tận dụng trí tuệ nhân tạo để giảm thiểu tồn kho chết và tối ưu năng suất làm việc của nhân sự.",
+  },
 ];
 
 export default function NewsCards() {
   return (
-    <div className="grid gap-5 lg:grid-cols-3">
+    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
       {posts.map((post) => (
         <a
           key={post.title}
