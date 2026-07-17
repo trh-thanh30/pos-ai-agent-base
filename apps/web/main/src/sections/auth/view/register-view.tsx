@@ -10,17 +10,17 @@ const steps = [
   {
     label: 'Tạo mới tài khoản',
     description: 'Vui lòng cung cấp thông tin chi tiết của bạn.',
-    icon: <User size={16} />,
+    icon: <User size={18} />,
   },
   {
     label: 'Xác thực tài khoản',
     description: 'Xác minh mã được gửi đến email của bạn.',
-    icon: <MailCheck size={16} />,
+    icon: <MailCheck size={18} />,
   },
   {
     label: 'Tạo mới tài khoản thành công',
     description: 'Tài khoản của bạn đã được tạo thành công. Nhấp vào bên dưới để đăng nhập.',
-    icon: <Check size={16} />,
+    icon: <Check size={18} />,
   },
 ];
 export function RegisterView() {
@@ -38,7 +38,7 @@ export function RegisterView() {
               setActive={setIsActive}
               orientation="vertical"
               steps={steps}
-              size="xs"
+              size="sm"
             />
           </div>
         </div>

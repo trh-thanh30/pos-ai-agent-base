@@ -1,4 +1,4 @@
-import { Link2, Mail, MapPinned, Phone } from 'lucide-react';
+import { Globe, Mail, MapPinned, Phone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -16,49 +16,44 @@ export default function SigninLayout({
         <Image
           width={500}
           height={500}
-          src={'https://app.easyposs.vn/content/img/login/background.png'}
-          alt="Background"
+          src={'/phan-mem-ban-hang-tai-cua-hang.png'}
+          alt="Phần mềm bán hàng tại cửa hàng NexPOS"
           className="object-cover w-xl h-xl select-none pointer-events-none"
         />
-        <Image
-          src={'/logo-company.jpg'}
-          alt="logo company"
-          width={60}
-          height={60}
-          className="object-cover rounded-full select-none pointer-events-none"
-        />
+        <div className="rounded-full border-2 border-blue-500 p-1 shadow-md shadow-blue-100">
+          <Image
+            src={'/logo.png'}
+            alt="NexPOS Logo"
+            width={56}
+            height={56}
+            className="object-contain rounded-full select-none pointer-events-none"
+          />
+        </div>
         <div className="flex gap-2 flex-col text-xs mt-2">
-          <h2 className="text-pos-blue-500 font-medium  uppercase ">
-            Công ty cổ phần đầu tư công nghệ và truyền thông SS-IT{' '}
+          <h2 className="text-pos-blue-500 font-semibold uppercase">
+            NexPOS – Nền tảng quản lý bán lẻ thông minh
           </h2>
           <span className="text-gray-500 flex items-center gap-2">
-            <MapPinned size={14} /> D/C: Tầng 4, 18 Đường 18M, Mộ Lao, Hà Đông, Hà Nội, Hanoi,
-            Vietnam
+            <MapPinned size={14} /> Hà Nội, Việt Nam – Hỗ trợ vận hành đa chi nhánh toàn quốc
           </span>
           <div className="flex items-center gap-4">
             <span className="text-gray-500 flex items-center gap-2">
               <Phone size={14} />
-              097 996 64 41
+              1900 633 506
             </span>
             <span className="text-gray-500 flex items-center gap-2">
               <Mail size={14} />
-              ssit.company.ssit@gmail.com
+              support@nexpos.vn
             </span>
           </div>
           <div className="text-gray-500 flex items-center gap-2 transition-colors duration-300">
-            <Link2 size={14} />
+            <Globe size={14} />
             Website:
-            <Link
-              href={'https://ssit.company'}
-              className="hover:text-pos-blue-500 border-r border-r-gray-300 pr-2"
-            >
-              ssit.company
+            <Link href={'#'} className="hover:text-pos-blue-500 border-r border-r-gray-300 pr-2">
+              nexpos.vn
             </Link>
-            <Link
-              className="hover:text-pos-blue-500"
-              href={'https://ss-it-joint-stock-company.vercel.app/'}
-            >
-              ss-it-joint-stock
+            <Link className="hover:text-pos-blue-500" href={'#'}>
+              docs.nexpos.vn
             </Link>
           </div>
         </div>
