@@ -1,12 +1,12 @@
-import { CalendarCheck2, CheckCircle2, Headphones, ShieldCheck } from "lucide-react";
+import { CalendarCheck2, CheckCircle2, Headphones, ShieldCheck } from 'lucide-react';
 
-import { LandingContainer } from "./LandingSection";
+import { LandingContainer } from './LandingSection';
 
 const benefits = [
-  "Tư vấn mô hình phù hợp cho cửa hàng nhỏ hoặc chuỗi bán lẻ",
-  "Demo luồng bán hàng, kho, báo cáo và phân quyền",
-  "Gợi ý lộ trình triển khai không làm gián đoạn vận hành",
-  "Dùng thử trước khi quyết định gói phù hợp",
+  'Tư vấn mô hình phù hợp cho cửa hàng nhỏ hoặc chuỗi bán lẻ',
+  'Demo luồng bán hàng, kho, báo cáo và phân quyền',
+  'Gợi ý lộ trình triển khai không làm gián đoạn vận hành',
+  'Dùng thử trước khi quyết định gói phù hợp',
 ];
 
 export default function ConsultForm() {
@@ -21,23 +21,21 @@ export default function ConsultForm() {
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200">
             Nhận tư vấn triển khai
           </p>
-          <h2 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+          <h2 className="mt-4 text-3xl font-bold  sm:text-4xl lg:text-5xl">
             Cùng đội ngũ EraPOS thiết kế quy trình bán lẻ phù hợp với mô hình của bạn.
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-            Không cần thay đổi toàn bộ cách vận hành ngay lập tức. Chúng tôi giúp bạn bắt đầu từ điểm đau lớn nhất, rồi mở rộng khi dữ liệu và đội ngũ đã sẵn sàng.
+            Không cần thay đổi toàn bộ cách vận hành ngay lập tức. Chúng tôi giúp bạn bắt đầu từ
+            điểm đau lớn nhất, rồi mở rộng khi dữ liệu và đội ngũ đã sẵn sàng.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {[
-              { icon: CalendarCheck2, label: "Lịch demo nhanh" },
-              { icon: Headphones, label: "Hỗ trợ tiếng Việt" },
-              { icon: ShieldCheck, label: "Dữ liệu tập trung" },
+              { icon: CalendarCheck2, label: 'Lịch demo nhanh' },
+              { icon: Headphones, label: 'Hỗ trợ tiếng Việt' },
+              { icon: ShieldCheck, label: 'Dữ liệu tập trung' },
             ].map((item) => (
-              <div
-                key={item.label}
-                className="rounded-2xl border border-white/10 bg-white/8 p-4"
-              >
+              <div key={item.label} className="rounded-2xl border border-white/10 bg-white/8 p-4">
                 <item.icon className="h-5 w-5 text-cyan-200" />
                 <p className="mt-3 text-sm font-semibold">{item.label}</p>
               </div>
@@ -101,7 +99,7 @@ export default function ConsultForm() {
 function Field({
   id,
   label,
-  type = "text",
+  type = 'text',
   autoComplete,
 }: {
   id: string;

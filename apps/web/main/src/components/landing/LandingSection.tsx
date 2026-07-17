@@ -28,12 +28,12 @@ export function LandingSection({
 }: LandingSectionProps) {
   const tones = {
     white: 'bg-white',
-    soft: 'bg-[#f6f8fb]',
-    dark: 'bg-[#06172f] text-white',
+    soft: 'bg-[#f6f8fb] py-16 sm:py-20',
+    dark: 'bg-[#06172f] text-white py-16 sm:py-20',
   };
 
   return (
-    <section id={id} className={`${tones[tone]} scroll-mt-24 py-16 sm:py-20 ${className}`}>
+    <section id={id} className={`${tones[tone]} scroll-mt-24 ${className}`}>
       <LandingContainer>{children}</LandingContainer>
     </section>
   );
@@ -66,7 +66,7 @@ export function SectionHeader({
         </p>
       )}
       <h2
-        className={`text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl ${
+        className={`text-3xl font-bold sm:text-4xl lg:text-5xl ${
           dark ? 'text-white' : 'text-slate-950'
         }`}
       >

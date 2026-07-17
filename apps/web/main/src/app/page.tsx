@@ -1,20 +1,20 @@
-import Header from "@main/components/landing/Header";
-import AssistantFeatureSection from "@main/components/landing/AssistantFeatureSection";
-import PricingSection from "@main/components/landing/PricingSection";
-import Footer from "@main/components/landing/Footer";
-import Hero from "@main/components/landing/Hero";
-import Features from "@main/components/landing/Features";
-import FAQ from "@main/components/landing/FAQ";
-import NewsCards from "@main/components/landing/NewsCard";
-import ConsultForm from "@main/components/landing/ConsultForm";
-import OperationsShowcase from "@main/components/landing/OperationsShowcase";
-import { LandingSection, SectionHeader } from "@main/components/landing/LandingSection";
+import AssistantFeatureSection from '@main/components/landing/AssistantFeatureSection';
+import ConsultForm from '@main/components/landing/ConsultForm';
+import FAQ from '@main/components/landing/FAQ';
+import Features from '@main/components/landing/Features';
+import Footer from '@main/components/landing/Footer';
+import Header from '@main/components/landing/Header';
+import Hero from '@main/components/landing/Hero';
+import { LandingSection, SectionHeader } from '@main/components/landing/LandingSection';
+import NewsCards from '@main/components/landing/NewsCard';
+import OperationsShowcase from '@main/components/landing/OperationsShowcase';
+import PricingSection from '@main/components/landing/PricingSection';
 
 export default function Page() {
   return (
     <>
       <Header />
-      <main className="overflow-x-hidden bg-white pt-20 text-slate-900">
+      <main className="flex flex-col md:gap-10 gap-4 overflow-x-hidden bg-white pt-16 text-slate-900 sm:gap-24 lg:gap-32">
         <Hero />
         <Features />
         <OperationsShowcase />
