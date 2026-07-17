@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 // config
 import {
@@ -101,7 +101,15 @@ import { AdminModule } from './module/admin/admin.module';
       isGlobal: true,
       cache: true,
       expandVariables: true,
-      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`],
+      envFilePath: [
+        resolve(process.cwd(), `.env.${process.env.NODE_ENV || 'development'}`),
+        resolve(
+          process.cwd(),
+          '..',
+          '..',
+          `.env.${process.env.NODE_ENV || 'development'}`,
+        ),
+      ],
       // validate with Zod
       validate: validateEnv, // use Zod to validate and type
       load: [

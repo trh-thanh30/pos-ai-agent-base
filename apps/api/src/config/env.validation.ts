@@ -51,8 +51,13 @@ export const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().optional(),
-  // Redis Configuration (Optional - for caching)
+  // Redis Configuration (Optional - for caching/queues)
   REDIS_URL: z.string().url().optional(),
+  REDIS_HOST: z.string().optional(),
+  REDIS_PORT: z.coerce.number().int().min(1).max(65535).optional(),
+  REDIS_DEV_PORT: z.coerce.number().int().min(1).max(65535).optional(),
+  REDIS_PASSWORD: z.string().optional(),
+  REDIS_DB_PORT: z.coerce.number().int().min(1).max(65535).optional(),
 
   // File Upload Configuration
   UPLOAD_DEST: z.string().default('./uploads'),
