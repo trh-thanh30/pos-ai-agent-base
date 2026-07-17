@@ -12,12 +12,12 @@ RUN pnpm --filter @pos/web-retail build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=3002
 ENV HOSTNAME=0.0.0.0
 
 COPY --from=builder /app/apps/web/retail/.next/standalone ./
 COPY --from=builder /app/apps/web/retail/.next/static ./apps/web/retail/.next/static
 COPY --from=builder /app/apps/web/retail/public ./apps/web/retail/public
 
-EXPOSE 3001
+EXPOSE 3002
 CMD ["node", "apps/web/retail/server.js"]
