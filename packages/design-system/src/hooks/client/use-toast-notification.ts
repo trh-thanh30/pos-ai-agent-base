@@ -1,52 +1,53 @@
 import { useState, useCallback } from "react";
-import { Bounce, ToastOptions, toast } from "react-toastify";
+import { type ExternalToast, toast } from "sonner";
 
-export const DEFAULT_TOAST_OPTIONS: ToastOptions = {
+export const DEFAULT_TOAST_OPTIONS: ExternalToast = {
   position: "top-right",
-  autoClose: 4500,
-  hideProgressBar: false,
-  closeOnClick: true,
-  pauseOnHover: true,
-  draggable: false,
-  progress: undefined,
-  transition: Bounce,
+  duration: 4500,
+  closeButton: true,
   className: "text-sm font-medium text-gray-800",
 };
 
 export type ToastType = "info" | "success" | "warning" | "error" | "default";
 
 interface UseToast {
-  showInfoToast: (message: string, options?: ToastOptions) => void;
-  showSuccessToast: (message: string, options?: ToastOptions) => void;
-  showWarningToast: (message: string, options?: ToastOptions) => void;
-  showErrorToast: (message: string, options?: ToastOptions) => void;
-  showDefaultToast: (message: string, options?: ToastOptions) => void;
-  setToastOptions: (options: ToastOptions) => void;
+  showInfoToast: (message: string, options?: ExternalToast) => void;
+  showSuccessToast: (message: string, options?: ExternalToast) => void;
+  showWarningToast: (message: string, options?: ExternalToast) => void;
+  showErrorToast: (message: string, options?: ExternalToast) => void;
+  showDefaultToast: (message: string, options?: ExternalToast) => void;
+  setToastOptions: (options: ExternalToast) => void;
 }
 
 export type UseToastProps = {
-  options?: ToastOptions;
+  options?: ExternalToast;
 };
 
 const useToast = ({ options }: UseToastProps = {}): UseToast => {
-  const [toastOptions, setToastOptions] = useState<ToastOptions>({
+  const [toastOptions, setToastOptions] = useState<ExternalToast>({
     ...DEFAULT_TOAST_OPTIONS,
     ...options,
   });
 
   const showToastByType = useCallback(
-    (type: ToastType) => (message: string, options?: ToastOptions) => {
-      toast(message, {
-        type,
+    (type: ToastType) => (message: string, options?: ExternalToast) => {
+      const mergedOptions = {
         ...toastOptions,
         ...options,
-      });
+      };
+
+      if (type === "default") {
+        toast(message, mergedOptions);
+        return;
+      }
+
+      toast[type](message, mergedOptions);
     },
     [toastOptions]
   );
 
   const setToastOptionsCallback = useCallback(
-    (options: ToastOptions) => {
+    (options: ExternalToast) => {
       setToastOptions({
         ...DEFAULT_TOAST_OPTIONS,
         ...options,
