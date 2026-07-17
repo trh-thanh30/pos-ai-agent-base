@@ -13,7 +13,7 @@ export default function ConsultForm() {
   return (
     <section
       id="contact"
-      className="relative overflow-hidden bg-[#06172f] py-16 text-white sm:py-20"
+      className="relative overflow-hidden bg-[#06172f] py-16 text-white sm:py-24"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_20%,rgba(34,211,238,0.18),transparent_30%),radial-gradient(circle_at_86%_10%,rgba(34,197,94,0.16),transparent_30%)]" />
       <LandingContainer className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">

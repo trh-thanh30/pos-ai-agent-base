@@ -27,9 +27,9 @@ export function LandingSection({
   tone = 'white',
 }: LandingSectionProps) {
   const tones = {
-    white: 'bg-white',
-    soft: 'bg-[#f6f8fb] py-16 sm:py-20',
-    dark: 'bg-[#06172f] text-white py-16 sm:py-20',
+    white: 'bg-white py-16 sm:py-24',
+    soft: 'bg-[#f6f8fb] py-16 sm:py-24',
+    dark: 'bg-[#06172f] text-white py-16 sm:py-24',
   };
 
   return (

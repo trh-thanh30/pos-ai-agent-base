@@ -14,7 +14,7 @@ export default function Page() {
   return (
     <>
       <Header />
-      <main className="flex flex-col md:gap-10 gap-4 overflow-x-hidden bg-white pt-16 text-slate-900 sm:gap-24 lg:gap-32">
+      <main className="overflow-x-hidden bg-white pt-16 text-slate-900">
         <Hero />
         <Features />
         <OperationsShowcase />
