@@ -1,139 +1,138 @@
 "use client";
 
+import {
+  BrainCircuit,
+  CheckCircle2,
+  CircleDollarSign,
+  PackageSearch,
+  ReceiptText,
+  ShieldAlert,
+} from "lucide-react";
 import { useState } from "react";
-import Image from "next/image";
 
-type Item = { title: string; desc: string; image: string };
+import { LandingSection, SectionHeader } from "./LandingSection";
 
-const ITEMS: Item[] = [
+const items = [
   {
-    title: "Tự động đồng bộ đơn hàng thành hoá đơn",
-    desc:
-      "Tự động phát hành và chuyển dữ liệu lên cơ quan Thuế theo Thông tư 78. " +
-      "Quản lý công nợ, thống kê số tiền, đồng bộ hoá đơn điện tử…",
-    image: "/feature-1.jpg",
+    icon: BrainCircuit,
+    title: "AI trợ lý vận hành",
+    desc: "Tóm tắt tình hình bán hàng, phát hiện bất thường và gợi ý việc nên làm tiếp theo cho từng chi nhánh.",
+    insight: "Chi nhánh Quận 1 tăng 18% doanh thu nhờ nhóm sản phẩm đồ uống.",
   },
   {
-    title: "Tích hợp xuất hóa đơn điện tử khởi tạo từ máy tính tiền",
-    desc: "Xuất hoá đơn khởi tạo từ máy tính tiền theo quy định mới của cơ quan Thuế.",
-    image: "/feature-2.jpg",
+    icon: PackageSearch,
+    title: "Cảnh báo tồn kho",
+    desc: "Theo dõi tồn thấp, hàng bán chậm và đề xuất nhập hàng dựa trên tốc độ bán thực tế.",
+    insight: "12 SKU sắp hết trong 48 giờ, ưu tiên nhập từ nhà cung cấp A.",
   },
   {
-    title: "Giao diện thân thiện",
-    desc: "Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.",
-    image: "/feature-3.png",
+    icon: ReceiptText,
+    title: "Hóa đơn từ máy tính tiền",
+    desc: "Hỗ trợ quy trình xuất hóa đơn, lưu chứng từ và đối soát dữ liệu bán hàng tập trung.",
+    insight: "98.6% hóa đơn hôm nay đã đồng bộ, 4 giao dịch cần kiểm tra lại.",
   },
   {
-    title: "Giao diện thân thiện",
-    desc: "Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.",
-    image: "/feature-3.png",
+    icon: CircleDollarSign,
+    title: "Theo dõi biên lợi nhuận",
+    desc: "Nhìn rõ doanh thu, giá vốn, chiết khấu và lợi nhuận theo sản phẩm hoặc cửa hàng.",
+    insight: "Nhóm hàng FMCG có biên lợi nhuận giảm 3.2% so với tuần trước.",
   },
   {
-    title: "Giao diện thân thiện",
-    desc: "Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.",
-    image: "/feature-3.png",
+    icon: ShieldAlert,
+    title: "Kiểm soát rủi ro",
+    desc: "Phát hiện hoàn trả bất thường, chênh lệch kho và thao tác nhạy cảm trong ca bán.",
+    insight: "2 ca bán có tỉ lệ hủy đơn cao hơn ngưỡng trung bình.",
   },
 ];
 
 export default function AssistantFeatureSection() {
   const [idx, setIdx] = useState(0);
+  const active = items[idx];
 
   return (
-    <section
-      id="solutions"
-      // Desktop keeps full-screen + snap; mobile uses natural height and proper anchor offset
-      className="mx-auto max-w-7xl px-4 md:h-screen h-auto md:snap-always md:snap-center
-                 md:flex md:flex-col md:items-center md:justify-center
-                 scroll-mt-20 sm:scroll-mt-24 md:scroll-mt-12"
-    >
-      <div className="mx-auto mb-8 sm:mb-10 max-w-3xl text-center">
-        <h2 className="text-3xl font-extrabold text-black sm:text-4xl">
-          EraPOS - trợ thủ đắc lực cho người làm kinh doanh
-        </h2>
-        <p className="mt-3 text-gray-600">
-          Tự động hoá quản lý bán hàng, xử lý đơn nhanh chóng, kiểm soát tồn
-          kho, lợi nhuận rõ ràng, khởi tạo hoá đơn từ máy tính tiền.
-        </p>
-      </div>
+    <LandingSection id="solutions" tone="dark" className="relative overflow-hidden">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.18),transparent_34%),radial-gradient(circle_at_80%_10%,rgba(34,197,94,0.16),transparent_30%)]" />
+      <SectionHeader
+        dark
+        eyebrow="AI assistant"
+        title="Không chỉ ghi nhận dữ liệu, EraPOS giúp bạn hiểu chuyện gì đang xảy ra"
+        description="Trợ lý AI biến dữ liệu vận hành thành cảnh báo, gợi ý và ưu tiên công việc để chủ cửa hàng và quản lý chuỗi bớt phải dò từng báo cáo."
+      />
 
-      <div className="grid w-full gap-6 sm:gap-8 lg:grid-cols-2">
-        {/* Left list */}
+      <div className="mt-12 grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
         <div className="space-y-3">
-          {ITEMS.map((it, i) => {
-            const active = i === idx;
+          {items.map((item, index) => {
+            const isActive = index === idx;
             return (
               <button
-                key={it.title}
-                onClick={() => setIdx(i)}
-                className={`w-full rounded-xl p-4 sm:p-5 text-left transition
-                   ${active ? "bg-gray-100" : "hover:bg-blue-50"}
-                   focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2]/50`}
+                key={item.title}
+                type="button"
+                onClick={() => setIdx(index)}
+                className={`w-full rounded-3xl border p-5 text-left transition ${
+                  isActive
+                    ? "border-cyan-300/60 bg-white text-slate-950 shadow-2xl shadow-cyan-950/20"
+                    : "border-white/10 bg-white/6 text-white hover:bg-white/10"
+                } focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="grid h-8 w-8 place-items-center rounded-md bg-[#1976D2] text-white shrink-0">
-                      <span className="text-xs">i</span>
-                    </span>
-                    <span className="font-medium text-[#0D2A5C] text-sm sm:text-base line-clamp-2">
-                      {it.title}
-                    </span>
-                  </div>
-                  <svg
-                    viewBox="0 0 20 20"
-                    className="h-5 w-5 text-[#1976D2] shrink-0"
-                    fill="currentColor"
-                    aria-hidden="true"
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${
+                      isActive ? "bg-blue-50 text-pos-blue-500" : "bg-white/10 text-cyan-200"
+                    }`}
                   >
-                    <path d="M7 5l5 5-5 5" />
-                  </svg>
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">{item.title}</h3>
+                    <p
+                      className={`mt-2 text-sm leading-6 ${
+                        isActive ? "text-slate-600" : "text-slate-300"
+                      }`}
+                    >
+                      {item.desc}
+                    </p>
+                  </div>
                 </div>
-                {active && (
-                  <p className="mt-3 text-sm text-gray-600">{it.desc}</p>
-                )}
               </button>
             );
           })}
         </div>
 
-        {/* Right image */}
-        <div className="flex items-center justify-center">
-          <div className="relative w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-4 shadow">
-            <div className="mb-3 flex gap-2">
-              <span className="h-3 w-3 rounded-full bg-red-400" />
-              <span className="h-3 w-3 rounded-full bg-yellow-400" />
-              <span className="h-3 w-3 rounded-full bg-green-400" />
+        <div className="rounded-[2rem] border border-white/10 bg-white p-5 text-slate-950 shadow-2xl shadow-black/20">
+          <div className="rounded-3xl bg-slate-950 p-5 text-white">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-cyan-200">
+                  EraPOS AI briefing
+                </p>
+                <h3 className="mt-1 text-2xl font-bold">{active.title}</h3>
+              </div>
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-cyan-300 text-slate-950">
+                <active.icon className="h-6 w-6" />
+              </div>
             </div>
+            <p className="mt-5 rounded-2xl bg-white/8 p-4 leading-7 text-slate-200">
+              {active.insight}
+            </p>
+          </div>
 
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-gradient-to-br from-gray-100 to-gray-200">
-              <Image
-                key={ITEMS[idx].image}
-                src={ITEMS[idx].image}
-                alt={ITEMS[idx].title}
-                fill
-                className="object-contain transition-opacity duration-300"
-                sizes="(min-width: 1024px) 640px, 100vw"
-                priority
-              />
-            </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {["Ưu tiên hôm nay", "Rủi ro cần xem", "Cơ hội tăng trưởng"].map(
+              (label, index) => (
+                <div key={label} className="rounded-2xl bg-slate-50 p-4">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <p className="mt-3 text-sm font-semibold text-slate-900">
+                    {label}
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-slate-950">
+                    {index === 0 ? "08" : index === 1 ? "03" : "12"}
+                  </p>
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>
-
-      {/* CTAs */}
-      <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4">
-        <a
-          href="#"
-          className="rounded-lg border border-orange-500 px-5 py-3 font-medium text-orange-600 hover:bg-orange-50"
-        >
-          Dùng thử miễn phí
-        </a>
-        <a
-          href="#"
-          className="rounded-lg bg-orange-500 px-5 py-3 font-medium text-white hover:bg-orange-600"
-        >
-          Nhận tư vấn
-        </a>
-      </div>
-    </section>
+    </LandingSection>
   );
 }

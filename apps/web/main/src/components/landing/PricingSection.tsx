@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Check, X } from "lucide-react";
+import { useState } from "react";
 
-type PlanKey = "basic" | "premium" | "deluxe";
+import { LandingSection, SectionHeader } from "./LandingSection";
+
+type PlanKey = "starter" | "growth" | "chain";
 
 const plans: Record<
   PlanKey,
@@ -12,212 +15,190 @@ const plans: Record<
     priceMonthly: number;
     cta: string;
     featured?: boolean;
+    note: string;
   }
 > = {
-  basic: {
-    title: "Basic",
-    subtitle:
-      "Limited use, has minimal features and can be used on one platform",
-    priceMonthly: 20,
-    cta: "Try for Free",
+  starter: {
+    title: "Starter",
+    subtitle: "Cho cửa hàng nhỏ bắt đầu quản lý bán hàng bài bản.",
+    priceMonthly: 70,
+    cta: "Dùng thử",
+    note: "1 điểm bán",
   },
-  premium: {
-    title: "Premium",
-    subtitle: "Unlimited usage and extra features not in basic class",
-    priceMonthly: 60,
-    cta: "Try for Free",
+  growth: {
+    title: "Growth",
+    subtitle: "Cho cửa hàng đang tăng trưởng và cần kiểm soát kho tốt hơn.",
+    priceMonthly: 180,
+    cta: "Dùng thử",
     featured: true,
+    note: "Tối ưu cho 2-5 điểm bán",
   },
-  deluxe: {
-    title: "Deluxe",
-    subtitle: "Everything is in your hands, you can adjust it to your needs",
-    priceMonthly: 80,
-    cta: "Contact Us",
+  chain: {
+    title: "Chain",
+    subtitle: "Cho chuỗi bán lẻ cần phân quyền, báo cáo và triển khai riêng.",
+    priceMonthly: 0,
+    cta: "Nhận tư vấn",
+    note: "Theo nhu cầu",
   },
 };
 
 const featureRows = [
   {
-    label: "14 Days Free",
-    values: { basic: true, premium: true, deluxe: true },
+    label: "Bán hàng, sản phẩm, khách hàng",
+    values: { starter: true, growth: true, chain: true },
   },
   {
-    label: "Accept Online Feedback",
-    values: { basic: true, premium: true, deluxe: true },
+    label: "Quản lý kho và cảnh báo tồn thấp",
+    values: { starter: true, growth: true, chain: true },
   },
   {
-    label: "Unlimited Items",
-    values: { basic: false, premium: true, deluxe: true },
+    label: "Báo cáo theo chi nhánh",
+    values: { starter: false, growth: true, chain: true },
   },
   {
-    label: "Unlimited Tablets",
-    values: { basic: false, premium: true, deluxe: true },
+    label: "Phân quyền nhân sự nâng cao",
+    values: { starter: false, growth: true, chain: true },
   },
   {
-    label: "Tablet App Menu",
-    values: { basic: false, premium: true, deluxe: true },
+    label: "AI assistant và cảnh báo vận hành",
+    values: { starter: false, growth: true, chain: true },
   },
 ];
 
 export default function PricingSection() {
   const [yearly, setYearly] = useState(false);
-  const formatPrice = (m: number) =>
-    yearly ? `$ ${m * 12} / yr` : `$ ${m} / mo`;
+
+  const formatPrice = (price: number) => {
+    if (price === 0) return "Liên hệ";
+    const value = yearly ? price * 10 : price;
+    return `${value.toLocaleString("vi-VN")}K`;
+  };
 
   return (
-    <section
-      id="pricing"
-      className="mx-auto max-w-6xl px-4 md:h-screen h-auto md:snap-always md:snap-center
-                 flex flex-col items-center justify-center w-full
-                 scroll-mt-20 sm:scroll-mt-24 md:scroll-mt-12 py-12 md:py-0"
-    >
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Lựa chọn an toàn, tạm biệt rủi ro
-        </h2>
-        <p className="mt-2 text-sm text-gray-500">
-          Dùng thử miễn phí 14 ngày, mở khóa tất cả tính năng
-        </p>
+    <LandingSection id="pricing">
+      <SectionHeader
+        eyebrow="Bảng giá"
+        title="Bắt đầu gọn, mở rộng khi vận hành lớn hơn"
+        description="Bạn có thể dùng thử trước khi chọn gói. Khi số lượng chi nhánh, nhân sự và quy trình tăng lên, EraPOS vẫn giữ trải nghiệm quản lý rõ ràng."
+      />
 
-        {/* Toggle */}
-        <div className="mt-6 flex items-center justify-center gap-4 text-sm">
-          <span className={!yearly ? "font-semibold" : "text-gray-500"}>
-            Theo tháng
-          </span>
+      <div className="mt-8 flex justify-center">
+        <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-sm font-semibold">
           <button
             type="button"
-            onClick={() => setYearly((v) => !v)}
-            aria-pressed={yearly}
-            className={`relative h-7 w-14 overflow-hidden rounded-full transition-colors ${
-              yearly ? "bg-gray-900" : "bg-gray-300"
+            onClick={() => setYearly(false)}
+            className={`rounded-full px-4 py-2 transition ${
+              !yearly ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"
             }`}
           >
-            <span
-              className={`absolute left-1 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow transition-transform duration-200 ${
-                yearly ? "translate-x-7" : "translate-x-0"
-              }`}
-            />
+            Theo tháng
           </button>
-          <span className={yearly ? "font-semibold" : "text-gray-500"}>
-            Theo năm
-          </span>
+          <button
+            type="button"
+            onClick={() => setYearly(true)}
+            className={`rounded-full px-4 py-2 transition ${
+              yearly ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"
+            }`}
+          >
+            Theo năm - tiết kiệm 2 tháng
+          </button>
         </div>
       </div>
 
-      {/* Cards */}
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 items-stretch w-full">
+      <div className="mt-10 grid gap-5 lg:grid-cols-3">
         {Object.entries(plans).map(([key, plan]) => {
           const isFeatured = !!plan.featured;
           return (
-            <div
+            <article
               key={key}
-              className={`flex flex-col rounded-xl border bg-white p-6 shadow-sm transition h-full ${
-                isFeatured ? "ring-1 ring-gray-400 sm:-mt-4" : "border-gray-200"
+              className={`relative flex h-full flex-col rounded-3xl border bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                isFeatured
+                  ? "border-blue-300 shadow-blue-100 ring-4 ring-blue-50"
+                  : "border-slate-200"
               }`}
             >
               {isFeatured && (
-                <span className="mb-3 inline-block rounded-md bg-gray-200 px-3 py-1 text-xs font-medium text-gray-700">
-                  Most Popular
+                <span className="mb-4 w-fit rounded-full bg-pos-blue-500 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+                  Phổ biến
                 </span>
               )}
-              <h3 className="text-lg font-semibold">{plan.title}</h3>
-              <p className="mt-1 text-sm text-gray-600">{plan.subtitle}</p>
-              <div className="mt-6 text-3xl font-bold">
-                {formatPrice(plan.priceMonthly)}
+              <h3 className="text-2xl font-bold text-slate-950">{plan.title}</h3>
+              <p className="mt-3 min-h-14 leading-7 text-slate-600">
+                {plan.subtitle}
+              </p>
+              <div className="mt-6 flex items-end gap-2">
+                <span className="text-4xl font-bold text-slate-950">
+                  {formatPrice(plan.priceMonthly)}
+                </span>
+                {plan.priceMonthly > 0 && (
+                  <span className="pb-1 text-sm font-semibold text-slate-500">
+                    / {yearly ? "năm" : "tháng"}
+                  </span>
+                )}
               </div>
+              <p className="mt-2 text-sm font-medium text-slate-500">{plan.note}</p>
 
-              <div className="mt-auto mb-6 pt-6">
-                <button
-                  className={`w-full rounded-md px-4 py-2 text-sm font-medium ${
-                    plan.cta === "Contact Us"
-                      ? "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                      : isFeatured
-                        ? "bg-gray-800 text-white hover:bg-gray-900"
-                        : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {plan.cta}
-                </button>
-              </div>
-            </div>
+              <a
+                href={plan.priceMonthly === 0 ? "#contact" : "/auth/register"}
+                className={`mt-8 inline-flex justify-center rounded-full px-5 py-3 text-sm font-bold transition ${
+                  isFeatured
+                    ? "bg-pos-blue-500 text-white hover:bg-blue-700"
+                    : "border border-slate-300 text-slate-800 hover:border-slate-400 hover:bg-slate-50"
+                }`}
+              >
+                {plan.cta}
+              </a>
+            </article>
           );
         })}
       </div>
 
-      {/* Comparison table (keeps desktop look; mobile scrolls horizontally) */}
-      <div className="mt-12 w-full overflow-x-auto">
-        <table className="w-full min-w-[720px] md:min-w-0 border-collapse text-left text-sm">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr>
-              <th className="px-6 py-3 font-semibold">TEST MANAGEMENT</th>
-              <th className="px-6 py-3 text-center font-semibold">BASIC</th>
-              <th className="px-6 py-3 text-center font-semibold">PREMIUM</th>
-              <th className="px-6 py-3 text-center font-semibold">DELUXE</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {featureRows.map((row) => (
-              <tr key={row.label} className="odd:bg-white even:bg-gray-50">
-                <td className="px-6 py-4 text-gray-700">{row.label}</td>
-                <td className="px-6 py-4">
-                  <Cell value={row.values.basic} />
-                </td>
-                <td className="px-6 py-4">
-                  <Cell value={row.values.premium} />
-                </td>
-                <td className="px-6 py-4">
-                  <Cell value={row.values.deluxe} />
-                </td>
+      <div className="mt-10 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+            <thead className="bg-slate-50 text-slate-700">
+              <tr>
+                <th className="px-6 py-4 font-bold">Tính năng</th>
+                <th className="px-6 py-4 text-center font-bold">Starter</th>
+                <th className="px-6 py-4 text-center font-bold">Growth</th>
+                <th className="px-6 py-4 text-center font-bold">Chain</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {featureRows.map((row) => (
+                <tr key={row.label} className="odd:bg-white even:bg-slate-50/50">
+                  <td className="px-6 py-4 font-medium text-slate-700">
+                    {row.label}
+                  </td>
+                  <td className="px-6 py-4">
+                    <Cell value={row.values.starter} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Cell value={row.values.growth} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Cell value={row.values.chain} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </section>
+    </LandingSection>
   );
 }
 
 function Cell({ value }: { value: boolean }) {
-  const Icon = useMemo(() => (value ? CheckIcon : CrossIcon), [value]);
   return (
     <div className="flex items-center justify-center">
       <span
-        className={`inline-flex h-6 w-6 items-center justify-center rounded-full ${
-          value ? "bg-gray-200 text-gray-800" : "bg-gray-200 text-gray-500"
+        className={`grid h-7 w-7 place-items-center rounded-full ${
+          value ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400"
         }`}
       >
-        <Icon className="h-3.5 w-3.5" />
+        {value ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
       </span>
     </div>
-  );
-}
-
-function CheckIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      className={className}
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        fillRule="evenodd"
-        d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0L3.293 9.957a1 1 0 0 1 1.414-1.414l3.043 3.043 6.543-6.543a1 1 0 0 1 1.414 0z"
-        clipRule="evenodd"
-      />
-    </svg>
-  );
-}
-
-function CrossIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      className={className}
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M6.225 4.811a1 1 0 0 0-1.414 1.414L8.586 10l-3.775 3.775a1 1 0 1 0 1.414 1.414L10 11.414l3.775 3.775a1 1 0 0 0 1.414-1.414L11.414 10l3.775-3.775a1 1 0 1 0-1.414-1.414L10 8.586 6.225 4.811z" />
-    </svg>
   );
 }

@@ -1,137 +1,127 @@
-// app/components/ConsultForm.tsx
+import { CalendarCheck2, CheckCircle2, Headphones, ShieldCheck } from "lucide-react";
+
+import { LandingContainer } from "./LandingSection";
+
+const benefits = [
+  "Tư vấn mô hình phù hợp cho cửa hàng nhỏ hoặc chuỗi bán lẻ",
+  "Demo luồng bán hàng, kho, báo cáo và phân quyền",
+  "Gợi ý lộ trình triển khai không làm gián đoạn vận hành",
+  "Dùng thử trước khi quyết định gói phù hợp",
+];
+
 export default function ConsultForm() {
   return (
     <section
       id="contact"
-      className="relative w-full md:h-screen h-auto md:snap-always md:snap-center
-                 md:flex md:items-center md:justify-center
-                 scroll-mt-20 sm:scroll-mt-24 md:scroll-mt-12 py-12 md:py-0"
-      style={{
-        backgroundImage:
-          "linear-gradient(to bottom, rgba(6,35,110,1), rgba(28,83,214,0.95), rgba(255,255,255,0))",
-      }}
+      className="relative overflow-hidden bg-[#06172f] py-16 text-white sm:py-20"
     >
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-8 sm:gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,520px)_1fr] lg:gap-12 lg:px-8">
-        {/* RIGHT on desktop, but FIRST on mobile */}
-        <div className="text-white order-1 lg:order-2">
-          <h2 className="text-center lg:text-left text-3xl md:text-4xl font-extrabold tracking-tight">
-            ĐĂNG KÝ NHẬN TƯ VẤN VÀ <br className="hidden md:block" />
-            DÙNG THỬ MIỄN PHÍ
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_20%,rgba(34,211,238,0.18),transparent_30%),radial-gradient(circle_at_86%_10%,rgba(34,197,94,0.16),transparent_30%)]" />
+      <LandingContainer className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200">
+            Nhận tư vấn triển khai
+          </p>
+          <h2 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+            Cùng đội ngũ EraPOS thiết kế quy trình bán lẻ phù hợp với mô hình của bạn.
           </h2>
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+            Không cần thay đổi toàn bộ cách vận hành ngay lập tức. Chúng tôi giúp bạn bắt đầu từ điểm đau lớn nhất, rồi mở rộng khi dữ liệu và đội ngũ đã sẵn sàng.
+          </p>
 
-          <ul className="mt-8 space-y-4 text-base/relaxed md:text-lg">
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {[
-              "Giá cả hợp lý chỉ từ 70K/tháng",
-              "Đa dạng tính năng quản lý bán hàng",
-              "Tích hợp hoá đơn khởi tạo từ máy tính tiền",
-              "Giao diện trực quan, dễ dàng sử dụng",
-              "Theo dõi tình hình kinh doanh từ xa qua điện thoại",
-              "Tiết kiệm thời gian, công sức",
-            ].map((line, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/15">
-                  <svg
-                    viewBox="0 0 20 20"
-                    className="h-4 w-4 text-white"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0L3.293 9.957a1 1 0 0 1 1.414-1.414l3.043 3.043 6.543-6.543a1 1 0 0 1 1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </span>
+              { icon: CalendarCheck2, label: "Lịch demo nhanh" },
+              { icon: Headphones, label: "Hỗ trợ tiếng Việt" },
+              { icon: ShieldCheck, label: "Dữ liệu tập trung" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-2xl border border-white/10 bg-white/8 p-4"
+              >
+                <item.icon className="h-5 w-5 text-cyan-200" />
+                <p className="mt-3 text-sm font-semibold">{item.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <ul className="mt-8 space-y-3">
+            {benefits.map((line) => (
+              <li key={line} className="flex gap-3 text-slate-200">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
                 <span>{line}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* LEFT on desktop, but SECOND on mobile */}
-        <div className="rounded-2xl bg-white p-5 shadow-xl ring-1 ring-black/5 sm:p-6 md:p-7 lg:p-8 order-2 lg:order-1">
-          <h3 className="text-center text-base font-semibold tracking-wide text-[#0D2A5C]">
-            ĐĂNG KÝ NHẬN TƯ VẤN VÀ DÙNG THỬ
-          </h3>
+        <div className="rounded-[2rem] border border-white/10 bg-white p-5 text-slate-950 shadow-2xl shadow-black/20 sm:p-7">
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold">Đăng ký nhận tư vấn</h3>
+            <p className="mt-2 text-slate-600">
+              Điền thông tin, đội ngũ EraPOS sẽ liên hệ để demo theo mô hình vận hành của bạn.
+            </p>
+          </div>
 
-          <form className="mt-5 space-y-4">
-            <div>
-              <label htmlFor="name" className="sr-only">
-                Họ và tên
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                autoComplete="name"
-                placeholder="Họ và tên *"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none ring-blue-500/20 placeholder:text-gray-400 focus:ring-4"
-              />
+          <form className="grid gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field id="name" label="Họ và tên" autoComplete="name" />
+              <Field id="phone" label="Số điện thoại" type="tel" autoComplete="tel" />
+            </div>
+            <Field id="email" label="Email" type="email" autoComplete="email" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field id="business" label="Tên cửa hàng / doanh nghiệp" />
+              <Field id="branches" label="Số chi nhánh hiện tại" />
             </div>
             <div>
-              <label htmlFor="email" className="sr-only">
-                Email
+              <label htmlFor="need" className="mb-2 block text-sm font-semibold text-slate-700">
+                Nhu cầu chính
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                autoComplete="email"
-                placeholder="Email *"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none ring-blue-500/20 placeholder:text-gray-400 focus:ring-4"
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="sr-only">
-                Số điện thoại
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                required
-                autoComplete="tel"
-                placeholder="Số điện thoại *"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none ring-blue-500/20 placeholder:text-gray-400 focus:ring-4"
-              />
-            </div>
-            <div>
-              <label htmlFor="tax" className="sr-only">
-                Mã số thuế
-              </label>
-              <input
-                id="tax"
-                name="tax"
-                type="text"
-                placeholder="Mã số thuế *"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none ring-blue-500/20 placeholder:text-gray-400 focus:ring-4"
-              />
-            </div>
-            <div>
-              <label htmlFor="product" className="sr-only">
-                Sản phẩm quan tâm
-              </label>
-              <input
-                id="product"
-                name="product"
-                type="text"
-                placeholder="Sản phẩm quan tâm *"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none ring-blue-500/20 placeholder:text-gray-400 focus:ring-4"
+              <textarea
+                id="need"
+                name="need"
+                rows={4}
+                placeholder="Ví dụ: cần quản lý kho nhiều chi nhánh, báo cáo doanh thu, tích hợp hóa đơn..."
+                className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
               />
             </div>
 
             <button
               type="submit"
-              className="mt-2 w-full rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600"
+              className="mt-2 rounded-full bg-pos-blue-500 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-blue-500/20 transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
             >
-              Nhận tư vấn ngay!
+              Gửi yêu cầu tư vấn
             </button>
           </form>
         </div>
-      </div>
+      </LandingContainer>
     </section>
+  );
+}
+
+function Field({
+  id,
+  label,
+  type = "text",
+  autoComplete,
+}: {
+  id: string;
+  label: string;
+  type?: string;
+  autoComplete?: string;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="mb-2 block text-sm font-semibold text-slate-700">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={id}
+        type={type}
+        autoComplete={autoComplete}
+        placeholder={label}
+        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+      />
+    </div>
   );
 }
