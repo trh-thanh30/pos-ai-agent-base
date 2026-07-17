@@ -64,7 +64,7 @@ describe('CreateProductUseCase', () => {
         barcode: 'BAR-1',
         categoryIds: ['category-1'],
         tagIds: ['tag-1'],
-      } as never,
+      },
       file: { originalname: 'a.png' } as never,
     });
 
@@ -144,7 +144,7 @@ describe('CreateProductUseCase', () => {
         sku: 'SKU-1',
         baseUnit: 'pcs',
         quantity: 0,
-      } as never,
+      },
     });
 
     expect(stockMovementService.create).not.toHaveBeenCalled();

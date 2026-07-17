@@ -20,11 +20,7 @@ export class ProductValidatorUtil {
     return product;
   }
 
-  async ensureSkuAvailable(
-    sku: string,
-    storeId: string,
-    productId?: string,
-  ) {
+  async ensureSkuAvailable(sku: string, storeId: string, productId?: string) {
     const product = await this.productRepository.findBySku(
       storeId,
       sku,
