@@ -28,9 +28,13 @@ export class RefreshTokenUseCase {
 
     let store: Store | null = null;
     if (payload.storeId) {
-      store = await this.authRepository.findStoreById(payload.storeId as string);
+      store = await this.authRepository.findStoreById(
+        payload.storeId as string,
+      );
     } else {
-      store = await this.authRepository.findFirstOwnedStore(payload.id as string);
+      store = await this.authRepository.findFirstOwnedStore(
+        payload.id as string,
+      );
     }
 
     if (store) {

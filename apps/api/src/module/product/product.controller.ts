@@ -32,18 +32,20 @@ import z from 'zod';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ImportExcelProductDto } from './dto/import-product-by-excel.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ProductService } from './product.service';
+import { CreateProductUseCase } from './use-cases/create-product.use-case';
 import { DeleteProductUseCase } from './use-cases/delete-product.use-case';
 import { FilterProductsUseCase } from './use-cases/filter-products.use-case';
 import { GetProductDetailUseCase } from './use-cases/get-product-detail.use-case';
+import { UpdateProductUseCase } from './use-cases/update-product.use-case';
 @Controller('products')
 export class ProductController {
   constructor(
-    private readonly productService: ProductService,
     private readonly excel: ProductExcelService,
+    private readonly createProductUseCase: CreateProductUseCase,
     private readonly filterProductsUseCase: FilterProductsUseCase,
     private readonly getProductDetailUseCase: GetProductDetailUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
+    private readonly updateProductUseCase: UpdateProductUseCase,
   ) {}
 
   @Get('filter-product')
@@ -94,12 +96,12 @@ export class ProductController {
     @Body() createProductDto: CreateProductDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.productService.create(
+    return this.createProductUseCase.execute({
       user,
-      user.storeId || '',
-      createProductDto,
+      storeId: user.storeId || '',
+      data: createProductDto,
       file,
-    );
+    });
   }
 
   @Get(':id')
@@ -119,13 +121,13 @@ export class ProductController {
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.productService.update(
-      user.storeId || '',
-      id,
-      updateProductDto,
+    return this.updateProductUseCase.execute({
       user,
+      storeId: user.storeId || '',
+      productId: id,
+      data: updateProductDto,
       file,
-    );
+    });
   }
 
   @Delete(':id')

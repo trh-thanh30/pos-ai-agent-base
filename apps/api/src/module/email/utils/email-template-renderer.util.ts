@@ -19,9 +19,24 @@ export class EmailTemplateRendererUtil {
     const fileName = `${templateName}.hbs`;
     const candidates = [
       path.join(process.cwd(), 'src', 'module', 'email', 'templates', fileName),
-      path.join(process.cwd(), 'dist', 'module', 'email', 'templates', fileName),
+      path.join(
+        process.cwd(),
+        'dist',
+        'module',
+        'email',
+        'templates',
+        fileName,
+      ),
       path.join(__dirname, '..', 'templates', fileName),
-      path.join(__dirname, '..', '..', 'module', 'email', 'templates', fileName),
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'module',
+        'email',
+        'templates',
+        fileName,
+      ),
     ];
 
     const templatePath = candidates.find((candidate) =>
