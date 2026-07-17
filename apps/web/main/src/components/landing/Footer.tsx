@@ -41,7 +41,7 @@ export default function Footer() {
           <div>
             <Logo isTextWhite />
             <p className="mt-5 max-w-md leading-7 text-slate-400">
-              EraPOS giúp cửa hàng nhỏ và chuỗi bán lẻ quản lý bán hàng, kho, khách hàng, hóa đơn và dữ liệu vận hành trong một nền tảng thống nhất.
+              NexPOS giúp cửa hàng nhỏ và chuỗi bán lẻ quản lý bán hàng, kho, khách hàng, hóa đơn và dữ liệu vận hành trong một nền tảng thống nhất.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -83,7 +83,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10">
         <LandingContainer className="flex flex-col gap-3 py-5 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} EraPOS. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} NexPOS. All rights reserved.</p>
           <div className="flex gap-5">
             <Link href="#" className="hover:text-white">
               Điều khoản

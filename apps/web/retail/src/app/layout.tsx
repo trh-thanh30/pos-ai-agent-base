@@ -4,26 +4,26 @@ import { Metadata, Viewport } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
-  title: "EraPOS - Phần mềm quản lý bán hàng",
+  title: "NexPOS - Phần mềm quản lý bán hàng",
   description:
     "Phần mềm quản lý bán hàng giúp bạn quản lý khách hàng, hóa đơn, báo cáo, ...",
-  generator: "EraPOS",
-  applicationName: "EraPOS",
+  generator: "NexPOS",
+  applicationName: "NexPOS",
   keywords: [
-    "EraPOS",
+    "NexPOS",
     "Phần mềm quản lý bán hàng",
     "Phần mềm quản lý bán hàng",
     "Phần mềm quản lý bán hàng",
   ],
-  authors: [{ name: "EraPOS", url: "https://erapos.vn" }],
-  creator: "EraPOS",
-  publisher: "EraPOS",
+  authors: [{ name: "NexPOS", url: "https://nexpos.vn" }],
+  creator: "NexPOS",
+  publisher: "NexPOS",
   openGraph: {
-    title: "EraPOS - Phần mềm quản lý bán hàng",
+    title: "NexPOS - Phần mềm quản lý bán hàng",
     description:
       "Phần mềm quản lý bán hàng giúp bạn quản lý khách hàng, hóa đơn, báo cáo, ...",
-    url: "https://erapos.vn",
-    siteName: "EraPOS",
+    url: "https://nexpos.vn",
+    siteName: "NexPOS",
     images: [{ url: "/images/og-image.png" }],
   },
   manifest: "/manifest.json",

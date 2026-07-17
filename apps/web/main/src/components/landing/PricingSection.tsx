@@ -79,7 +79,7 @@ export default function PricingSection() {
       <SectionHeader
         eyebrow="Bảng giá"
         title="Bắt đầu gọn, mở rộng khi vận hành lớn hơn"
-        description="Bạn có thể dùng thử trước khi chọn gói. Khi số lượng chi nhánh, nhân sự và quy trình tăng lên, EraPOS vẫn giữ trải nghiệm quản lý rõ ràng."
+        description="Bạn có thể dùng thử trước khi chọn gói. Khi số lượng chi nhánh, nhân sự và quy trình tăng lên, NexPOS vẫn giữ trải nghiệm quản lý rõ ràng."
       />
 
       <div className="mt-8 flex justify-center">

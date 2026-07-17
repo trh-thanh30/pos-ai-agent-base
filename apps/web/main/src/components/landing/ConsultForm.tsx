@@ -13,18 +13,18 @@ export default function ConsultForm() {
   return (
     <section
       id="contact"
-      className="relative overflow-hidden bg-[#06172f] py-16 text-white sm:py-24"
+      className="relative overflow-hidden bg-[#f7fbff] py-16 text-slate-900 sm:py-24"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_20%,rgba(34,211,238,0.18),transparent_30%),radial-gradient(circle_at_86%_10%,rgba(34,197,94,0.16),transparent_30%)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_16%_20%,rgba(14,165,233,0.12),transparent_30%),radial-gradient(circle_at_86%_10%,rgba(34,197,94,0.1),transparent_30%)]" />
       <LandingContainer className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-pos-blue-500">
             Nhận tư vấn triển khai
           </p>
-          <h2 className="mt-4 text-3xl font-bold  sm:text-4xl lg:text-5xl">
-            Cùng đội ngũ EraPOS thiết kế quy trình bán lẻ phù hợp với mô hình của bạn.
+          <h2 className="mt-4 text-3xl font-bold leading-tight text-slate-950 sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-[1.15]">
+            Cùng đội ngũ NexPOS thiết kế quy trình bán lẻ phù hợp với mô hình của bạn.
           </h2>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
             Không cần thay đổi toàn bộ cách vận hành ngay lập tức. Chúng tôi giúp bạn bắt đầu từ
             điểm đau lớn nhất, rồi mở rộng khi dữ liệu và đội ngũ đã sẵn sàng.
           </p>
@@ -35,28 +35,28 @@ export default function ConsultForm() {
               { icon: Headphones, label: 'Hỗ trợ tiếng Việt' },
               { icon: ShieldCheck, label: 'Dữ liệu tập trung' },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/10 bg-white/8 p-4">
-                <item.icon className="h-5 w-5 text-cyan-200" />
-                <p className="mt-3 text-sm font-semibold">{item.label}</p>
+              <div key={item.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <item.icon className="h-5 w-5 text-pos-blue-500" />
+                <p className="mt-3 text-sm font-semibold text-slate-800">{item.label}</p>
               </div>
             ))}
           </div>
 
           <ul className="mt-8 space-y-3">
             {benefits.map((line) => (
-              <li key={line} className="flex gap-3 text-slate-200">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
+              <li key={line} className="flex gap-3 text-slate-600">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                 <span>{line}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-white p-5 text-slate-950 shadow-2xl shadow-black/20 sm:p-7">
+        <div className="rounded-[2rem] border border-slate-200/80 bg-white p-5 text-slate-950 shadow-xl shadow-slate-200/60 sm:p-7 backdrop-blur-md">
           <div className="mb-6">
             <h3 className="text-2xl font-bold">Đăng ký nhận tư vấn</h3>
             <p className="mt-2 text-slate-600">
-              Điền thông tin, đội ngũ EraPOS sẽ liên hệ để demo theo mô hình vận hành của bạn.
+              Điền thông tin, đội ngũ NexPOS sẽ liên hệ để demo theo mô hình vận hành của bạn.
             </p>
           </div>
 

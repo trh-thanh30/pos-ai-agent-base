@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'EraPOS - Phần mềm quản lý bán hàng',
-        short_name: 'EraPOS',
+        name: 'NexPOS - Phần mềm quản lý bán hàng',
+        short_name: 'NexPOS',
         description: 'Phần mềm quản lý bán hàng giúp bạn quản lý khách hàng, hóa đơn, báo cáo, ...',
         start_url: '/',
         display: 'standalone',

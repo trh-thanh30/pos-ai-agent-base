@@ -18,7 +18,7 @@ export default function Logo({ isTextWhite, link }: { isTextWhite?: boolean; lin
       <span
         className={`text-2xl font-semibold tracking-tight ${isTextWhite ? 'text-white' : 'text-pos-blue-500'}`}
       >
-        EraPOS
+        NexPOS
       </span>
     </RouterLink>
   );

@@ -14,7 +14,7 @@ const slides = [
     id: 0,
     badge: 'Nền tảng quản lý bán lẻ',
     title: 'Bán hàng tại quầy siêu tốc, thanh toán đa phương thức',
-    desc: 'EraPOS tối ưu hóa quy trình thanh toán chỉ trong 3 giây. Hỗ trợ quét mã vạch chuyên nghiệp, in hóa đơn tự động và đồng bộ doanh thu tức thì.',
+    desc: 'NexPOS tối ưu hóa quy trình thanh toán chỉ trong 3 giây. Hỗ trợ quét mã vạch chuyên nghiệp, in hóa đơn tự động và đồng bộ doanh thu tức thì.',
     image: '/phan-mem-quan-ly-ban-hang.png',
   },
   {

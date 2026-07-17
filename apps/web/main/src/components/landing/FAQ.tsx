@@ -7,7 +7,7 @@ import { LandingSection, SectionHeader } from "./LandingSection";
 
 const items = [
   {
-    question: "EraPOS phù hợp với cửa hàng nhỏ hay chuỗi bán lẻ?",
+    question: "NexPOS phù hợp với cửa hàng nhỏ hay chuỗi bán lẻ?",
     answer:
       "Phù hợp cả hai. Cửa hàng nhỏ có thể bắt đầu với bán hàng, kho và khách hàng cơ bản. Khi mở rộng nhiều chi nhánh, hệ thống hỗ trợ phân quyền, báo cáo tập trung và kiểm soát vận hành theo từng điểm bán.",
   },
@@ -17,7 +17,7 @@ const items = [
       "Không cần. Bạn có thể triển khai theo từng bước: bán hàng tại quầy, quản lý kho, khách hàng, sau đó mở rộng sang báo cáo chuỗi, phân quyền và AI assistant.",
   },
   {
-    question: "EraPOS có hỗ trợ hóa đơn điện tử từ máy tính tiền không?",
+    question: "NexPOS có hỗ trợ hóa đơn điện tử từ máy tính tiền không?",
     answer:
       "Có. Hệ thống hỗ trợ quy trình hóa đơn, lưu chứng từ và đồng bộ dữ liệu bán hàng để đội vận hành dễ đối soát.",
   },

@@ -37,7 +37,7 @@ export default function SideBar({
     ${isExpand ? 'truncate max-w-full' : 'hidden'}
   `}
           >
-            EraPOS
+            NexPOS
           </p>
         </div>
 
