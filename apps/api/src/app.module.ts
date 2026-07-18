@@ -51,7 +51,7 @@ import { OrdersModule } from './module/orders/orders.module';
 import { PurchaseOrderModule } from './module/purchase-order/purchase-order.module';
 import { PurchaseReturnModule } from './module/purchase-return/purchase-return.module';
 import { ReportModule } from './module/report/report.module';
-import { StatisticsModule } from './module/statistics/statistics.module';
+import { AnalyticsModule } from './module/analytics/analytics.module';
 import { StockMovementModule } from './module/stock-movement/stock-movement.module';
 import { StoreMemberModule } from './module/store-member/store-member.module';
 import { StorePaymentModule } from './module/store-payment/store-payment.module';
@@ -148,7 +148,7 @@ import { AdminModule } from './module/admin/admin.module';
     CategoryModule,
     DocsModule,
     OrdersModule,
-    StatisticsModule,
+    AnalyticsModule,
     CustomerModule,
     CommonModule,
     StorePaymentModule,
