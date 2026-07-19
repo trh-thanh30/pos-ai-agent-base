@@ -46,11 +46,11 @@ export function AnalyticsHeatmap({
                           ? 3
                           : 4;
                 const colors = [
-                  "bg-[#eef1f2]",
-                  "bg-[#c9e4df]",
-                  "bg-[#82c0b5]",
-                  "bg-[#3f998b]",
-                  "bg-[#126f65]",
+                  "bg-[#eef1f2]",   // 0 — empty
+                  "bg-blue-100",    // 1 — low
+                  "bg-blue-300",    // 2 — medium-low
+                  "bg-blue-500",    // 3 — medium-high
+                  "bg-blue-600",    // 4 — highest
                 ];
                 return (
                   <span
@@ -66,7 +66,7 @@ export function AnalyticsHeatmap({
         </div>
         <div className="mt-3 flex items-center justify-end gap-1 text-[10px] text-[#7b878d]">
           <span>Thấp</span>
-          {["#eef1f2", "#c9e4df", "#82c0b5", "#3f998b", "#126f65"].map(
+          {["#eef1f2", "#bfdbfe", "#93c5fd", "#3b82f6", "#2563eb"].map(
             (color) => (
               <span
                 key={color}

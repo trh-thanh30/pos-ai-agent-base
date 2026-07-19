@@ -23,7 +23,7 @@ export function AnalyticsPanel({
       <header className="flex min-h-16 items-start justify-between gap-4 border-b border-[#edf0f2] px-4 py-3.5 sm:px-5">
         <div className="flex min-w-0 items-start gap-3">
           {Icon && (
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[6px] bg-[#e6f3f1] text-[#0f766e]">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[6px] bg-blue-50 text-blue-500">
               <Icon size={17} aria-hidden="true" />
             </span>
           )}

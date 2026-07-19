@@ -19,7 +19,7 @@ export function AnalyticsRevenueChart({
       h={280}
       data={data}
       dataKey="key"
-      series={[{ name: "revenue", label: "Doanh thu", color: "#0f766e" }]}
+      series={[{ name: "revenue", label: "Doanh thu", color: "#3b82f6" }]}
       curveType="monotone"
       fillOpacity={0.12}
       strokeWidth={2.5}
@@ -39,7 +39,7 @@ export function AnalyticsRevenueChart({
               <p className="font-semibold text-gray-900">{label}</p>
               <p className="mt-1 text-gray-600">
                 Doanh thu:{" "}
-                <span className="font-semibold text-teal-700">
+                <span className="font-semibold text-blue-600">
                   {formatCurrency(point.revenue)}
                 </span>
               </p>

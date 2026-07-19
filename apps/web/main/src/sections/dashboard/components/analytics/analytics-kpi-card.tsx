@@ -17,7 +17,7 @@ export function AnalyticsKpiCard({
   inverse?: boolean;
 }) {
   const tones = {
-    teal: "bg-[#e6f3f1] text-[#0f766e]",
+    teal: "bg-[#dbeafe] text-[#1c7ed6]",
     blue: "bg-[#e9f0fb] text-[#3567a8]",
     amber: "bg-[#fff3d6] text-[#9a6512]",
     coral: "bg-[#fceae5] text-[#b54e36]",
@@ -46,7 +46,7 @@ export function AnalyticsKpiCard({
         <span
           className={`inline-flex h-6 items-center gap-1 rounded-[6px] px-2 text-[11px] font-bold ${
             isPositive
-              ? "bg-[#e7f5ed] text-[#237a48]"
+              ? "bg-[#dbeafe] text-[#1c7ed6]"
               : isNegative
                 ? "bg-[#fce9e6] text-[#b54232]"
                 : "bg-[#f1f3f4] text-[#6c777d]"

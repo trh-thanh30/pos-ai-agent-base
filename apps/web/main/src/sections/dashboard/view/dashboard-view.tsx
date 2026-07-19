@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
+import { SegmentedControl } from '@mantine/core';
 import {
   AnalyticsPaymentDonut,
   AnalyticsRevenueChart,
-} from "@repo/design-system/components/shared/chart-screen";
-import { formatCompactNumber, formatCurrency } from "@repo/utils";
+} from '@repo/design-system/components/shared/chart-screen';
+import { formatCompactNumber, formatCurrency } from '@repo/utils';
 import {
   AlertTriangle,
   BarChart3,
@@ -21,52 +22,49 @@ import {
   TrendingUp,
   UserRoundCheck,
   UsersRound,
-} from "lucide-react";
-import { useState } from "react";
-import useAnalytics, {
-  type AnalyticsPreset,
-} from "../../../hooks/analytics/use-analytics";
-import { AnalyticsDashboardSkeleton } from "../components/analytics/analytics-dashboard-skeleton";
-import { AnalyticsHeatmap } from "../components/analytics/analytics-heatmap";
-import { AnalyticsKpiCard } from "../components/analytics/analytics-kpi-card";
-import { AnalyticsPanel } from "../components/analytics/analytics-panel";
+} from 'lucide-react';
+import { useState } from 'react';
+import useAnalytics, { type AnalyticsPreset } from '../../../hooks/analytics/use-analytics';
+import { AnalyticsDashboardSkeleton } from '../components/analytics/analytics-dashboard-skeleton';
+import { AnalyticsHeatmap } from '../components/analytics/analytics-heatmap';
+import { AnalyticsKpiCard } from '../components/analytics/analytics-kpi-card';
+import { AnalyticsPanel } from '../components/analytics/analytics-panel';
 
 const presetOptions: Array<{ value: AnalyticsPreset; label: string }> = [
-  { value: "today", label: "Hôm nay" },
-  { value: "7d", label: "7 ngày" },
-  { value: "30d", label: "30 ngày" },
-  { value: "this_month", label: "Tháng này" },
+  { value: 'today', label: 'Hôm nay' },
+  { value: '7d', label: '7 ngày' },
+  { value: '30d', label: '30 ngày' },
+  { value: 'this_month', label: 'Tháng này' },
 ];
 
 const paymentMeta: Record<string, { label: string; color: string }> = {
-  CASH: { label: "Tiền mặt", color: "#0f766e" },
-  BANK_TRANSFER: { label: "Chuyển khoản", color: "#3f6fa8" },
-  CREDIT_CARD: { label: "Thẻ tín dụng", color: "#d18b28" },
-  DEBIT_CARD: { label: "Thẻ ghi nợ", color: "#c65d45" },
-  DIGITAL_WALLET: { label: "Ví điện tử", color: "#79589b" },
+  CASH: { label: 'Tiền mặt', color: '#1c7ed6' },
+  BANK_TRANSFER: { label: 'Chuyển khoản', color: '#3f6fa8' },
+  CREDIT_CARD: { label: 'Thẻ tín dụng', color: '#d18b28' },
+  DEBIT_CARD: { label: 'Thẻ ghi nợ', color: '#c65d45' },
+  DIGITAL_WALLET: { label: 'Ví điện tử', color: '#79589b' },
 };
 
 const orderStatusMeta: Record<string, { label: string; color: string }> = {
-  COMPLETED: { label: "Hoàn thành", color: "#0f766e" },
-  PENDING: { label: "Chờ xử lý", color: "#d18b28" },
-  PROCESSING: { label: "Đang xử lý", color: "#3f6fa8" },
-  CANCELLED: { label: "Đã hủy", color: "#c65d45" },
-  RETURNED: { label: "Đã trả", color: "#79589b" },
-  OVERAGE: { label: "Quá trình", color: "#6f7b81" },
+  COMPLETED: { label: 'Hoàn thành', color: '#1c7ed6' },
+  PENDING: { label: 'Chờ xử lý', color: '#d18b28' },
+  PROCESSING: { label: 'Đang xử lý', color: '#3f6fa8' },
+  CANCELLED: { label: 'Đã hủy', color: '#c65d45' },
+  RETURNED: { label: 'Đã trả', color: '#79589b' },
+  OVERAGE: { label: 'Quá trình', color: '#6f7b81' },
 };
 
 const inventoryMeta = {
-  out_of_stock: { label: "Hết hàng", className: "bg-[#fce9e6] text-[#b54232]" },
-  critical: { label: "Nguy cấp", className: "bg-[#fce9e6] text-[#b54232]" },
-  low: { label: "Sắp hết", className: "bg-[#fff3d6] text-[#97610f]" },
-  slow_moving: { label: "Bán chậm", className: "bg-[#edf0f2] text-[#59666d]" },
-  healthy: { label: "Ổn định", className: "bg-[#e7f5ed] text-[#237a48]" },
+  out_of_stock: { label: 'Hết hàng', className: 'bg-[#fce9e6] text-[#b54232]' },
+  critical: { label: 'Nguy cấp', className: 'bg-[#fce9e6] text-[#b54232]' },
+  low: { label: 'Sắp hết', className: 'bg-[#fff3d6] text-[#97610f]' },
+  slow_moving: { label: 'Bán chậm', className: 'bg-[#edf0f2] text-[#59666d]' },
+  healthy: { label: 'Ổn định', className: 'bg-[#e7f5ed] text-[#237a48]' },
 } as const;
 
 export function DashboardView() {
-  const [preset, setPreset] = useState<AnalyticsPreset>("30d");
-  const { data, loading, refreshing, error, lastUpdated, refresh } =
-    useAnalytics(preset);
+  const [preset, setPreset] = useState<AnalyticsPreset>('30d');
+  const { data, loading, refreshing, error, lastUpdated, refresh } = useAnalytics(preset);
 
   if (loading && !data) return <AnalyticsDashboardSkeleton />;
 
@@ -77,14 +75,12 @@ export function DashboardView() {
           <span className="mx-auto grid h-12 w-12 place-items-center rounded-[8px] bg-[#fce9e6] text-[#b54232]">
             <AlertTriangle size={22} aria-hidden="true" />
           </span>
-          <h1 className="mt-4 text-lg font-bold text-[#172126]">
-            Chưa thể tải dữ liệu vận hành
-          </h1>
+          <h1 className="mt-4 text-lg font-bold text-[#172126]">Chưa thể tải dữ liệu vận hành</h1>
           <p className="mt-2 text-sm text-[#69767d]">{error}</p>
           <button
             type="button"
             onClick={() => refresh()}
-            className="mt-5 inline-flex h-10 items-center gap-2 rounded-[7px] bg-[#172126] px-4 text-sm font-semibold text-white hover:bg-[#29363c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f766e]"
+            className="mt-5 inline-flex h-10 items-center gap-2 rounded-[7px] bg-[#172126] px-4 text-sm font-semibold text-white hover:bg-[#29363c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c7ed6]"
           >
             <RotateCcw size={16} aria-hidden="true" />
             Thử lại
@@ -99,16 +95,16 @@ export function DashboardView() {
   const { overview } = data;
   const productMaxRevenue = Math.max(
     ...data.productPerformance.products.map((product) => product.revenue),
-    1,
+    1
   );
   const categoryMaxRevenue = Math.max(
     ...data.categoryPerformance.categories.map((category) => category.revenue),
-    1,
+    1
   );
   const paymentData = data.paymentBreakdown.methods.map((method, index) => {
     const meta = paymentMeta[method.method] || {
       label: method.method,
-      color: ["#0f766e", "#3f6fa8", "#d18b28", "#c65d45", "#79589b"][index % 5],
+      color: ['#1c7ed6', '#3f6fa8', '#d18b28', '#c65d45', '#79589b'][index % 5],
     };
     return { name: meta.label, value: method.revenue, color: meta.color };
   });
@@ -117,13 +113,11 @@ export function DashboardView() {
     <div className="space-y-4 pb-6 text-[#172126]">
       <section className="flex flex-col gap-4 border-b border-[#dfe3e6] pb-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#0f766e]">
-            <span className="h-2 w-2 rounded-full bg-[#0f766e]" />
+          <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#1c7ed6]">
+            <span className="h-2 w-2 rounded-full bg-[#1c7ed6]" />
             Nhịp vận hành
           </div>
-          <h1 className="mt-1 text-2xl font-extrabold text-[#172126]">
-            Tổng quan cửa hàng
-          </h1>
+          <h1 className="mt-1 text-2xl font-extrabold text-[#172126]">Tổng quan cửa hàng</h1>
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#69767d]">
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays size={14} aria-hidden="true" />
@@ -132,10 +126,10 @@ export function DashboardView() {
             {lastUpdated && (
               <span className="inline-flex items-center gap-1.5">
                 <Clock3 size={14} aria-hidden="true" />
-                Cập nhật{" "}
-                {lastUpdated.toLocaleTimeString("vi-VN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
+                Cập nhật{' '}
+                {lastUpdated.toLocaleTimeString('vi-VN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })}
               </span>
             )}
@@ -143,26 +137,19 @@ export function DashboardView() {
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
-          <div
-            className="flex min-w-0 flex-1 overflow-x-auto rounded-[8px] border border-[#d7dde0] bg-white p-1 lg:flex-none"
-            role="group"
-            aria-label="Khoảng thời gian phân tích"
-          >
-            {presetOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setPreset(option.value)}
-                aria-pressed={preset === option.value}
-                className={`h-8 shrink-0 rounded-[6px] px-3 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-[#0f766e] ${
-                  preset === option.value
-                    ? "bg-[#172126] text-white"
-                    : "text-[#657178] hover:bg-[#eef1f2] hover:text-[#172126]"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
+          <div className="rounded-[8px] border border-[#d7dde0] bg-white p-1">
+            <SegmentedControl
+              value={preset}
+              onChange={(v) => setPreset(v as typeof preset)}
+              data={presetOptions.map((o) => ({ value: o.value, label: o.label }))}
+              size="sm"
+              radius="md"
+              color="blue"
+              styles={{
+                root: { background: 'transparent', border: 'none' },
+                label: { fontSize: '0.875rem', fontWeight: 500 },
+              }}
+            />
           </div>
           <button
             type="button"
@@ -172,11 +159,7 @@ export function DashboardView() {
             aria-label="Làm mới dữ liệu"
             className="grid h-10 w-10 shrink-0 place-items-center rounded-[8px] border border-[#d7dde0] bg-white text-[#526068] hover:border-[#9ba8ae] hover:text-[#172126] disabled:cursor-wait disabled:opacity-60"
           >
-            <RefreshCw
-              size={17}
-              className={refreshing ? "animate-spin" : ""}
-              aria-hidden="true"
-            />
+            <RefreshCw size={17} className={refreshing ? 'animate-spin' : ''} aria-hidden="true" />
           </button>
         </div>
       </section>
@@ -266,14 +249,11 @@ export function DashboardView() {
                   className="grid grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-3"
                 >
                   <span className="font-mono text-xs font-bold text-[#8a959a]">
-                    {String(index + 1).padStart(2, "0")}
+                    {String(index + 1).padStart(2, '0')}
                   </span>
                   <div className="min-w-0">
                     <div className="flex items-center justify-between gap-3">
-                      <p
-                        className="truncate text-xs font-bold text-[#263238]"
-                        title={product.name}
-                      >
+                      <p className="truncate text-xs font-bold text-[#263238]" title={product.name}>
                         {product.name}
                       </p>
                       <span className="shrink-0 text-[11px] text-[#69767d]">
@@ -282,7 +262,7 @@ export function DashboardView() {
                     </div>
                     <div className="mt-1.5 h-1.5 overflow-hidden rounded-[3px] bg-[#edf0f2]">
                       <div
-                        className="h-full rounded-[3px] bg-[#3f6fa8]"
+                        className="h-full rounded-[3px] bg-blue-400"
                         style={{
                           width: `${Math.max(4, (product.revenue / productMaxRevenue) * 100)}%`,
                         }}
@@ -322,12 +302,12 @@ export function DashboardView() {
                   </p>
                   <div className="h-7 overflow-hidden rounded-[5px] bg-[#edf0f2]">
                     <div
-                      className="flex h-full items-center bg-[#c9e4df] px-2"
+                      className="flex h-full items-center bg-pos-blue-100 px-2"
                       style={{
                         width: `${Math.max(5, (category.revenue / categoryMaxRevenue) * 100)}%`,
                       }}
                     >
-                      <span className="text-[10px] font-bold text-[#175f57]">
+                      <span className="text-[10px] font-bold text-pos-blue-500 text-nowrap">
                         {formatCompactNumber(category.quantity)} SP
                       </span>
                     </div>
@@ -452,10 +432,7 @@ export function DashboardView() {
               label="Đang hoạt động"
               value={data.customerInsights.summary.activeCustomers}
             />
-            <CustomerMetric
-              label="Khách mới"
-              value={data.customerInsights.summary.newCustomers}
-            />
+            <CustomerMetric label="Khách mới" value={data.customerInsights.summary.newCustomers} />
             <CustomerMetric
               label="Quay lại"
               value={data.customerInsights.summary.returningCustomers}
@@ -478,7 +455,7 @@ export function DashboardView() {
               data.orderStatuses.statuses.map((status) => {
                 const meta = orderStatusMeta[status.status] || {
                   label: status.status,
-                  color: "#6f7b81",
+                  color: '#6f7b81',
                 };
                 return (
                   <div
@@ -544,10 +521,10 @@ function CustomerMetric({
 }
 
 function formatPeriod(from: string, to: string) {
-  const formatter = new Intl.DateTimeFormat("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
+  const formatter = new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
   return `${formatter.format(new Date(from))} – ${formatter.format(new Date(to))}`;
 }
