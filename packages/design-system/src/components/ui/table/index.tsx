@@ -138,6 +138,7 @@ export function Table<T>({
           </div>
 
           <Pagination
+            value={page}
             size="sm"
             radius="sm"
             // boundaries={2}

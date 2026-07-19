@@ -2,16 +2,23 @@ import { Divider } from '@mantine/core';
 import {
   Button,
   DropFileZone,
+  Input,
   Modal,
+  NumberInput,
+  Select,
   Stepper,
   Table,
-  Input,
-  NumberInput,
 } from '@repo/design-system/components/ui';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Check, CloudUpload, Edit, Image, Shield, Trash2, Upload, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import ImageUpload, { type UploadedAsset } from '../../../components/common/ImageUpload';
+import { useCategories } from '../../../hooks/categories/use-categories';
 import { useProduct } from '../../../hooks/product/use-product';
 import { formatCurrency } from '../../../utils';
+
 
 const steps = [
   {
@@ -39,15 +46,31 @@ export default function FormStepUploadProduct({
   const [files, setFiles] = useState<File[] | null>(null);
 
   const { validationImportProduct, importProduct, getProducts, loading } = useProduct();
+  const { categories, getCategories } = useCategories();
+  const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
+
+  useEffect(() => {
+    if (opened && isActive === 1) {
+      getCategories();
+    }
+  }, [opened, isActive, getCategories]);
+
+  const { showSuccessToast } = useToast();
 
   // Local state for items
   const [localItems, setLocalItems] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  // Delete confirmation modal state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [deletingTempId, setDeletingTempId] = useState<number | null>(null);
+  const [deletingItemName, setDeletingItemName] = useState<string>('');
 
   // Form fields for editing
   const [editForm, setEditForm] = useState<any>({
@@ -60,25 +83,38 @@ export default function FormStepUploadProduct({
     price: 0,
     cost: 0,
     quantity: 0,
+    description: '',
+    image_url: '',
+    category_name: '',
   });
 
   const handleUpload = (file: File[]) => {
     setFiles(file);
   };
 
+  // Filter calculations
+  const filteredItems = localItems.filter((item) => {
+    if (statusFilter === 'valid') return item.isStatus === true;
+    if (statusFilter === 'invalid') return item.isStatus === false;
+    return true;
+  });
+
   // Pagination calculations
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const paginatedItems = localItems.slice(startIndex, endIndex);
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
   // Dynamic counts
   const totalLength = localItems.length;
   const errorLength = localItems.filter((item) => item.isStatus === false).length;
   const validLength = totalLength - errorLength;
 
-  const handleDeleteRow = (index: number) => {
+  const handleDeleteRow = (tempId: number) => {
+    const originalIndex = localItems.findIndex((item) => item._tempId === tempId);
+    if (originalIndex === -1) return;
+
     const updated = [...localItems];
-    updated.splice(index, 1);
+    updated.splice(originalIndex, 1);
     setLocalItems(updated);
 
     const totalPages = Math.ceil(updated.length / pageSize);
@@ -87,9 +123,26 @@ export default function FormStepUploadProduct({
     }
   };
 
-  const handleEditRow = (index: number) => {
-    const item = localItems[index];
-    setEditingIndex(index);
+  const onClickDelete = (tempId: number, name: string) => {
+    setDeletingTempId(tempId);
+    setDeletingItemName(name);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deletingTempId === null) return;
+    handleDeleteRow(deletingTempId);
+    setDeleteConfirmOpen(false);
+    setDeletingTempId(null);
+    showSuccessToast('Xóa sản phẩm khỏi danh sách thành công');
+  };
+
+  const handleEditRow = (tempId: number) => {
+    const originalIndex = localItems.findIndex((item) => item._tempId === tempId);
+    if (originalIndex === -1) return;
+
+    const item = localItems[originalIndex];
+    setEditingIndex(originalIndex);
     setEditForm({
       product_name: item.product_name || '',
       product_sku: item.product_sku || '',
@@ -100,7 +153,21 @@ export default function FormStepUploadProduct({
       price: item.price || 0,
       cost: item.cost || 0,
       quantity: item.quantity || 0,
+      description: item.description || '',
+      image_url: item.image_url || '',
+      category_name: item.category_name || '',
     });
+
+    const initialAssets: UploadedAsset[] = [];
+    if (item.image_url) {
+      initialAssets.push({
+        id: 'existing-image-' + originalIndex,
+        url: item.image_url,
+        original_name: 'product_image',
+      });
+    }
+    setUploadedAssets(initialAssets);
+
     setIsEditModalOpen(true);
   };
 
@@ -118,6 +185,7 @@ export default function FormStepUploadProduct({
     setLocalItems(updated);
     setIsEditModalOpen(false);
     setEditingIndex(null);
+    showSuccessToast('Cập nhật sản phẩm thành công');
   };
 
   return (
@@ -129,8 +197,10 @@ export default function FormStepUploadProduct({
         closeOnClickOutside={false}
         onClose={onClose}
       >
-        <div className={`flex flex-col ${isActive === 0 ? 'h-[42h]' : 'h-[75vh]'}`}>
-          <div className="flex-1 overflow-y-auto pr-2">
+        <div className={`flex flex-col ${isActive === 0 ? 'h-[42vh]' : 'h-[75vh]'}`}>
+          <div
+            className={`flex-1 pr-2 flex flex-col ${isActive === 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}
+          >
             <Stepper active={isActive} setActive={setIsActive} steps={steps} size="sm" />
             <Divider my={'lg'} />
             {isActive === 0 && (
@@ -153,9 +223,7 @@ export default function FormStepUploadProduct({
                       <Image size={30} />
                       <div className="space-y-1">
                         <p className="text-sm ">{files[0].name}</p>
-                        <p className="text-xs ">
-                          {(files[0].size / (1024 * 1024)).toFixed(2)} MB
-                        </p>
+                        <p className="text-xs ">{(files[0].size / (1024 * 1024)).toFixed(2)} MB</p>
                       </div>
                     </div>
                     <button
@@ -170,8 +238,30 @@ export default function FormStepUploadProduct({
               </>
             )}
             {isActive === 1 && (
-              <div className="space-y-6 flex flex-col h-full">
-                <div className="flex-1 overflow-hidden min-h-[380px]">
+              <div className="space-y-4 flex flex-col flex-1 overflow-hidden mt-4">
+                <div className="flex justify-between items-center shrink-0">
+                  <span className="text-sm font-semibold text-gray-700">
+                    Danh sách sản phẩm từ file
+                  </span>
+                  <div className="w-[200px]">
+                    <Select
+                      size="xs"
+                      radius="sm"
+                      placeholder="Lọc trạng thái"
+                      data={[
+                        { value: 'all', label: 'Tất cả sản phẩm' },
+                        { value: 'valid', label: 'Sản phẩm hợp lệ' },
+                        { value: 'invalid', label: 'Sản phẩm lỗi' },
+                      ]}
+                      value={statusFilter}
+                      onChange={(val) => {
+                        setStatusFilter(val || 'all');
+                        setCurrentPage(1);
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 overflow-hidden">
                   <Table
                     hasMarginTop={false}
                     hasPadding={false}
@@ -191,16 +281,15 @@ export default function FormStepUploadProduct({
                       'Hành động',
                     ]}
                     page={currentPage}
-                    totalPages={Math.max(1, Math.ceil(localItems.length / pageSize))}
+                    totalPages={Math.max(1, Math.ceil(filteredItems.length / pageSize))}
                     pageSize={pageSize}
-                    total={localItems.length}
+                    total={filteredItems.length}
                     onPageChange={(p) => setCurrentPage(p)}
                     onPageSizeChange={(s) => {
                       setPageSize(s);
                       setCurrentPage(1);
                     }}
                     renderRow={(item, index) => {
-                      const actualIndex = startIndex + index;
                       return (
                         <>
                           <td className="py-3 px-2 text-xs ">{item.product_name}</td>
@@ -225,7 +314,7 @@ export default function FormStepUploadProduct({
                             <div className="flex items-center gap-2">
                               <button
                                 type="button"
-                                onClick={() => handleEditRow(actualIndex)}
+                                onClick={() => handleEditRow(item._tempId)}
                                 className="p-1 hover:bg-blue-50 rounded text-blue-500 transition-colors"
                                 title="Sửa"
                               >
@@ -233,7 +322,7 @@ export default function FormStepUploadProduct({
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleDeleteRow(actualIndex)}
+                                onClick={() => onClickDelete(item._tempId, item.product_name)}
                                 className="p-1 hover:bg-red-50 rounded text-red-500 transition-colors"
                                 title="Xóa"
                               >
@@ -246,7 +335,7 @@ export default function FormStepUploadProduct({
                     }}
                   />
                 </div>
-                <div className="flex items-center gap-4 justify-end ">
+                <div className="flex items-center gap-4 justify-end shrink-0">
                   <p className="text-sm text-gray-800">Tổng số sản phẩm: {totalLength}</p>
                   <p className="text-sm text-red-500">Số sản phẩm lỗi: {errorLength}</p>
                   <p className="text-sm text-green-500">Số sản phẩm hợp lệ: {validLength}</p>
@@ -282,7 +371,11 @@ export default function FormStepUploadProduct({
                     const valRes = await validationImportProduct(files[0]);
 
                     if (valRes) {
-                      setLocalItems(valRes.result || []);
+                      const itemsWithId = (valRes.result || []).map((item: any, idx: number) => ({
+                        ...item,
+                        _tempId: idx,
+                      }));
+                      setLocalItems(itemsWithId);
                       setIsActive(1);
                       setFiles(null);
                       setCurrentPage(1);
@@ -310,99 +403,276 @@ export default function FormStepUploadProduct({
         title={<p className="text-lg font-semibold">Chỉnh sửa sản phẩm import</p>}
         opened={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        size="lg"
+        size="85%"
       >
-        <div className="space-y-4 py-2">
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Tên sản phẩm gốc"
-              value={editForm.product_name}
-              onChange={(e) => setEditForm({ ...editForm, product_name: e.target.value })}
-              radius="sm"
-              size="sm"
-              withAsterisk
-            />
-            <Input
-              label="Mã SP (SKU)"
-              value={editForm.product_sku}
-              onChange={(e) => setEditForm({ ...editForm, product_sku: e.target.value })}
-              radius="sm"
-              size="sm"
-            />
-          </div>
+        <div className="bg-gray-50/70 p-5 -mx-5 -mb-5 rounded-b-md">
+          <div className="w-full h-full mx-auto grid lg:grid-cols-[1fr_0.5fr] grid-cols-1 gap-3">
+            {/* left */}
+            <div className="space-y-4 mb-6">
+              {/* Product info */}
+              <div className="bg-white p-5 rounded-md">
+                <h2 className="text-base font-stretch-200% font-semibold text-gray-900">
+                  Thông tin sản phẩm
+                </h2>
+                <div className="space-y-5 mt-4">
+                  <div className="flex gap-2">
+                    <Input
+                      size="sm"
+                      withAsterisk
+                      radius="sm"
+                      className="flex-1"
+                      label="Tên sản phẩm"
+                      placeholder="Nhập tên sản phẩm"
+                      value={editForm.product_name}
+                      onChange={(e) => setEditForm({ ...editForm, product_name: e.target.value })}
+                    />
+                    <Input
+                      size="sm"
+                      radius="sm"
+                      className="flex-1"
+                      label="Mã SKU"
+                      placeholder="Nhập mã SKU (tự động tạo khi để trống)"
+                      value={editForm.product_sku}
+                      onChange={(e) => setEditForm({ ...editForm, product_sku: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="space-y-0.5 flex-1">
+                      <Input
+                        size="sm"
+                        radius="sm"
+                        withAsterisk
+                        label="Đơn vị tính "
+                        placeholder="Nhập đơn vị tính"
+                        value={editForm.base_unit}
+                        onChange={(e) => setEditForm({ ...editForm, base_unit: e.target.value })}
+                      />
+                      <span className="text-xs text-gray-500">
+                        Đơn vị nhỏ nhất dùng để theo dõi tồn kho.
+                      </span>
+                    </div>
+                    {/* Variant Name for import */}
+                    <Input
+                      size="sm"
+                      radius="sm"
+                      className="flex-1"
+                      label="Tên biến thể"
+                      placeholder="Nhập tên biến thể"
+                      value={editForm.variant_name}
+                      onChange={(e) => setEditForm({ ...editForm, variant_name: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      size="sm"
+                      radius="sm"
+                      className="flex-1"
+                      label="Mã SKU biến thể"
+                      placeholder="Nhập mã SKU biến thể"
+                      value={editForm.variant_sku}
+                      onChange={(e) => setEditForm({ ...editForm, variant_sku: e.target.value })}
+                    />
+                    <Input
+                      size="sm"
+                      radius="sm"
+                      className="flex-1"
+                      label="Mã vạch (Barcode)"
+                      placeholder="Nhập mã vạch"
+                      value={editForm.barcode}
+                      onChange={(e) => setEditForm({ ...editForm, barcode: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-sm text-gray-500 font-medium">Mô tả</span>
+                    <ReactQuill
+                      value={editForm.description ?? ''}
+                      onChange={(value: string) => setEditForm({ ...editForm, description: value })}
+                      theme="snow"
+                      placeholder="Nhập mô tả sản phẩm"
+                    />
+                  </div>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Đơn vị gốc"
-              value={editForm.base_unit}
-              onChange={(e) => setEditForm({ ...editForm, base_unit: e.target.value })}
-              radius="sm"
-              size="sm"
-              withAsterisk
-            />
-            <Input
-              label="Mã vạch (barcode)"
-              value={editForm.barcode}
-              onChange={(e) => setEditForm({ ...editForm, barcode: e.target.value })}
-              radius="sm"
-              size="sm"
-            />
-          </div>
+              {/* Product price */}
+              <div className="bg-white p-5 rounded-md">
+                <h2 className="text-base font-stretch-200% font-semibold text-gray-900">
+                  Thông tin giá
+                </h2>
+                <div className="space-y-5 mt-4">
+                  <div className="flex gap-2">
+                    <NumberInput
+                      size="sm"
+                      radius="sm"
+                      className="flex-1"
+                      label="Giá bán"
+                      placeholder="Nhập giá bán sản phẩm"
+                      value={editForm.price}
+                      onChange={(val) => setEditForm({ ...editForm, price: val })}
+                    />
+                    <NumberInput
+                      size="sm"
+                      radius="sm"
+                      className="flex-1"
+                      label="Giá nhập"
+                      placeholder="Nhập giá nhập sản phẩm"
+                      value={editForm.cost}
+                      onChange={(val) => setEditForm({ ...editForm, cost: val })}
+                    />
+                  </div>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Tên biến thể"
-              value={editForm.variant_name}
-              onChange={(e) => setEditForm({ ...editForm, variant_name: e.target.value })}
-              radius="sm"
-              size="sm"
-            />
-            <Input
-              label="Mã biến thể (SKU)"
-              value={editForm.variant_sku}
-              onChange={(e) => setEditForm({ ...editForm, variant_sku: e.target.value })}
-              radius="sm"
-              size="sm"
-            />
-          </div>
+              {/* Product inventory quantity */}
+              <div className="bg-white p-5 rounded-md">
+                <h2 className="text-base font-stretch-200% font-semibold text-gray-900">
+                  Thông tin kho
+                </h2>
 
-          <div className="grid grid-cols-3 gap-4">
-            <NumberInput
-              label="Giá bán"
-              value={editForm.price}
-              onChange={(val) => setEditForm({ ...editForm, price: val })}
-              radius="sm"
-              size="sm"
-            />
-            <NumberInput
-              label="Giá nhập"
-              value={editForm.cost}
-              onChange={(val) => setEditForm({ ...editForm, cost: val })}
-              radius="sm"
-              size="sm"
-            />
-            <NumberInput
-              label="Số lượng tồn"
-              value={editForm.quantity}
-              onChange={(val) => setEditForm({ ...editForm, quantity: val })}
-              radius="sm"
-              size="sm"
-            />
-          </div>
+                <div className="border border-gray-200 rounded-md overflow-hidden mt-4">
+                  <table className="w-full">
+                    {/* Table Header */}
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                          Kho lưu trữ
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 text-nowrap">
+                          Tồn kho
+                        </th>
+                      </tr>
+                    </thead>
 
-          <div className="flex justify-end gap-2 pt-4">
+                    {/* Table Body */}
+                    <tbody>
+                      <tr>
+                        <td className="px-6 py-4 text-sm text-gray-800">Cửa hàng chính</td>
+                        <td className="px-6 py-4 text-sm text-nowrap text-gray-500 space-y-1.5">
+                          <NumberInput
+                            size="sm"
+                            radius="sm"
+                            placeholder="Nhập số lượng tồn"
+                            value={editForm.quantity}
+                            onChange={(val) => setEditForm({ ...editForm, quantity: val })}
+                          />
+                          <p className="text-xs text-gray-500">
+                            Với số lượng khác 0 thì bản ghi cho biến động kho sẽ được tao.
+                          </p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* right */}
+            <div className="space-y-4">
+              <div className="bg-white p-5 rounded-md">
+                <ImageUpload
+                  label="Ảnh sản phẩm"
+                  folder="products"
+                  maxFiles={8}
+                  value={uploadedAssets}
+                  onChange={(assets) => {
+                    setUploadedAssets(assets);
+                    setEditForm((prev: any) => ({
+                      ...prev,
+                      image_url: assets[0]?.url || '',
+                    }));
+                  }}
+                />
+              </div>
+              <div className="flex flex-col gap-4">
+                <div className="bg-white p-5 rounded-md space-y-4">
+                  <h2 className="text-base font-stretch-200% font-semibold text-gray-900">
+                    Thông tin thêm
+                  </h2>
+                  <Select
+                    position="bottom"
+                    size="sm"
+                    radius="sm"
+                    label="Nhóm danh mục"
+                    placeholder="Chọn nhóm danh mục"
+                    data={
+                      categories?.map((item) => ({
+                        value: item.name,
+                        label: item.name,
+                      })) || []
+                    }
+                    value={editForm.category_name}
+                    onChange={(val) =>
+                      setEditForm((prev: any) => ({ ...prev, category_name: val || '' }))
+                    }
+                    searchable
+                  />
+                  <Input
+                    size="sm"
+                    radius="sm"
+                    label="Danh mục từ file / Danh mục mới"
+                    placeholder="Nhập tên danh mục mới nếu không có sẵn"
+                    value={editForm.category_name}
+                    onChange={(e) =>
+                      setEditForm((prev: any) => ({ ...prev, category_name: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleSaveEdit}
+                    title="Lưu thay đổi"
+                    size="sm"
+                    radius="sm"
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={() => setIsEditModalOpen(false)}
+                    title="Hủy"
+                    variant="outline"
+                    size="sm"
+                    radius="sm"
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        opened={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setDeletingTempId(null);
+        }}
+        size="md"
+        title={<span className="text-lg font-bold text-gray-950">Xác nhận hành động</span>}
+      >
+        <div className="space-y-6">
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa sản phẩm{' '}
+            <span className="text-pos-blue-500 font-semibold">{deletingItemName}</span> vĩnh viễn?
+          </p>
+          <div className="flex justify-end gap-3 mt-4">
             <Button
-              title="Hủy"
+              title="Hủy bỏ"
               variant="outline"
               size="sm"
               radius="sm"
-              onClick={() => setIsEditModalOpen(false)}
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setDeletingTempId(null);
+              }}
+              color="#374151"
             />
             <Button
-              title="Lưu thay đổi"
+              title="Xác nhận"
               size="sm"
               radius="sm"
-              onClick={handleSaveEdit}
+              onClick={handleConfirmDelete}
+              color="#fb2c36"
             />
           </div>
         </div>

@@ -2,7 +2,6 @@
 
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { ChevronLeft, ChevronRight, Eye, ImagePlus, Loader2, X } from 'lucide-react';
-import Image from 'next/image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import api from '../../libs/axios';
 
@@ -183,12 +182,11 @@ export default function ImageUpload({
               className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 cursor-pointer"
               onClick={() => setPreviewIndex(idx)}
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={asset.url}
                 alt={asset.original_name}
-                fill
-                className="object-cover"
-                sizes="120px"
+                className="w-full h-full object-cover absolute inset-0"
               />
 
               {/* Hover Overlay with Eye Icon */}
