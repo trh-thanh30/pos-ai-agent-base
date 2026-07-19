@@ -68,9 +68,8 @@ export function useTags() {
     if (res?.data.success) {
       setTags(res.data.data);
       setPagination(res.data.pagination);
-      showSuccessToast(res.data.message);
     }
-  }, [currentStore, buildParams, requestWrapper, showSuccessToast, setPagination, setTags]);
+  }, [currentStore, buildParams, requestWrapper, setPagination, setTags]);
 
   const createTag = async (data: CreateTagInput) => {
     if (!currentStore?.id) return;

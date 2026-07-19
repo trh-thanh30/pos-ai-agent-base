@@ -18,6 +18,7 @@
     "dev:api": "pnpm --filter @pos/api start:dev",
     "dev:api:debug": "pnpm --filter @pos/api start:debug",
     "dev:web": "pnpm --filter @pos/web-main dev",
+    "dev:retail": "pnpm --filter @pos/web-retail dev",
     "dev:admin": "pnpm --filter @pos/web-retail dev",
     "dev:docs": "pnpm --filter @pos/docs start",
     "build": "turbo run build",

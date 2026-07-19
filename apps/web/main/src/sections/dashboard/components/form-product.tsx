@@ -15,6 +15,7 @@ import { Category, Product, Tag, Variant } from '@repo/design-system/types';
 import { useAtomValue } from 'jotai';
 import { Plus, Trash, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import ImageUpload, { type UploadedAsset } from '@main/components/common/ImageUpload';
 import { Control, Controller } from 'react-hook-form';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -39,6 +40,7 @@ export function FormProduct({
 }) {
   const [openModalVariant, setOpenModalVariant] = useState<boolean>(false);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+  const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
 
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [openModalDeleteVariant, setOpenModalDeleteVariant] = useState<boolean>(false);
@@ -101,17 +103,22 @@ export function FormProduct({
   const handleCreateProduct = async (data: CreateProductInput) => {
     const payload = {
       ...data,
+      image_url: uploadedAssets[0]?.url ?? data.image_url ?? '',
+      asset_ids: uploadedAssets.map((a) => a.id),
       meta: toMetaObject(),
     };
     const success = await createProduct(payload);
     if (success) {
       reset();
       removeAllAttributes();
+      setUploadedAssets([]);
     }
   };
   const handleUpdateProduct = async (productId: string, data: UpdateProductInput) => {
     const payload = {
       ...data,
+      image_url: uploadedAssets[0]?.url ?? data.image_url ?? '',
+      asset_ids: uploadedAssets.map((a) => a.id),
       meta: toMetaObject(),
     };
     const success = await updateProduct(productId, payload);
@@ -119,6 +126,7 @@ export function FormProduct({
       updateReset();
       getProductById(productId);
       removeAllAttributes();
+      setUploadedAssets([]);
     }
   };
   return (
@@ -450,22 +458,13 @@ export function FormProduct({
             {/* right */}
             <div className="space-y-4">
               <div className="bg-white p-5 rounded-md ">
-                <h2 className="text-base font-stretch-200% font-semibold text-gray-900">
-                  Ảnh sản phẩm
-                </h2>
-                <div className="space-y-1">
-                  <Input
-                    {...(productId ? updateRegister('image_url') : register('image_url'))}
-                    className="mt-4"
-                    type="text"
-                    error={productId ? updateErrors.image_url?.message : errors.image_url?.message}
-                    size="sm"
-                    radius="sm"
-                    placeholder="Nhập URL hình ảnh"
-                    label="Url ảnh"
-                  />
-                  <span className="text-xs text-gray-500">Sử dụng image url</span>
-                </div>
+                <ImageUpload
+                  label="Ảnh sản phẩm"
+                  folder="products"
+                  maxFiles={8}
+                  value={uploadedAssets}
+                  onChange={setUploadedAssets}
+                />
               </div>
               <div className="flex flex-col gap-4">
                 <div className="bg-white p-5 rounded-md space-y-4 ">

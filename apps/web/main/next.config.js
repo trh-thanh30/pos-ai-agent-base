@@ -30,6 +30,11 @@ const nextConfig = {
         hostname: 'img.vietqr.io',
         protocol: 'https',
       },
+      {
+        hostname: 'localhost',
+        protocol: 'http',
+        port: '*',
+      },
     ],
   },
   experimental: {

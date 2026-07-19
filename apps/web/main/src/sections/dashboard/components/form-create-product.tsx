@@ -13,6 +13,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
+import ImageUpload, { type UploadedAsset } from '@main/components/common/ImageUpload';
 
 export default function FormCreateProduct({
   setOpenAddProduct,
@@ -38,6 +39,7 @@ export default function FormCreateProduct({
   const [openMetaFields, setOpenMetaFields] = useState<boolean>(false);
   const [isFocusInputSearch, setIsFocusInputSearch] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
+  const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
 
   const currentStore = useAtomValue(currentStoreAtom);
   const {
@@ -201,6 +203,10 @@ export default function FormCreateProduct({
         onSubmit={createProductForm.handleSubmit(async (data) => {
           const productData = {
             ...data,
+            // Lấy URL của ảnh đầu tiên làm image_url chính
+            image_url: uploadedAssets[0]?.url ?? data.image_url ?? '',
+            // Lưu danh sách asset ids để link sau khi tạo product
+            asset_ids: uploadedAssets.map((a) => a.id),
             meta: metaFields,
             inventory: {
               quantity: 1,
@@ -210,7 +216,7 @@ export default function FormCreateProduct({
             setSelectProducts((prev) => [...prev, productData]);
           }
           setMetaFields({});
-          // setOpenAddProduct(false);
+          setUploadedAssets([]);
           setSelectProduct?.(undefined as unknown as Product);
           setSearch('');
           createProductForm.reset({
@@ -356,16 +362,13 @@ export default function FormCreateProduct({
           </div>
         </div>
 
-        {/* Image URL */}
-        <Input
-          {...(isEditSelectProduct
-            ? updateProductForm.register('image_url')
-            : createProductForm.register('image_url'))}
-          name="image_url"
-          label="Image URL"
-          size="sm"
-          radius="xs"
-          placeholder="https://example.com/image.png"
+        {/* Image Upload */}
+        <ImageUpload
+          label="Ảnh sản phẩm"
+          folder="products"
+          maxFiles={8}
+          value={uploadedAssets}
+          onChange={setUploadedAssets}
         />
 
         {/* Description */}

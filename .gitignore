@@ -139,3 +139,9 @@ infrastructure/docker/secrets/*
 infrastructure/docker/logs/*
 
 secrets/*
+
+# Local file storage (MinIO fallback / local driver)
+apps/api/storage/
+apps/api/uploads/
+storage/
+uploads/

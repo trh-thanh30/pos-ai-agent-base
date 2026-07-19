@@ -11,7 +11,6 @@ export class EmailWorker {;
 
     constructor(config: Partial<EmailWorkerConfig> = {}) {
         this.config = createWorkerConfig(config);
-        logger.info("this.config.emailService", this.config);
 
         this.emailService = new EmailService(this.config.emailService);
 
@@ -198,4 +197,4 @@ export class EmailWorker {;
             throw error;
         }
     }
-} 
+}

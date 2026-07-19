@@ -70,9 +70,8 @@ export function useCategories() {
     if (res?.data.success) {
       setCategories(res.data.data);
       setPagination(res.data.pagination);
-      showSuccessToast(res.data.message);
     }
-  }, [buildParams, requestWrapper, setPagination, showSuccessToast, currentStore?.id]);
+  }, [buildParams, requestWrapper, setPagination, currentStore?.id]);
 
   const createCategory = async (data: CreateCategoryInput) => {
     if (!currentStore?.id) return;

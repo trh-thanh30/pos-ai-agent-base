@@ -160,11 +160,13 @@ export default function useAuth() {
       );
 
       if (res?.data.success) {
-        // eslint-disable-next-line no-unsafe-optional-chaining
         showSuccessToast(res?.data?.message as string);
-        setAccessToken(null);
-        setCurrentUser(null);
-        setCurrentStore(null);
+        // Cập nhật access_token mới (chứa storeId trong JWT payload)
+        // KHÔNG xóa token — retail app cần token để authenticate
+        const { access_token, store } = res.data.data;
+        if (access_token) setAccessToken(access_token);
+        if (store) setCurrentStore(store);
+        setCurrentUser(null); // user sẽ được load lại bởi dashboard-layout
 
         return true;
       }
