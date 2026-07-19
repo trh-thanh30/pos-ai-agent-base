@@ -79,6 +79,7 @@ export function SalesView() {
   const currentStore = useAtomValue(currentStoreAtom);
   const router = useRouter();
   const openMenuSettingsRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // STATE
   const [openModalInvoice, setOpenModalInvoice] = useState(false);
@@ -332,6 +333,31 @@ export function SalesView() {
       limit: prev.limit + 22,
     }));
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const isNearBottom =
+        container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+
+      if (isNearBottom && pagination?.hasNext && !loadingVariants) {
+        handleLoadMore();
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [pagination?.hasNext, loadingVariants]);
+
   useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
   return (
     <>
@@ -651,7 +677,7 @@ export function SalesView() {
               ) : (
                 <>
                   {variants.length && (
-                    <div className="flex-1 min-h-0 overflow-y-auto pb-4">
+                    <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto pb-4">
                       <div className="grid grid-cols-3 gap-4">
                         {variants?.map((variant) => (
                           <div
@@ -659,7 +685,7 @@ export function SalesView() {
                             onClick={() => {
                               const existing = selectedVariants.find((p) => p.id === variant.id);
                               if (!existing) {
-                                if (variant.onHand > 0) handleSelectProduct(variant);
+                                  if (variant.onHand > 0) handleSelectProduct(variant);
                               } else {
                                 if (existing.selectedQuantity < variant.onHand)
                                   handleSelectProduct(variant);
@@ -669,7 +695,7 @@ export function SalesView() {
                           >
                             <div className="relative w-full h-fit">
                               <Image
-                                src={'/placeholder.jpg'}
+                                src={variant?.product?.image_url || '/placeholder.jpg'}
                                 alt="sản phẩm"
                                 width={500}
                                 height={500}
@@ -711,16 +737,9 @@ export function SalesView() {
                         ))}
                       </div>
 
-                      {pagination?.hasNext && (
+                      {loadingVariants && (
                         <div className="flex items-center justify-center mt-4">
-                          <Button
-                            size="sm"
-                            loading={loadingVariants}
-                            radius="sm"
-                            onClick={handleLoadMore}
-                            title="Tải thêm"
-                            style={{ width: '54%' }}
-                          />
+                          <div className="animate-spin rounded-full h-8 w-8 border-4 border-pos-blue-500 border-t-transparent"></div>
                         </div>
                       )}
                     </div>
