@@ -151,7 +151,7 @@ export function useProduct() {
   }, [requestWrapper]);
 
   const validationImportProduct = useCallback(
-    async (file: File) => {
+    async (file: File, onProgress?: (percent: number) => void) => {
       const formData = new FormData();
       formData.append('product_validation', file);
       const res = await requestWrapper(() =>
@@ -159,9 +159,16 @@ export function useProduct() {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
+          onUploadProgress: (progressEvent) => {
+            if (onProgress && progressEvent.total) {
+              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              onProgress(Math.min(percent, 99));
+            }
+          },
         })
       );
       if (res?.data.success) {
+        if (onProgress) onProgress(100);
         showSuccessToast(res.data.message as string);
         setValidationProducts(res.data.data as ValidationProductRes);
         return res.data.data as ValidationProductRes;
@@ -170,24 +177,66 @@ export function useProduct() {
     },
     [requestWrapper, showSuccessToast]
   );
-  const importProduct = useCallback(async (customItems?: any[]) => {
-    const targetItems = customItems || validationProducts.result;
-    const res = await requestWrapper(() =>
-      api.post<ApiResponse>(`/products/excel/import/save`, {
-        items: targetItems.map((item) => ({
-          ...item,
-          price: item.price ? Number(item.price) : 0,
-          cost: item.cost ? Number(item.cost) : 0,
-          quantity: item.quantity ? Number(item.quantity) : 0,
-        })),
-      })
-    );
-    if (res?.data.success) {
-      showSuccessToast(res.data.message as string);
+  const importProduct = useCallback(
+    async (
+      customItems?: any[],
+      onProgress?: (percent: number, currentItem: number, totalItems: number) => void,
+      signal?: AbortSignal
+    ) => {
+      const targetItems = customItems || validationProducts.result;
+      const CHUNK_SIZE = 50;
+      const totalItems = targetItems.length;
+
+      if (totalItems === 0) return true;
+
+      const chunks: any[][] = [];
+      for (let i = 0; i < totalItems; i += CHUNK_SIZE) {
+        chunks.push(targetItems.slice(i, i + CHUNK_SIZE));
+      }
+
+      for (let index = 0; index < chunks.length; index++) {
+        if (signal?.aborted) {
+          return false;
+        }
+
+        const chunk = chunks[index];
+        const currentProcessed = Math.min((index + 1) * CHUNK_SIZE, totalItems);
+
+        try {
+          const res = await requestWrapper(() =>
+            api.post<ApiResponse>(`/products/excel/import/save`, {
+              items: chunk.map((item) => ({
+                ...item,
+                price: item.price ? Number(item.price) : 0,
+                cost: item.cost ? Number(item.cost) : 0,
+                quantity: item.quantity ? Number(item.quantity) : 0,
+              })),
+            }, {
+              signal
+            })
+          );
+
+          if (res?.data.success) {
+            if (onProgress) {
+              const percent = Math.round(((index + 1) / chunks.length) * 100);
+              onProgress(percent, currentProcessed, totalItems);
+            }
+          } else {
+            return false;
+          }
+        } catch (error: any) {
+          if (error?.name === 'CanceledError' || signal?.aborted) {
+            return false;
+          }
+          throw error;
+        }
+      }
+
+      showSuccessToast(`Đã nhập thành công ${totalItems} sản phẩm.`);
       return true;
-    }
-    return false;
-  }, [validationProducts.result, requestWrapper, showSuccessToast]);
+    },
+    [validationProducts.result, requestWrapper, showSuccessToast]
+  );
 
   return {
     getProducts,

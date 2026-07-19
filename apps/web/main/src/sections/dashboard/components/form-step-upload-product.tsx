@@ -11,14 +11,13 @@ import {
 } from '@repo/design-system/components/ui';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Check, CloudUpload, Edit, Image, Shield, Trash2, Upload, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import ImageUpload, { type UploadedAsset } from '../../../components/common/ImageUpload';
 import { useCategories } from '../../../hooks/categories/use-categories';
 import { useProduct } from '../../../hooks/product/use-product';
 import { formatCurrency } from '../../../utils';
-
 
 const steps = [
   {
@@ -53,9 +52,19 @@ export default function FormStepUploadProduct({
     if (opened && isActive === 1) {
       getCategories();
     }
-  }, [opened, isActive, getCategories]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened, isActive]);
 
-  const { showSuccessToast } = useToast();
+  const { showSuccessToast, showErrorToast, showWarningToast } = useToast();
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const handleCancelProcess = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      showWarningToast('Đã hủy tiến trình.');
+    }
+  };
 
   // Local state for items
   const [localItems, setLocalItems] = useState<any[]>([]);
@@ -71,6 +80,11 @@ export default function FormStepUploadProduct({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deletingTempId, setDeletingTempId] = useState<number | null>(null);
   const [deletingItemName, setDeletingItemName] = useState<string>('');
+
+  // Processing & progress states
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [processProgress, setProcessProgress] = useState<number>(0);
+  const [processStatusText, setProcessStatusText] = useState<string>('');
 
   // Form fields for editing
   const [editForm, setEditForm] = useState<any>({
@@ -195,9 +209,44 @@ export default function FormStepUploadProduct({
         size={isActive === 0 ? 'xl' : '85%'}
         opened={opened}
         closeOnClickOutside={false}
-        onClose={onClose}
+        onClose={() => {
+          if (isProcessing) return;
+          onClose();
+        }}
       >
-        <div className={`flex flex-col ${isActive === 0 ? 'h-[42vh]' : 'h-[75vh]'}`}>
+        <div className={`relative flex flex-col ${isActive === 0 ? 'h-[42vh]' : 'h-[75vh]'}`}>
+          {isProcessing && (
+            <div className="absolute inset-0 bg-white/85 backdrop-blur-[2px] z-100 flex flex-col items-center justify-center p-6 space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-pos-blue-500 border-t-transparent"></div>
+              <div className="text-center space-y-3 max-w-md flex flex-col items-center">
+                <p className="font-semibold text-gray-900 text-sm leading-relaxed">
+                  {processStatusText}
+                </p>
+                {processProgress > 0 && (
+                  <div className="w-64 space-y-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-pos-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
+                        style={{ width: `${processProgress}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-xs text-gray-500 font-semibold">
+                      {processProgress}% hoàn thành
+                    </p>
+                  </div>
+                )}
+                <Button
+                  size="xs"
+                  radius="sm"
+                  variant="outline"
+                  color="#dc2626"
+                  className="mt-2"
+                  onClick={handleCancelProcess}
+                  title="Hủy tiến trình"
+                />
+              </div>
+            </div>
+          )}
           <div
             className={`flex-1 pr-2 flex flex-col ${isActive === 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}
           >
@@ -351,6 +400,7 @@ export default function FormStepUploadProduct({
                 size="sm"
                 radius="sm"
                 variant="outline"
+                disabled={isProcessing}
                 onClick={() => {
                   if (isActive === 0) {
                     onClose();
@@ -363,29 +413,72 @@ export default function FormStepUploadProduct({
                 title={isActive === 0 ? 'Hủy' : 'Quay lại'}
               />
               <Button
-                disabled={isActive === 0 && !files}
-                loading={loading}
+                disabled={(isActive === 0 && !files) || isProcessing}
+                loading={loading && !isProcessing}
                 onClick={async () => {
+                  const controller = new AbortController();
+                  abortControllerRef.current = controller;
                   if (isActive === 0) {
                     if (!files) return;
-                    const valRes = await validationImportProduct(files[0]);
-
-                    if (valRes) {
-                      const itemsWithId = (valRes.result || []).map((item: any, idx: number) => ({
-                        ...item,
-                        _tempId: idx,
-                      }));
-                      setLocalItems(itemsWithId);
-                      setIsActive(1);
-                      setFiles(null);
-                      setCurrentPage(1);
+                    setIsProcessing(true);
+                    setProcessProgress(0);
+                    setProcessStatusText('Đang tải file sản phẩm lên hệ thống...');
+                    try {
+                      const valRes = await validationImportProduct(
+                        files[0],
+                        (percent) => {
+                          setProcessProgress(percent);
+                          if (percent >= 99) {
+                            setProcessStatusText('Đang xử lý dữ liệu và xác thực danh sách sản phẩm trên máy chủ...');
+                          } else {
+                            setProcessStatusText(`Đang tải file lên: ${percent}%`);
+                          }
+                        },
+                        controller.signal
+                      );
+                      if (valRes) {
+                        const itemsWithId = (valRes.result || []).map((item: any, idx: number) => ({
+                          ...item,
+                          _tempId: idx,
+                        }));
+                        setLocalItems(itemsWithId);
+                        setIsActive(1);
+                        setFiles(null);
+                        setCurrentPage(1);
+                      }
+                    } finally {
+                      setIsProcessing(false);
+                      abortControllerRef.current = null;
                     }
                   } else if (isActive === 1) {
-                    const success = await importProduct(localItems);
-                    if (success) {
-                      onClose();
-                      setIsActive(0);
-                      await getProducts();
+                    const validItems = localItems.filter((item) => item.isStatus);
+                    if (validItems.length === 0) {
+                      showErrorToast('Không có sản phẩm hợp lệ nào để lưu.');
+                      abortControllerRef.current = null;
+                      return;
+                    }
+                    setIsProcessing(true);
+                    setProcessProgress(0);
+                    setProcessStatusText(`Bắt đầu chuẩn bị tạo ${validItems.length} sản phẩm...`);
+                    try {
+                      const success = await importProduct(
+                        validItems,
+                        (percent, currentItem, totalItems) => {
+                          setProcessProgress(percent);
+                          setProcessStatusText(
+                            `Đang tạo sản phẩm: Lô ${currentItem}/${totalItems} - Hoàn thành ${percent}%`
+                          );
+                        },
+                        controller.signal
+                      );
+                      if (success) {
+                        onClose();
+                        setIsActive(0);
+                        await getProducts();
+                      }
+                    } finally {
+                      setIsProcessing(false);
+                      abortControllerRef.current = null;
                     }
                   }
                 }}

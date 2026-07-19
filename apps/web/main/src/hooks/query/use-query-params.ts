@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface PaginationParams {
   page: number;
@@ -29,7 +29,13 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
   const [pagination, setPagination] = useState<Pagination>();
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sort, setSort] = useState<'asc' | 'desc'>('desc');
-  const buildParams = () => {
+
+  const mappingRef = useRef(mapping);
+  useEffect(() => {
+    mappingRef.current = mapping;
+  });
+
+  const buildParams = useCallback(() => {
     const params = new URLSearchParams({
       page: paginationParams.page.toString(),
       limit: paginationParams.limit.toString(),
@@ -40,7 +46,7 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
     Object.entries(filters).forEach(([key, value]) => {
       if (value === undefined || value === null) return;
 
-      const queryKey = mapping?.[key as keyof T] ?? key;
+      const queryKey = mappingRef.current?.[key as keyof T] ?? key;
 
       if (Array.isArray(value) && value.length === 2) {
         const [start, end] = value;
@@ -58,7 +64,7 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
       params.append(queryKey, value?.toString());
     });
     return params;
-  };
+  }, [paginationParams, filters, sortBy, sort]);
 
   return {
     paginationParams,

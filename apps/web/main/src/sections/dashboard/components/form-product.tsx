@@ -98,6 +98,18 @@ export function FormProduct({
         categoryIds: product.categories?.map((c) => c.id) ?? [],
       });
       setAttributesFromMeta(product.meta);
+
+      if (product.image_url) {
+        setUploadedAssets([
+          {
+            id: 'existing-image-' + product.id,
+            url: product.image_url,
+            original_name: 'product_image',
+          },
+        ]);
+      } else {
+        setUploadedAssets([]);
+      }
     }
   }, [productId, product, updateReset, setAttributesFromMeta]);
   const handleCreateProduct = async (data: CreateProductInput) => {
