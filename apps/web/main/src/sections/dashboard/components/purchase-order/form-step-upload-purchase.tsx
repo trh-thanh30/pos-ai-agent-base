@@ -101,13 +101,13 @@ export default function FormStepUploadPurchase({
               <DropFileZone
                 disabled={files ? true : false}
                 title="Kéo thả file vào đây hoặc tải lên từ thiết bị"
-                description="Tối đa 5MB, theo định dạng .xlsx"
+                description="Tối đa 20MB, theo định dạng .xlsx"
                 idleIcon={<CloudUpload size={28} color="#3b82f6" />}
                 accept={{
                   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
                   'application/vnd.ms-excel': ['.xls'],
                 }}
-                maxSizeMb={10}
+                maxSizeMb={20}
                 onDrop={handleUpload}
               />
               {files && (
@@ -116,7 +116,7 @@ export default function FormStepUploadPurchase({
                     <Image size={30} />
                     <div className="space-y-1">
                       <p className="text-sm ">{files[0].name}</p>
-                      <p className="text-xs ">{files[0].size} bytes</p>
+                      <p className="text-xs ">{(files[0].size / (1024 * 1024)).toFixed(2)} MB</p>
                     </div>
                   </div>
                   <button

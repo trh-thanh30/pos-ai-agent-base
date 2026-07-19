@@ -129,7 +129,10 @@ export class ExcelTemplateService {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(file.buffer as any);
 
-    const worksheet = workbook.getWorksheet(config.sheetName);
+    let worksheet = workbook.getWorksheet(config.sheetName);
+    if (!worksheet) {
+      worksheet = workbook.worksheets[0];
+    }
     if (!worksheet) {
       throw new BadRequestException(`${this.errMsg.DONT_HAVE_SHEET}`);
     }

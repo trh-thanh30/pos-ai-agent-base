@@ -7,9 +7,16 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  transpilePackages: ['@repo/design-system', '@pos/web-main'],
+  transpilePackages: ['@repo/design-system'],
   experimental: {
     externalDir: true,
+    optimizePackageImports: [
+      '@repo/design-system',
+      'lucide-react',
+      '@tabler/icons-react',
+      '@mantine/core',
+      '@mantine/hooks',
+    ],
   },
   images: {
     remotePatterns: [
@@ -36,7 +43,17 @@ const nextConfig = {
       {
         hostname: 'localhost',
         protocol: 'http',
-        port: '*',
+        port: '19000',
+      },
+      {
+        hostname: 'localhost',
+        protocol: 'http',
+        port: '3000',
+      },
+      {
+        hostname: 'localhost',
+        protocol: 'http',
+        port: '',
       },
     ],
   },

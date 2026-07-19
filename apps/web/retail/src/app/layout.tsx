@@ -4,6 +4,7 @@ import { Metadata, Viewport } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: "NexPOS - Phần mềm quản lý bán hàng",
   description:
     "Phần mềm quản lý bán hàng giúp bạn quản lý khách hàng, hóa đơn, báo cáo, ...",
@@ -26,7 +27,6 @@ export const metadata: Metadata = {
     siteName: "NexPOS",
     images: [{ url: "/images/og-image.png" }],
   },
-  manifest: "/manifest.json",
   robots: {
     index: true,
     follow: true,
@@ -56,7 +56,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className="h-full overscroll-contain scroll-smooth"
+      className="scroll-smooth"
     >
       <body className="min-h-dvh font-sans antialiased">
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />

@@ -16,6 +16,7 @@ export const ImportProductSchema = z.object({
   price: z.string().optional(),
   cost: z.string().optional(),
   quantity: z.string().optional(),
+  image_url: z.string().optional(),
 });
 
 export type IImportProduct = z.infer<typeof ImportProductSchema>;

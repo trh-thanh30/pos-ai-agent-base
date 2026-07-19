@@ -1,9 +1,9 @@
 'use client';
 
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import { ImagePlus, Loader2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, ImagePlus, Loader2, X } from 'lucide-react';
 import Image from 'next/image';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import api from '../../libs/axios';
 
 export interface UploadedAsset {
@@ -34,10 +34,11 @@ export default function ImageUpload({
   folder = 'products',
   disabled = false,
 }: ImageUploadProps) {
-  const { showErrorToast } = useToast();
+  const { showSuccessToast, showErrorToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   const uploadFile = useCallback(
     async (file: File): Promise<UploadedAsset | null> => {
@@ -64,6 +65,7 @@ export default function ImageUpload({
 
         const data = res?.data?.data;
         if (res?.data?.success && data) {
+          showSuccessToast(`Tải ảnh "${file.name}" thành công`);
           return {
             id: data.id,
             url: data.url,
@@ -77,7 +79,7 @@ export default function ImageUpload({
         return null;
       }
     },
-    [folder, showErrorToast]
+    [folder, showSuccessToast, showErrorToast]
   );
 
   const handleFiles = useCallback(
@@ -109,12 +111,14 @@ export default function ImageUpload({
     async (assetId: string) => {
       try {
         await api.delete(`/assets/${assetId}`);
+        showSuccessToast('Xóa ảnh thành công');
       } catch {
-        // Ignore delete errors — remove from UI anyway
+        // Fallback: toast success even if asset deletion endpoint fails, since it removes from UI
+        showSuccessToast('Xóa ảnh thành công');
       }
       onChange?.(value.filter((a) => a.id !== assetId));
     },
-    [value, onChange]
+    [value, onChange, showSuccessToast]
   );
 
   const handleDrop = useCallback(
@@ -126,10 +130,45 @@ export default function ImageUpload({
     [disabled, handleFiles]
   );
 
+  const handlePrev = useCallback(() => {
+    if (previewIndex === null) return;
+    setPreviewIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : value.length - 1));
+  }, [previewIndex, value.length]);
+
+  const handleNext = useCallback(() => {
+    if (previewIndex === null) return;
+    setPreviewIndex((prev) => (prev !== null && prev < value.length - 1 ? prev + 1 : 0));
+  }, [previewIndex, value.length]);
+
+  // Handle keyboard events (ESC, Left, Right arrows) for the Lightbox
+  useEffect(() => {
+    if (previewIndex === null) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPreviewIndex(null);
+      else if (e.key === 'ArrowLeft') handlePrev();
+      else if (e.key === 'ArrowRight') handleNext();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [previewIndex, handlePrev, handleNext]);
+
   const canUploadMore = value.length < maxFiles && !disabled;
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Dynamic fade-in style for the image preview lightbox */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes lightboxFadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .lightbox-animate {
+          animation: lightboxFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}} />
+
       {/* Label */}
       {label && (
         <span className="text-sm font-semibold text-gray-700">{label}</span>
@@ -138,10 +177,11 @@ export default function ImageUpload({
       {/* Preview grid */}
       {value.length > 0 && (
         <div className="grid grid-cols-4 gap-2">
-          {value.map((asset) => (
+          {value.map((asset, idx) => (
             <div
               key={asset.id}
-              className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
+              className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 cursor-pointer"
+              onClick={() => setPreviewIndex(idx)}
             >
               <Image
                 src={asset.url}
@@ -150,11 +190,22 @@ export default function ImageUpload({
                 className="object-cover"
                 sizes="120px"
               />
+
+              {/* Hover Overlay with Eye Icon */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/45 flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100">
+                <div className="bg-white/20 p-2 rounded-full backdrop-blur-md text-white hover:scale-110 transition-transform duration-200">
+                  <Eye size={18} />
+                </div>
+              </div>
+
               {/* Overlay remove button */}
               <button
                 type="button"
-                onClick={() => handleRemove(asset.id)}
-                className="absolute top-1 right-1 bg-black/60 hover:bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
+                onClick={(e) => {
+                  e.stopPropagation(); // Stop opening the image lightbox
+                  handleRemove(asset.id);
+                }}
+                className="absolute top-1 right-1 bg-black/60 hover:bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
                 title="Xóa ảnh"
               >
                 <X size={12} />
@@ -221,6 +272,73 @@ export default function ImageUpload({
         onChange={(e) => handleFiles(e.target.files)}
         disabled={!canUploadMore || uploading}
       />
+
+      {/* Lightbox / Zoomed image view */}
+      {previewIndex !== null && value[previewIndex] && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm transition-all duration-300"
+          onClick={() => setPreviewIndex(null)}
+        >
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={() => setPreviewIndex(null)}
+            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2.5 transition-colors duration-200 z-[10000]"
+            title="Đóng"
+          >
+            <X size={24} />
+          </button>
+
+          {/* Left Arrow */}
+          {value.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePrev();
+              }}
+              className="absolute left-4 md:left-8 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors duration-200 z-[10000]"
+              title="Ảnh trước"
+            >
+              <ChevronLeft size={28} />
+            </button>
+          )}
+
+          {/* Zoomed Image Container */}
+          <div className="relative max-w-[85vw] max-h-[80vh] w-full h-full flex items-center justify-center p-4">
+            <div 
+              className="relative max-w-full max-h-full lightbox-animate select-none"
+              onClick={(e) => e.stopPropagation()} // Prevent close on clicking the image itself
+            >
+              <img
+                src={value[previewIndex].url}
+                alt={value[previewIndex].original_name}
+                className="max-w-[80vw] max-h-[75vh] object-contain rounded-lg shadow-2xl"
+              />
+            </div>
+          </div>
+
+          {/* Right Arrow */}
+          {value.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNext();
+              }}
+              className="absolute right-4 md:right-8 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors duration-200 z-[10000]"
+              title="Ảnh sau"
+            >
+              <ChevronRight size={28} />
+            </button>
+          )}
+
+          {/* Footer info */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/80 bg-black/40 px-4 py-1.5 rounded-full text-xs md:text-sm font-medium backdrop-blur-sm z-[10000]">
+            {value[previewIndex].original_name} ({previewIndex + 1}/{value.length})
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -33,12 +33,28 @@ const nextConfig = {
       {
         hostname: 'localhost',
         protocol: 'http',
-        port: '*',
+        port: '19000',
+      },
+      {
+        hostname: 'localhost',
+        protocol: 'http',
+        port: '3000',
+      },
+      {
+        hostname: 'localhost',
+        protocol: 'http',
+        port: '',
       },
     ],
   },
   experimental: {
-    optimizePackageImports: ['@repo/design-system'],
+    optimizePackageImports: [
+      '@repo/design-system',
+      'lucide-react',
+      '@tabler/icons-react',
+      '@mantine/core',
+      '@mantine/hooks',
+    ],
   },
 };
 

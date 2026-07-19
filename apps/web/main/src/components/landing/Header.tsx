@@ -56,10 +56,21 @@ export default function Header() {
 
   useEffect(() => {
     let frameId = 0;
+    let lastActiveCheck = 0;
+    let fallbackTimeout: number | null = null;
     const sectionIds = pagesItems.map((item) => item.href.slice(1));
 
-    const updateActiveSection = () => {
+    const updateActiveSection = (force = false) => {
       setIsScrolled(window.scrollY > 8);
+
+      const now = Date.now();
+      if (!force && now - lastActiveCheck < 100) {
+        if (fallbackTimeout) window.clearTimeout(fallbackTimeout);
+        fallbackTimeout = window.setTimeout(() => updateActiveSection(true), 150) as unknown as number;
+        return;
+      }
+      lastActiveCheck = now;
+      if (fallbackTimeout) window.clearTimeout(fallbackTimeout);
 
       if (scrollLockRef.current) {
         const lockedTarget = document.getElementById(
@@ -112,7 +123,7 @@ export default function Header() {
 
     const queueUpdate = () => {
       window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(updateActiveSection);
+      frameId = window.requestAnimationFrame(() => updateActiveSection(false));
     };
 
     const syncFromHash = () => {
@@ -127,6 +138,7 @@ export default function Header() {
 
     return () => {
       window.cancelAnimationFrame(frameId);
+      if (fallbackTimeout) window.clearTimeout(fallbackTimeout);
       if (scrollLockTimeoutRef.current) {
         window.clearTimeout(scrollLockTimeoutRef.current);
       }

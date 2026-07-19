@@ -47,6 +47,24 @@ export function Table<T>({
     <div
       className={`bg-white text-nowrap  ${hasPadding ? 'p-4' : ''}  ${hasMarginTop ? 'mt-0' : ''} flex-col flex overflow-y-auto  rounded-lg ${className} h-full`}
     >
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes tableProgress {
+          0% { left: -40%; width: 30%; }
+          50% { width: 40%; }
+          100% { left: 110%; width: 30%; }
+        }
+        .table-progress-bar {
+          animation: tableProgress 1.2s infinite ease-in-out;
+        }
+      `}} />
+      
+      {/* Progress Loading Indicator */}
+      <div className="relative h-1 w-full bg-gray-50 overflow-hidden mb-2 rounded-md shrink-0">
+        {isLoading && (
+          <div className="absolute top-0 bottom-0 left-0 bg-pos-blue-500 table-progress-bar rounded-md"></div>
+        )}
+      </div>
+
       {/* TABLE */}
       <div
         className={`overflow-auto flex-1 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent `}
@@ -62,8 +80,8 @@ export function Table<T>({
             </tr>
           </thead>
 
-          <tbody className="h-full">
-            {isLoading ? (
+          <tbody className={`h-full transition-opacity duration-200 ${isLoading && data.length > 0 ? 'opacity-50 pointer-events-none' : ''}`}>
+            {isLoading && data.length === 0 ? (
               <TableSkeleton numColumns={finalHeader.length} numRows={pageSize} />
             ) : data.length === 0 ? (
               <tr>

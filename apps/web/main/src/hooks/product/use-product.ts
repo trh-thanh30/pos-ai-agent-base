@@ -164,16 +164,17 @@ export function useProduct() {
       if (res?.data.success) {
         showSuccessToast(res.data.message as string);
         setValidationProducts(res.data.data as ValidationProductRes);
-        return true;
+        return res.data.data as ValidationProductRes;
       }
-      return false;
+      return null;
     },
     [requestWrapper, showSuccessToast]
   );
-  const importProduct = useCallback(async () => {
+  const importProduct = useCallback(async (customItems?: any[]) => {
+    const targetItems = customItems || validationProducts.result;
     const res = await requestWrapper(() =>
       api.post<ApiResponse>(`/products/excel/import/save`, {
-        items: validationProducts.result.map((item) => ({
+        items: targetItems.map((item) => ({
           ...item,
           price: item.price ? Number(item.price) : 0,
           cost: item.cost ? Number(item.cost) : 0,
@@ -204,6 +205,7 @@ export function useProduct() {
     validationImportProduct,
     importProduct,
     validationProducts,
+    setValidationProducts,
     pagination,
     paginationParams,
     filters,

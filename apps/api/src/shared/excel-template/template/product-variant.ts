@@ -7,6 +7,7 @@ export interface ProductVariantExcel {
   base_unit: string;
   category_name?: string;
   description?: string;
+  image_url?: string;
 
   // Variant info
   variant_name: string;
@@ -278,6 +279,12 @@ export const PRODUCT_VARIANT_EXCEL_TEMPLATE: ExcelTemplateConfig = {
           width: 36,
           merge: true,
         },
+        {
+          header: 'Ảnh sản phẩm',
+          key: 'image_url',
+          width: 25,
+          merge: true,
+        },
       ],
     },
     {
@@ -298,6 +305,7 @@ export const PRODUCT_VARIANT_EXCEL_TEMPLATE: ExcelTemplateConfig = {
     { header: 'Đơn vị tính*', key: 'base_unit', width: 12, merge: true },
     { header: 'Tên danh mục', key: 'category_name', width: 30, merge: true },
     { header: 'Mô tả sản phẩm', key: 'description', width: 36, merge: true },
+    { header: 'Ảnh sản phẩm', key: 'image_url', width: 25, merge: true },
     { header: 'Tên biến thể', key: 'variant_name', width: 40 },
     { header: 'Mã biến thể (SKU)', key: 'variant_sku', width: 15 },
     { header: 'Mã vạch (Barcode)', key: 'barcode', width: 15 },

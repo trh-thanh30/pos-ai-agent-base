@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
+import { storageConfig } from 'app/config';
+import { UploadAssetUseCase } from '../assets/use-cases/upload-asset.use-case';
+import { AssetAccessTypeDto } from '../assets/dto/upload-asset.dto';
+import * as path from 'path';
 import { Format } from 'app/common/helpers/format';
 import { PrismaService } from 'app/prisma/prisma.service';
 import { ExcelTemplateService } from 'app/shared/excel-template/excel-template.service';
@@ -14,13 +19,19 @@ import { GenerateProductSkuUseCase } from './use-cases/generate-product-sku.use-
 
 @Injectable()
 export class ProductExcelService {
+  private readonly logger = new Logger(ProductExcelService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly excelService: ExcelTemplateService,
     private readonly format: Format,
     private readonly generateProductSku: GenerateProductSkuUseCase,
     private readonly generateVariantSku: GenerateVariantSkuUseCase,
+    private readonly uploadAssetUseCase: UploadAssetUseCase,
+    @Inject(storageConfig.KEY)
+    private readonly storageCfg: ConfigType<typeof storageConfig>,
   ) {}
+
   async downloadTemplateProduct() {
     return this.excelService.generateTemplateExample(
       PRODUCT_VARIANT_EXCEL_TEMPLATE,
@@ -58,6 +69,7 @@ export class ProductExcelService {
         .map((category) => category.name)
         .join(', '),
       description: variant.product.description,
+      image_url: variant.product.image_url ?? undefined,
       variant_name: variant.name,
       variant_sku: variant.sku,
       barcode: variant.barcode,
@@ -205,6 +217,65 @@ export class ProductExcelService {
     };
   }
 
+  private async downloadAndUploadExternalImage(
+    imageUrl: string,
+    storeId: string,
+    userId: string,
+  ): Promise<string> {
+    try {
+      const cdnUrl = this.storageCfg.cdnUrl;
+      if (imageUrl.includes(cdnUrl)) {
+        return imageUrl;
+      }
+
+      this.logger.log(`Downloading external image: ${imageUrl}`);
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image. Status: ${response.status}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // Parse filename and extension
+      const parsedUrl = new URL(imageUrl);
+      let originalname = path.basename(parsedUrl.pathname);
+      if (!originalname || !originalname.includes('.')) {
+        originalname = 'image.png';
+      }
+
+      const mimetype = response.headers.get('content-type') || 'image/png';
+
+      const file: Express.Multer.File = {
+        buffer,
+        originalname,
+        mimetype,
+        size: buffer.length,
+        fieldname: 'file',
+        encoding: '7bit',
+        destination: '',
+        filename: originalname,
+        path: '',
+        stream: null as any,
+      };
+
+      const fakeUser = {
+        id: userId,
+        storeId: storeId,
+      } as any;
+
+      const asset = await this.uploadAssetUseCase.execute(fakeUser, file, {
+        accessType: AssetAccessTypeDto.PUBLIC,
+        folder: 'imported-products',
+      });
+
+      return asset.url;
+    } catch (error) {
+      this.logger.error(`Error downloading external image ${imageUrl}:`, error);
+      return imageUrl; // Fallback to original URL if upload fails
+    }
+  }
+
   async importProduct(
     dto: ImportExcelProductDto,
     storeId: string,
@@ -223,6 +294,22 @@ export class ProductExcelService {
       if (!itemsByProduct.has(key)) itemsByProduct.set(key, []);
       itemsByProduct.get(key)?.push(item);
     });
+
+    // Download and upload external images before starting transaction
+    for (const [, items] of itemsByProduct.entries()) {
+      const firstItem = items[0];
+      if (firstItem.image_url) {
+        const localImageUrl = await this.downloadAndUploadExternalImage(
+          firstItem.image_url,
+          storeId,
+          userId,
+        );
+        // Update image_url for all items of this product
+        items.forEach((item) => {
+          item.image_url = localImageUrl;
+        });
+      }
+    }
 
     await this.prisma.$transaction(async (tx) => {
       // Đếm số lượng SKU cần tạo
@@ -297,6 +384,7 @@ export class ProductExcelService {
             sku: productSku,
             baseUnit: firstItem.base_unit,
             description: firstItem.description,
+            image_url: firstItem.image_url || null,
             created_by: userId,
             categories: categoryId
               ? { connect: { id: categoryId } }
@@ -306,6 +394,7 @@ export class ProductExcelService {
             name: firstItem.product_name,
             baseUnit: firstItem.base_unit,
             description: firstItem.description,
+            image_url: firstItem.image_url || undefined,
             categories: categoryId
               ? { connect: { id: categoryId } }
               : undefined,

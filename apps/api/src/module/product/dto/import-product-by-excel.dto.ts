@@ -29,6 +29,10 @@ export class ImportProductItemDto {
   description?: string;
 
   @IsString()
+  @IsOptional()
+  image_url?: string;
+
+  @IsString()
   @IsNotEmpty()
   variant_name: string;
 
