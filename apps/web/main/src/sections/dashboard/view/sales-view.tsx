@@ -37,6 +37,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import Logo from '../../../components/common/Logo';
 import { payment_method } from '../../../constants/method';
 import { useBarcodeScanner, useCatalog } from '../../../hooks/catalog/use-catalog';
+import { useCategories } from '../../../hooks/categories/use-categories';
 import { useCustomer } from '../../../hooks/customers/use-customer';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import { useVariant } from '../../../hooks/variant/use-variant';
@@ -68,6 +69,7 @@ export function SalesView() {
   } = useVariant();
   const { createOrder, loading } = useOrders();
   const { scanBarcode, setIsScanMode, isScanMode } = useCatalog();
+  const { categories, getCategories } = useCategories();
   const {
     customers,
     filters: customersFilters,
@@ -312,6 +314,10 @@ export function SalesView() {
     getCustomers();
   }, [currentStore?.id, customersFilters]);
   useEffect(() => {
+    if (!currentStore?.id) return;
+    getCategories();
+  }, [currentStore?.id]);
+  useEffect(() => {
     const timeout = setTimeout(() => {
       setCustomersFilters((prev) => ({
         ...prev,
@@ -463,7 +469,7 @@ export function SalesView() {
                   style={{ minWidth: 400 }}
                 />
                 <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2 py-2 px-4 bg-pos-blue-50 text-pos-blue-500 rounded-md  font-medium ">
+                  <div className="flex items-center gap-2 py-2 px-4 bg-pos-blue-50 text-pos-blue-500 rounded-md font-semibold">
                     <User size={16} />
                     <span>{selectedCustomer?.name ?? 'Khách lẻ'}</span>
                   </div>
@@ -832,6 +838,7 @@ export function SalesView() {
         setSort={setSort}
         sortBy={sortBy}
         setSortBy={setSortBy}
+        categories={categories}
       />
     </>
   );

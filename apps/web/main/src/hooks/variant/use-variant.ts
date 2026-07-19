@@ -16,6 +16,10 @@ import { FilterValue, useQueryParams } from '../query/use-query-params';
 import { useRequestHelper } from '../use-request-helper';
 export interface VariantFilter extends Record<string, FilterValue> {
   q?: string;
+  inStock?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  categoryId?: string;
 }
 export function useVariant() {
   //     HOOKS
@@ -40,6 +44,10 @@ export function useVariant() {
     setSort,
   } = useQueryParams<VariantFilter>({
     q: 'q',
+    inStock: 'inStock',
+    minPrice: 'minPrice',
+    maxPrice: 'maxPrice',
+    categoryId: 'categoryId',
   });
 
   //   FORM
