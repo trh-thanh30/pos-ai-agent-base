@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { User } from 'app/common/decorators/user.decorator';
 import { ApiSuccess } from 'app/common/decorators';
+import { Public } from 'app/common/decorators/public.decorator';
 import { PermissionGuard } from 'app/permissions/guard/permission.guard';
 import { RequirePermissions } from 'app/common/decorators/permission.decorator';
 import { PERMISSIONS } from 'app/common/types/permission.type';
@@ -32,6 +34,26 @@ export class StoreController {
   @ApiSuccess('Get stores successfully')
   findAll(@User() user: IUser) {
     return this.storeService.findAll(user);
+  }
+
+  @Get('subdomain/validate')
+  @ApiSuccess('Kiểm tra subdomain thành công!')
+  validateSubdomain(
+    @Query('subdomain') subdomain: string,
+    @Query('storeId') storeId?: string,
+  ) {
+    return this.storeService.validateSubdomain(subdomain, storeId);
+  }
+
+  @Public()
+  @Get('subdomain/:subdomain')
+  @ApiSuccess('Lấy thông tin cửa hàng theo subdomain thành công!')
+  getStoreBySubdomain(
+    @Param('subdomain') subdomain: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.storeService.getStoreBySubdomain(subdomain, { page, limit });
   }
 
   @Get(':storeId')

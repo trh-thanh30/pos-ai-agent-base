@@ -1,6 +1,6 @@
 export enum StoreRole {
-  OWNER = 'OWNER',
-  MEMBER = 'MEMBER',
+  OWNER = "OWNER",
+  MEMBER = "MEMBER",
 }
 export interface StoreOwner {
   id: string;
@@ -34,6 +34,15 @@ export interface StoreCount {
 export interface StorePayment {
   bank_qr_image_url: string;
 }
+export interface RetailConfig {
+  enabled?: boolean;
+  template_id?: "classic" | "ecommerce" | "restaurant";
+  primary_color?: string;
+  logo_url?: string;
+  banner_url?: string;
+  facebook_url?: string;
+  tiktok_url?: string;
+}
 export interface Store {
   id: string;
   owner_id: string;
@@ -51,6 +60,8 @@ export interface Store {
   qrPayment: string | null;
   _count: StoreCount;
   store_payment: StorePayment[];
+  subdomain: string | null;
+  retail_config: RetailConfig | null;
 }
 
 // Response từ API

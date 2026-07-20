@@ -3,12 +3,16 @@ import Link from 'next/link';
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { InfoConfigPayment, InfoRewardPoint, InfoStore } from '../components';
+import { InfoConfigPayment, InfoRewardPoint, InfoStore, InfoOnlineStore } from '../components';
 
 const link = [
   {
     title: 'Thông tin cửa hàng',
     link: 'store-info?tab=store',
+  },
+  {
+    title: 'Cấu hình Website',
+    link: 'store-info?tab=online',
   },
   {
     title: 'Thông tin tích điểm',
@@ -47,6 +51,7 @@ export function InfoStoreViewV2() {
       </div>
       <div className="h-full w-full bg-white p-8 rounded-md">
         {tab === 'store' && <InfoStore />}
+        {tab === 'online' && <InfoOnlineStore />}
         {tab === 'reward' && <InfoRewardPoint />}
         {tab === 'payment' && <InfoConfigPayment tab={tab} />}
       </div>

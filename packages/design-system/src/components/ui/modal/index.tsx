@@ -13,6 +13,7 @@ export type SizeModal =
   | '60%'
   | '70%'
   | '80%'
+  | '85%'
   | '90%'
   | '100%';
 type SizeRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl';

@@ -305,7 +305,8 @@ model Store {
   city          String?
   state         String?
   address       String?
-  business_hour String?
+  subdomain     String?  @unique @db.VarChar(100)
+  retail_config Json?    @default("{}")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

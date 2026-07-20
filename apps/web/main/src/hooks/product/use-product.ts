@@ -151,7 +151,7 @@ export function useProduct() {
   }, [requestWrapper]);
 
   const validationImportProduct = useCallback(
-    async (file: File, onProgress?: (percent: number) => void) => {
+    async (file: File, onProgress?: (percent: number) => void, signal?: AbortSignal) => {
       const formData = new FormData();
       formData.append('product_validation', file);
       const res = await requestWrapper(() =>
@@ -159,6 +159,7 @@ export function useProduct() {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
+          signal,
           onUploadProgress: (progressEvent) => {
             if (onProgress && progressEvent.total) {
               const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);

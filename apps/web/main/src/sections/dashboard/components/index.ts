@@ -5,6 +5,7 @@ export * from './form-variant';
 export * from './info-config-payment';
 export * from './info-reward-point';
 export * from './info-store';
+export * from './info-online-store';
 export * from './is-updated';
 export * from './purchase-order/sidebar';
 export * from './purchase-return/sidebar';
