@@ -19,6 +19,7 @@ import {
   Keyboard,
   LogOut,
   Minus,
+  Pencil,
   Percent,
   Plus,
   ScanSearch,
@@ -92,6 +93,9 @@ export function SalesView() {
   const [selectedVariants, setSelectedVariants] = useState<selectedVariant[]>([]);
   const [currentInvoice, setCurrentInvoice] = useState<number>(0);
   const [invoices, setInvoices] = useState<InvoiceSelected[]>([[]]);
+  const [invoiceNames, setInvoiceNames] = useState<string[]>(['Đơn hàng 1']);
+  const [editingInvoiceIdx, setEditingInvoiceIdx] = useState<number | null>(null);
+  const [editNameValue, setEditNameValue] = useState<string>('');
   const [newPrice, setNewPrice] = useState(0);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [changPaymentMethods, setChangePaymentMethods] = useState<payment_method | null>(
@@ -180,12 +184,13 @@ export function SalesView() {
   });
 
   const handleAddInvoices = () => {
-    // Lưu hóa đơn hiện tại
+    // Lưu hóa đơn hiện tại và thêm hóa đơn mới rỗng
     setInvoices((prev) => {
       const newInvoices = [...prev];
       newInvoices[currentInvoice] = selectedVariants;
       return [...newInvoices, []];
     });
+    setInvoiceNames((prev) => [...prev, `Đơn hàng ${prev.length + 1}`]);
 
     // Chuyển sang hóa đơn mới
     setCurrentInvoice(invoices.length);
@@ -213,6 +218,14 @@ export function SalesView() {
       setSelectedVariants(newInvoices[newCurrent] || []);
       return newInvoices;
     });
+    setInvoiceNames((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSaveTabName = (idx: number) => {
+    if (editNameValue.trim()) {
+      setInvoiceNames((prev) => prev.map((name, i) => (i === idx ? editNameValue.trim() : name)));
+    }
+    setEditingInvoiceIdx(null);
   };
 
   // Mở modal và set giá hiện tại
@@ -368,26 +381,63 @@ export function SalesView() {
   return (
     <>
       <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
-        <header className="bg-white w-full py-2 px-3 flex-shrink-0 flex items-center justify-between ">
+        <header className="bg-white w-full py-2 px-3 shrink-0 flex items-center justify-between ">
           <div className="flex items-center gap-8">
             <Logo link={`/dashboard/store/${currentStore?.id}/overview`} />
             <div className="flex items-center text-nowrap gap-4   ">
-              <div className="max-w-[600px] overflow-y-scroll flex items-center gap-4">
+              <div className="max-w-200 overflow-x-auto flex items-center gap-4 scrollbar-none">
                 {invoices.map((invoice, idx) => (
                   <div
                     onClick={() => handleSwitchInvoice(idx)}
                     key={idx}
-                    className={`flex items-center gap-3 text-base font-medium px-4 cursor-pointer py-2  rounded-md transition-all duration-200 ${
+                    className={`flex items-center gap-3 text-base font-medium px-4 cursor-pointer py-2 rounded-md transition-all duration-200 ${
                       currentInvoice === idx
                         ? 'text-pos-blue-500 bg-pos-blue-50'
                         : 'text-gray-800 hover:bg-gray-100'
                     }`}
                   >
-                    <span>Đơn hàng {idx + 1}</span>
-                    {idx === invoices.length - 1 && invoices.length > 1 && (
+                    {editingInvoiceIdx === idx ? (
+                      <input
+                        value={editNameValue}
+                        onChange={(e) => setEditNameValue(e.target.value)}
+                        onBlur={() => handleSaveTabName(idx)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveTabName(idx);
+                          if (e.key === 'Escape') setEditingInvoiceIdx(null);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="outline-none border-b border-pos-blue-500 bg-transparent px-1 py-0.5 text-base font-medium text-pos-blue-500 max-w-30"
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="flex items-center gap-1 group/tab">
+                        <span
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            setEditingInvoiceIdx(idx);
+                            setEditNameValue(invoiceNames[idx] || `Đơn hàng ${idx + 1}`);
+                          }}
+                          title="Nhấp đúp chuột để đổi tên"
+                        >
+                          {invoiceNames[idx] || `Đơn hàng ${idx + 1}`}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingInvoiceIdx(idx);
+                            setEditNameValue(invoiceNames[idx] || `Đơn hàng ${idx + 1}`);
+                          }}
+                          className="cursor-pointer text-gray-400 hover:text-pos-blue-500 opacity-0 group-hover/tab:opacity-100 transition-opacity p-0.5"
+                          title="Đổi tên"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                      </div>
+                    )}
+                    {invoices.length > 1 && (
                       <button
                         onClick={(e) => handleRemoveInvoice(idx, e)}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:text-red-500 p-0.5 rounded hover:bg-gray-200 transition-colors"
                       >
                         <X size={16} />
                       </button>
@@ -446,7 +496,7 @@ export function SalesView() {
           <div className="grid grid-cols-[1fr_0.6fr] gap-3 h-full overflow-hidden">
             {/* LEFT */}
             <div className="flex flex-col gap-2  h-full overflow-hidden">
-              <div className="bg-white flex items-center justify-between p-2 rounded-md flex-shrink-0">
+              <div className="bg-white flex items-center justify-between p-2 rounded-md shrink-0">
                 <Select
                   rightSection={<User size={16} />}
                   clearable
@@ -535,7 +585,7 @@ export function SalesView() {
                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
                               handleChangQuantity(variant.id, Number(e.target.value));
                             }}
-                            className="w-[34px] text-center outline-none text-xs font-medium text-gray-600"
+                            className="w-8.5 text-center outline-none text-xs font-medium text-gray-600"
                           />
                           <button
                             className="cursor-pointer disabled:cursor-not-allowed"
@@ -583,7 +633,7 @@ export function SalesView() {
                       <td className="">
                         <button
                           onClick={() => handleRemoveSelectedProduct(variant.id)}
-                          className="cursor-pointer w-[36px] h-[36px] flex items-center justify-center bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200"
+                          className="cursor-pointer w-9 h-9 flex items-center justify-center bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -593,7 +643,7 @@ export function SalesView() {
                 />
               </div>
 
-              <div className="flex-shrink-0 space-y-2 w-full">
+              <div className="shrink-0 space-y-2 w-full">
                 <div className="bg-white flex items-center justify-between p-2 rounded-md">
                   <span className="text-base font-medium text-gray-800">Ngày tạo</span>
                   <span className="text-lg text-pos-blue-500 font-semibold">
@@ -691,7 +741,7 @@ export function SalesView() {
                             onClick={() => {
                               const existing = selectedVariants.find((p) => p.id === variant.id);
                               if (!existing) {
-                                  if (variant.onHand > 0) handleSelectProduct(variant);
+                                if (variant.onHand > 0) handleSelectProduct(variant);
                               } else {
                                 if (existing.selectedQuantity < variant.onHand)
                                   handleSelectProduct(variant);
