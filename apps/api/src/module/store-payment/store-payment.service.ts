@@ -18,6 +18,11 @@ export class StorePaymentService {
 
   async configPaymentStore(dto: ConfigPaymentInfo, storeId: string) {
     if (!storeId) throw new BadRequestError(this.errMsg.NOT_FOUND_STORE);
+    const store = await this.prisma.store.findUnique({
+      where: { id: storeId },
+    });
+    if (!store) throw new BadRequestError(this.errMsg.NOT_FOUND_STORE);
+
     const qrUrl = await this.generateVietQRUrl.execute(dto);
     const existing = await this.prisma.storePayment.findFirst({
       where: {
@@ -49,21 +54,16 @@ export class StorePaymentService {
   }
 
   async getPaymentInfo(storeId: string) {
-    await this.checkHasStoreId(storeId);
+    if (!storeId) throw new BadRequestError(this.errMsg.NOT_FOUND_STORE);
+    const store = await this.prisma.store.findUnique({
+      where: { id: storeId },
+    });
+    if (!store) throw new BadRequestError(this.errMsg.NOT_FOUND_STORE);
+
     return await this.prisma.storePayment.findFirst({
       where: {
         store_id: storeId,
       },
     });
-  }
-
-  private async checkHasStoreId(storeId: string) {
-    const existing = await this.prisma.storePayment.findFirst({
-      where: {
-        store_id: storeId,
-      },
-    });
-    if (!existing) throw new BadRequestError(this.errMsg.NOT_FOUND_STORE);
-    return existing;
   }
 }

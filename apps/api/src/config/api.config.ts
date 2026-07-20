@@ -10,5 +10,6 @@ export default registerAs('api', () => ({
   tax_code_vn:
     process.env.TAX_CODE_API_VN ?? 'https://api.vietqr.io/v2/business',
 
-  fe_url: process.env.FE_URL ?? 'http://localhost:3000',
+  fe_url:
+    process.env.FRONTEND_URL ?? process.env.FE_URL ?? 'http://localhost:3001',
 }));

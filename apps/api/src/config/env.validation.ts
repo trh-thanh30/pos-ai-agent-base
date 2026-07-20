@@ -114,8 +114,12 @@ export const envSchema = z.object({
   METRICS_PORT: z.coerce.number().int().min(1).max(65535).optional(),
 
   // OAuth2 Configuration (Optional)
-  CLIENT_ID: z.string().optional(),
-  CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().url().optional(),
+
+  // Bank API Configuration (Optional)
+  BANK_API_VN: z.string().url().optional(),
 
   // Cookie Configuration
   COOKIE_DOMAIN: z.string().default('localhost'),
@@ -201,5 +205,5 @@ export function isRateLimitingConfigured(env: Env): boolean {
 
 // Helper function to check if OAuth2 is configured
 export function isOAuth2Configured(env: Env): boolean {
-  return !!(env.CLIENT_ID && env.CLIENT_SECRET);
+  return !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
 }

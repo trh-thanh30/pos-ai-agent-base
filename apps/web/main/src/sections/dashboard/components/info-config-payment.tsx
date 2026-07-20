@@ -64,8 +64,8 @@ export function InfoConfigPayment({
 
   useEffect(() => {
     if (tab === 'payment' || isModal === true) {
-      api.get<ApiResponse<{ data: BankInfo[] }>>('/common/banks').then((res) => {
-        setBanks(res?.data?.data?.data || []);
+      api.get<ApiResponse<BankInfo[]>>('/common/banks').then((res) => {
+        setBanks(res?.data?.data || []);
       });
     }
   }, [tab, isModal]);

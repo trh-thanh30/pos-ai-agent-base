@@ -1,13 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Inject, Injectable } from '@nestjs/common';
 import { bank } from 'app/common/types/bank.type';
 
-import { firstValueFrom } from 'rxjs';
+import type { ConfigType } from '@nestjs/config';
+import { BusinessInfo } from 'app/common/types/business-info.type';
+import { communesVN } from 'app/common/types/communes-vn.type';
 import { provincesVN } from 'app/common/types/provinces-vn.type';
 import { apiConfig } from 'app/config';
-import type { ConfigType } from '@nestjs/config';
-import { communesVN } from 'app/common/types/communes-vn.type';
-import { BusinessInfo } from 'app/common/types/business-info.type';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class CommonService {
@@ -25,11 +25,15 @@ export class CommonService {
       return this.banksCache;
     }
     const response = await firstValueFrom(
-      this.httpService.get<bank[]>(this.api_config.bank_vn),
+      this.httpService.get<any>(this.api_config.bank_vn),
     );
-    this.banksCache = response.data;
+    const responseData = response.data;
+    // VietQR wraps the list in a "data" property, while some other APIs return the list directly.
+    this.banksCache = Array.isArray(responseData)
+      ? responseData
+      : responseData?.data || [];
     this.lastFetchTime = currentTime;
-    return this.banksCache;
+    return this.banksCache as bank[];
   }
   async geProvincesInVietNam() {
     const response = await firstValueFrom(
