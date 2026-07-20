@@ -19,6 +19,8 @@ import { PermissionGuard } from 'app/permissions/guard/permission.guard';
 import { RequirePermissions } from 'app/common/decorators/permission.decorator';
 import { PERMISSIONS } from 'app/common/types/permission.type';
 import type { IUser } from 'app/common/types/user.type';
+import { Throttle } from '@nestjs/throttler';
+import { CreateStorefrontOrderDto } from './dto/create-storefront-order.dto';
 
 @Controller('stores')
 export class StoreController {
@@ -54,6 +56,17 @@ export class StoreController {
     @Query('limit') limit?: string,
   ) {
     return this.storeService.getStoreBySubdomain(subdomain, { page, limit });
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('subdomain/:subdomain/orders')
+  @ApiSuccess('Tạo đơn hàng từ website thành công!')
+  createStorefrontOrder(
+    @Param('subdomain') subdomain: string,
+    @Body() dto: CreateStorefrontOrderDto,
+  ) {
+    return this.storeService.createStorefrontOrder(subdomain, dto);
   }
 
   @Get(':storeId')

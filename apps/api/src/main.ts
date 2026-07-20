@@ -32,18 +32,46 @@ async function bootstrap() {
 
     // Set up the application
     app.use(cookieParser());
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://localhost:3003',
+      'http://localhost:3004',
+      ...appCfg.origins,
+    ];
+    const allowedOriginUrls = allowedOrigins.flatMap((origin) => {
+      try {
+        return [new URL(origin)];
+      } catch {
+        return [];
+      }
+    });
     app.enableCors({
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       allowedHeaders: 'Content-Type, Accept, Authorization',
       exposedHeaders: ['Authorization'],
-      origin: [
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:3002',
-        'http://localhost:3003',
-        'http://localhost:3004',
-        ...appCfg.origins,
-      ],
+      origin: (
+        origin: string | undefined,
+        callback: (error: Error | null, allow?: boolean) => void,
+      ) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+
+        try {
+          const requestUrl = new URL(origin);
+          const matchesConfiguredDomain = allowedOriginUrls.some(
+            (allowedUrl) =>
+              requestUrl.protocol === allowedUrl.protocol &&
+              requestUrl.hostname.endsWith(`.${allowedUrl.hostname}`),
+          );
+          callback(null, matchesConfiguredDomain);
+        } catch {
+          callback(null, false);
+        }
+      },
       credentials: true,
     });
 

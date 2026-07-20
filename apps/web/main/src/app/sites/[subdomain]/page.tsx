@@ -28,23 +28,25 @@ export async function generateMetadata({
     const result = await res.json();
     if (result.success && result.data?.store) {
       const store = result.data.store;
+      const config = store.retail_config || {};
+      const seo = config.seo || {};
+      const logoUrl = config.brand?.logo_url || config.logo_url;
+      const title = seo.title || `${store.name} - Cửa hàng Online`;
+      const description =
+        seo.description ||
+        store.description ||
+        `Chào mừng bạn đến với ${store.name}! Mua sắm sản phẩm và đặt hàng online tiện lợi.`;
       return {
-        title: `${store.name} - Cửa hàng Online`,
-        description:
-          store.description ||
-          `Chào mừng bạn đến với ${store.name}! Mua sắm sản phẩm và đặt hàng online tiện lợi.`,
+        title,
+        description,
         alternates: {
           canonical: storefrontUrl,
         },
         openGraph: {
-          title: `${store.name} - Cửa hàng Online`,
-          description:
-            store.description ||
-            `Chào mừng bạn đến với ${store.name}! Mua sắm sản phẩm và đặt hàng online tiện lợi.`,
+          title,
+          description,
           url: storefrontUrl,
-          images: store.retail_config?.logo_url
-            ? [{ url: store.retail_config.logo_url }]
-            : [],
+          images: logoUrl ? [{ url: logoUrl }] : [],
         },
       };
     }

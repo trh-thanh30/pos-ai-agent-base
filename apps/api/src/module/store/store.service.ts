@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, product_status } from '@prisma/client';
+import {
+  order_status,
+  payment_method,
+  Prisma,
+  product_status,
+  stock_movement_type,
+} from '@prisma/client';
 import {
   ForbiddenError,
   NotFoundError,
@@ -10,8 +16,12 @@ import { PermissionService } from 'app/permissions/permission.service';
 import { PrismaService } from 'app/prisma/prisma.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { CreateStorefrontOrderDto } from './dto/create-storefront-order.dto';
+import { ApplyStockUseCase } from 'app/module/variant/use-case/apply-stock.usecase';
+import { GenerateOrderCodeUseCase } from 'app/module/orders/use-case/generate-order-code.usecase';
 
 type RetailConfig = {
+  schema_version?: number;
   enabled?: boolean;
   template_id?: string;
   primary_color?: string;
@@ -19,6 +29,65 @@ type RetailConfig = {
   banner_url?: string;
   facebook_url?: string;
   tiktok_url?: string;
+  brand?: {
+    primary_color?: string;
+    accent_color?: string;
+    background_color?: string;
+    text_color?: string;
+    font_pair?: string;
+    radius?: string;
+    logo_url?: string;
+    logo_asset_id?: string;
+    banner_url?: string;
+    banner_asset_id?: string;
+  };
+  announcement?: {
+    enabled?: boolean;
+    text?: string;
+  };
+  home?: {
+    hero_title?: string;
+    hero_subtitle?: string;
+    hero_cta_label?: string;
+    show_hero?: boolean;
+    show_categories?: boolean;
+    show_featured_products?: boolean;
+    featured_heading?: string;
+  };
+  catalog?: {
+    show_search?: boolean;
+    show_category_filter?: boolean;
+    show_product_description?: boolean;
+    show_stock_status?: boolean;
+    show_out_of_stock?: boolean;
+    quick_add?: boolean;
+    image_ratio?: string;
+    products_per_page?: number;
+  };
+  checkout?: {
+    enabled?: boolean;
+    allow_note?: boolean;
+    require_address?: boolean;
+    allow_cod?: boolean;
+    allow_bank_transfer?: boolean;
+    success_message?: string;
+  };
+  footer?: {
+    show_contact?: boolean;
+    show_business_hours?: boolean;
+    show_powered_by?: boolean;
+    policy_text?: string;
+  };
+  social?: {
+    facebook_url?: string;
+    instagram_url?: string;
+    tiktok_url?: string;
+    zalo_url?: string;
+  };
+  seo?: {
+    title?: string;
+    description?: string;
+  };
 };
 
 @Injectable()
@@ -26,6 +95,8 @@ export class StoreService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly permissionService: PermissionService,
+    private readonly applyStock: ApplyStockUseCase,
+    private readonly generateOrderCode: GenerateOrderCodeUseCase,
   ) {}
   private readonly errMsg = {
     STORE_NOT_FOUND: 'Cửa hàng không tồn tại',
@@ -241,6 +312,7 @@ export class StoreService {
       where: { subdomain: formattedSubdomain },
       select: {
         id: true,
+        subdomain: true,
         name: true,
         description: true,
         phone_number: true,
@@ -325,8 +397,14 @@ export class StoreService {
       price: product.variant[0]?.price || 0,
     }));
 
+    const { store_payment, ...publicStore } = store;
     return {
-      store,
+      store: {
+        ...publicStore,
+        payment_methods: {
+          bank_transfer: store_payment.length > 0,
+        },
+      },
       products,
       pagination: {
         page,
@@ -334,6 +412,186 @@ export class StoreService {
         total,
         totalPages: Math.ceil(total / limit),
       },
+    };
+  }
+
+  async createStorefrontOrder(
+    subdomain: string,
+    dto: CreateStorefrontOrderDto,
+  ) {
+    const store = await this.prismaService.store.findUnique({
+      where: { subdomain: subdomain.trim().toLowerCase() },
+      select: {
+        id: true,
+        owner_id: true,
+        retail_config: true,
+        store_payment: {
+          take: 1,
+          orderBy: { createdAt: 'asc' },
+          select: {
+            bank_code: true,
+            bank_name: true,
+            bank_account_number: true,
+            bank_account_name: true,
+          },
+        },
+      },
+    });
+
+    if (!store) {
+      throw new NotFoundError('Cửa hàng không tồn tại.');
+    }
+
+    const config = (store.retail_config || {}) as RetailConfig;
+    if (config.enabled !== true || config.checkout?.enabled === false) {
+      throw new BadRequestError('Cửa hàng hiện không nhận đơn trực tuyến.');
+    }
+
+    const requestedPayment = dto.payment_method || 'cod';
+    if (requestedPayment === 'cod' && config.checkout?.allow_cod === false) {
+      throw new BadRequestError(
+        'Cửa hàng không hỗ trợ thanh toán khi nhận hàng.',
+      );
+    }
+    if (
+      requestedPayment === 'bank_transfer' &&
+      (config.checkout?.allow_bank_transfer === false ||
+        !store.store_payment[0])
+    ) {
+      throw new BadRequestError(
+        'Cửa hàng chưa sẵn sàng nhận thanh toán chuyển khoản.',
+      );
+    }
+    if (
+      config.checkout?.require_address === true &&
+      !dto.customer_address?.trim()
+    ) {
+      throw new BadRequestError('Vui lòng nhập địa chỉ nhận hàng.');
+    }
+
+    const aggregatedItems = new Map<
+      string,
+      { product_id: string; variant_id: string; quantity: number }
+    >();
+    for (const item of dto.items) {
+      const existing = aggregatedItems.get(item.variant_id);
+      if (existing) {
+        existing.quantity += item.quantity;
+      } else {
+        aggregatedItems.set(item.variant_id, { ...item });
+      }
+    }
+    const requestedItems = Array.from(aggregatedItems.values());
+    const variants = await this.prismaService.variant.findMany({
+      where: {
+        id: { in: requestedItems.map((item) => item.variant_id) },
+        product: {
+          store_id: store.id,
+          product_status: product_status.ACTIVE,
+          is_deleted: false,
+        },
+      },
+      select: {
+        id: true,
+        product_id: true,
+        price: true,
+      },
+    });
+    const variantsById = new Map(
+      variants.map((variant) => [variant.id, variant]),
+    );
+
+    const verifiedItems = requestedItems.map((item) => {
+      const variant = variantsById.get(item.variant_id);
+      if (!variant || variant.product_id !== item.product_id) {
+        throw new BadRequestError(
+          'Một sản phẩm hoặc phân loại không còn khả dụng.',
+        );
+      }
+      return {
+        ...item,
+        price: variant.price,
+        total: variant.price * item.quantity,
+      };
+    });
+    const totalAmount = verifiedItems.reduce(
+      (total, item) => total + item.total,
+      0,
+    );
+    const orderCode = await this.generateOrderCode.generateOrderCode(store.id);
+
+    const result = await this.prismaService.$transaction(async (tx) => {
+      const customer = await tx.customer.create({
+        data: {
+          store_id: store.id,
+          name: dto.customer_name.trim(),
+          phone: dto.customer_phone.trim(),
+          address: dto.customer_address?.trim(),
+        },
+      });
+      const order = await tx.order.create({
+        data: {
+          store_id: store.id,
+          cashier_id: store.owner_id,
+          customer_id: customer.id,
+          customer_name: dto.customer_name.trim(),
+          code: orderCode,
+          subtotal_amount: totalAmount,
+          total_amount: totalAmount,
+          discount_amount: 0,
+          tax_amount: 0,
+          customer_pay_amount: 0,
+          change_amount: 0,
+          status: order_status.PENDING,
+          payment_method:
+            requestedPayment === 'bank_transfer'
+              ? payment_method.BANK_TRANSFER
+              : payment_method.CASH,
+          order_item: {
+            createMany: {
+              data: verifiedItems.map((item) => ({
+                product_id: item.product_id,
+                variant_id: item.variant_id,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total,
+                discount_rate: 0,
+                tax_rate: 0,
+                meta: {
+                  source: 'STOREFRONT',
+                  customer_phone: dto.customer_phone.trim(),
+                  customer_address: dto.customer_address?.trim(),
+                  customer_note: dto.customer_note?.trim(),
+                },
+              })),
+            },
+          },
+        },
+        select: {
+          id: true,
+          code: true,
+          total_amount: true,
+          status: true,
+        },
+      });
+
+      for (const item of verifiedItems) {
+        await this.applyStock.execute(
+          stock_movement_type.SALE,
+          store.id,
+          item.variant_id,
+          item.product_id,
+          item.quantity,
+          tx,
+        );
+      }
+      return order;
+    });
+
+    return {
+      order: result,
+      payment:
+        requestedPayment === 'bank_transfer' ? store.store_payment[0] : null,
     };
   }
 
@@ -417,16 +675,30 @@ export class StoreService {
   }
 
   private sanitizeRetailConfig(config: RetailConfig): RetailConfig {
-    const sanitized: RetailConfig = {
-      enabled: config.enabled === true,
-      template_id: config.template_id || 'classic',
-      primary_color: config.primary_color || '#2563eb',
+    const sanitized = JSON.parse(JSON.stringify(config)) as RetailConfig;
+    const templateAliases: Record<string, string> = {
+      classic: 'market',
+      ecommerce: 'editorial',
     };
+    sanitized.schema_version = 2;
+    sanitized.enabled = config.enabled === true;
+    sanitized.template_id =
+      templateAliases[config.template_id || ''] ||
+      config.template_id ||
+      'market';
 
-    if (config.logo_url) sanitized.logo_url = config.logo_url;
-    if (config.banner_url) sanitized.banner_url = config.banner_url;
-    if (config.facebook_url) sanitized.facebook_url = config.facebook_url;
-    if (config.tiktok_url) sanitized.tiktok_url = config.tiktok_url;
+    if (sanitized.brand) {
+      sanitized.primary_color = sanitized.brand.primary_color;
+      sanitized.logo_url = sanitized.brand.logo_url;
+      sanitized.banner_url = sanitized.brand.banner_url;
+    } else {
+      sanitized.primary_color = sanitized.primary_color || '#0f766e';
+    }
+
+    if (sanitized.social) {
+      sanitized.facebook_url = sanitized.social.facebook_url;
+      sanitized.tiktok_url = sanitized.social.tiktok_url;
+    }
 
     return sanitized;
   }
