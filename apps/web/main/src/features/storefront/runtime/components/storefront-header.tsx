@@ -88,7 +88,7 @@ export function StorefrontHeader({
           </span>
         </button>
 
-        <nav className="hidden items-center gap-9 text-sm font-semibold lg:flex">
+        <nav className="hidden items-center gap-9 text-base font-semibold lg:flex">
           <button
             type="button"
             onClick={onGoHome}
@@ -131,7 +131,7 @@ export function StorefrontHeader({
           <button
             type="button"
             onClick={onOpenAuth}
-            className="hidden items-center gap-2 text-sm font-semibold sm:flex"
+            className="hidden items-center gap-2 text-base font-semibold sm:flex"
           >
             <UserRound className="size-5" />
             <span className="max-w-28 truncate">
@@ -147,7 +147,7 @@ export function StorefrontHeader({
           >
             <ShoppingCart className="size-5" />
             {cartCount > 0 && (
-              <span className="absolute right-0 top-0 grid min-h-4 min-w-4 place-items-center rounded-full bg-[var(--sf-primary)] px-1 text-[9px] font-bold text-white">
+              <span className="absolute -right-1 -top-1 grid min-h-6 min-w-6 place-items-center rounded-full bg-[var(--sf-primary)] px-1 text-base font-bold leading-none text-white">
                 {cartCount}
               </span>
             )}
@@ -160,7 +160,7 @@ export function StorefrontHeader({
           <div className="group relative hidden shrink-0 md:block">
             <button
               type="button"
-              className="flex items-center gap-3 text-sm font-bold"
+              className="flex items-center gap-3 text-base font-bold"
             >
               <Menu className="size-5" />
               Danh mục sản phẩm
@@ -173,7 +173,7 @@ export function StorefrontHeader({
                   onCategoryChange?.("all");
                   onOpenAllProducts?.();
                 }}
-                className={`block w-full px-5 py-3 text-left text-xs font-semibold transition hover:pl-7 hover:text-white ${selectedCategory === "all" ? "text-white" : "text-white/65"}`}
+                className={`block w-full px-5 py-3 text-left text-base font-semibold transition hover:pl-7 hover:text-white ${selectedCategory === "all" ? "text-white" : "text-white/65"}`}
               >
                 Tất cả sản phẩm
               </button>
@@ -182,7 +182,7 @@ export function StorefrontHeader({
                   type="button"
                   key={category.id}
                   onClick={() => onCategoryChange?.(category.id)}
-                  className={`block w-full border-t border-white/10 px-5 py-3 text-left text-xs font-semibold transition hover:pl-7 hover:text-white ${selectedCategory === category.id ? "text-white" : "text-white/65"}`}
+                  className={`block w-full border-t border-white/10 px-5 py-3 text-left text-base font-semibold transition hover:pl-7 hover:text-white ${selectedCategory === category.id ? "text-white" : "text-white/65"}`}
                 >
                   {category.name}
                 </button>
@@ -206,7 +206,7 @@ export function StorefrontHeader({
             <div className="flex-1" />
           )}
 
-          <p className="hidden shrink-0 text-xs text-[#767676] xl:block">
+          <p className="hidden shrink-0 text-base text-[#767676] xl:block">
             Giao hàng nhanh · Hỗ trợ tận tâm
           </p>
         </div>

@@ -40,7 +40,7 @@ function parseLinks(value: string): FooterLink[] {
 
 function LinkList({ links }: { links: FooterLink[] }) {
   return (
-    <ul className="grid gap-3 text-sm leading-6 text-[#687080]">
+    <ul className="grid gap-3 text-base leading-7 text-[#687080]">
       {links.map((link, index) => (
         <li key={`${link.label}-${index}`} className="flex gap-3">
           <span className="mt-[0.65rem] size-1 shrink-0 rounded-full bg-[#596273]" />
@@ -65,7 +65,7 @@ function MobileSection({
 }) {
   return (
     <details className="group border-b border-[#eceef1]">
-      <summary className="flex cursor-pointer list-none items-center justify-between py-5 text-sm font-bold uppercase marker:content-none">
+      <summary className="flex cursor-pointer list-none items-center justify-between py-5 text-base font-bold uppercase marker:content-none">
         {title}
         <ChevronDown className="size-4 transition-transform duration-300 group-open:rotate-180" />
       </summary>
@@ -91,7 +91,7 @@ export function StorefrontFooter({ store, config }: StorefrontFooterProps) {
   };
 
   const companyContent = (
-    <div className="grid gap-3 text-sm leading-6 text-[#687080]">
+    <div className="grid gap-3 text-base leading-7 text-[#687080]">
       {store.description && <p>{store.description}</p>}
       {config.footer.show_contact && address && (
         <p className="flex items-start gap-2.5">
@@ -146,13 +146,13 @@ export function StorefrontFooter({ store, config }: StorefrontFooterProps) {
                 required
                 disabled={newsletterSent}
                 placeholder={config.footer.newsletter_placeholder}
-                className="h-11 w-full border border-[#dfe2e7] bg-white px-4 text-sm outline-none transition placeholder:text-[#9ca1ac] focus:border-[var(--sf-primary)] sm:w-72"
+                className="h-11 w-full border border-[#dfe2e7] bg-white px-4 text-base outline-none transition placeholder:text-[#9ca1ac] focus:border-[var(--sf-primary)] sm:w-72"
                 style={{ borderRadius: "var(--sf-radius)" }}
               />
               <button
                 type="submit"
                 disabled={newsletterSent}
-                className="h-11 w-full shrink-0 bg-[var(--sf-primary)] px-6 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-70 sm:w-auto"
+                className="h-11 w-full shrink-0 bg-[var(--sf-primary)] px-6 text-base font-bold text-white transition hover:brightness-110 disabled:opacity-70 sm:w-auto"
                 style={{ borderRadius: "var(--sf-radius)" }}
               >
                 {newsletterSent
@@ -214,7 +214,7 @@ export function StorefrontFooter({ store, config }: StorefrontFooterProps) {
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Zalo"
-                    className="text-sm font-black transition hover:text-[var(--sf-primary)]"
+                    className="text-base font-black transition hover:text-[var(--sf-primary)]"
                   >
                     Z
                   </a>
@@ -248,7 +248,7 @@ export function StorefrontFooter({ store, config }: StorefrontFooterProps) {
           </h2>
           <LinkList links={policyLinks} />
           {config.footer.policy_text && (
-            <p className="mt-4 text-sm leading-6 text-[#687080]">
+            <p className="mt-4 text-base leading-7 text-[#687080]">
               {config.footer.policy_text}
             </p>
           )}
@@ -266,14 +266,14 @@ export function StorefrontFooter({ store, config }: StorefrontFooterProps) {
         <MobileSection title={config.footer.policy_title}>
           <LinkList links={policyLinks} />
           {config.footer.policy_text && (
-            <p className="mt-4 text-sm leading-6 text-[#687080]">
+            <p className="mt-4 text-base leading-7 text-[#687080]">
               {config.footer.policy_text}
             </p>
           )}
         </MobileSection>
       </div>
 
-      <div className="border-t border-[#eceef1] bg-[#f5f7fa] px-5 py-5 text-center text-xs text-[#727b8b] lg:text-sm">
+      <div className="border-t border-[#eceef1] bg-[#f5f7fa] px-5 py-5 text-center text-base text-[#727b8b]">
         {config.footer.copyright_text ||
           `Copyright © ${new Date().getFullYear()} ${store.name}.`}
         {config.footer.show_powered_by && (

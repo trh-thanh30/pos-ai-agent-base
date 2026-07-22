@@ -573,7 +573,7 @@ export default function StorefrontClient({
 
       {/* View Switcher: Product Detail vs Search Results vs All Products Tab vs Home Landing Page */}
       <div
-        key={`${viewMode}-${selectedProduct?.id || searchTerm}`}
+        key={`${viewMode}-${selectedProduct?.id || ""}`}
         className="sf-view-enter"
       >
         {viewMode === "product-detail" && selectedProduct ? (

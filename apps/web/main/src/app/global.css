@@ -36,6 +36,17 @@
   }
 }
 
+@keyframes storefrontSearchDropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
 .sf-view-enter {
   animation: storefrontViewEnter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -44,9 +55,15 @@
   animation: storefrontProgress 700ms ease-in-out infinite;
 }
 
+.sf-search-dropdown-enter {
+  animation: storefrontSearchDropdownEnter 220ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sf-view-enter,
-  .sf-loading-progress {
+  .sf-loading-progress,
+  .sf-search-dropdown-enter {
     animation: none;
   }
 }

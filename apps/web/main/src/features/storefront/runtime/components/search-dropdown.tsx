@@ -2,7 +2,14 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Search, X, Clock, TrendingUp, ChevronRight } from "lucide-react";
+import {
+  Search,
+  X,
+  Clock,
+  TrendingUp,
+  ChevronRight,
+  LoaderCircle,
+} from "lucide-react";
 import type {
   StorefrontProduct,
   StorefrontStore,
@@ -49,6 +56,7 @@ export function StorefrontSearchDropdown({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const storageKey = `sf_recent_searches_${store.subdomain || "default"}`;
+  const isSearchPending = searchTerm.trim() !== debouncedQuery.trim();
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -188,7 +196,7 @@ export function StorefrontSearchDropdown({
           }}
           onKeyDown={handleKeyDown}
           placeholder="Tìm sản phẩm, thương hiệu..."
-          className="w-full border-0 bg-white py-3 pl-10 pr-9 text-xs text-[#262626] outline-none placeholder:text-[#a0a0a0] sm:text-sm"
+          className="w-full border-0 bg-white py-3 pl-10 pr-9 text-base text-[#262626] outline-none placeholder:text-[#a0a0a0]"
         />
         {searchTerm ? (
           <button
@@ -207,13 +215,28 @@ export function StorefrontSearchDropdown({
 
       {/* Dropdown Overlay */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-[480px] min-w-[320px] overflow-y-auto border border-[#e5e5e2] bg-white p-4 shadow-2xl sm:min-w-[420px]">
+        <div
+          className="sf-search-dropdown-enter absolute left-0 right-0 top-full z-50 mt-2 max-h-[520px] min-w-[320px] origin-top overflow-y-auto border border-[#e5e5e2] bg-white p-4 shadow-2xl sm:min-w-[420px]"
+          aria-busy={isSearchPending}
+        >
           {/* Active Search Results Mode */}
-          {debouncedQuery.trim() ? (
+          {searchTerm.trim() && isSearchPending ? (
+            <div
+              className="grid min-h-44 place-items-center text-center"
+              aria-live="polite"
+            >
+              <div>
+                <LoaderCircle className="mx-auto size-7 animate-spin text-[var(--sf-primary)]" />
+                <p className="mt-3 text-base font-semibold text-[#687080]">
+                  Đang tìm sản phẩm...
+                </p>
+              </div>
+            </div>
+          ) : searchTerm.trim() && debouncedQuery.trim() ? (
             <div className="space-y-3">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-2 text-xs font-semibold text-gray-500">
+              <div className="flex items-center justify-between border-b border-gray-100 pb-2 text-base font-semibold text-gray-500">
                 <span>Gợi ý kết quả ({searchResults.length})</span>
-                <span className="text-[11px] font-bold text-[var(--sf-primary)]">
+                <span className="text-base font-bold text-[var(--sf-primary)]">
                   Nhấn Enter để tìm full
                 </span>
               </div>
@@ -234,15 +257,15 @@ export function StorefrontSearchDropdown({
                           className="size-11 shrink-0 border border-gray-100 bg-gray-50 object-cover"
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs sm:text-sm font-semibold text-gray-800 group-hover:text-[var(--sf-primary)] transition-colors">
+                          <p className="truncate text-base font-semibold text-gray-800 transition-colors group-hover:text-[var(--sf-primary)]">
                             {product.name}
                           </p>
-                          <p className="text-[11px] text-gray-400 truncate">
+                          <p className="truncate text-base text-gray-400">
                             {product.categories?.[0]?.name || "Sản phẩm"}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-xs font-bold text-[var(--sf-primary)]">
+                          <p className="text-base font-bold text-[var(--sf-primary)]">
                             {formatCurrency(variant.price)}
                           </p>
                         </div>
@@ -251,7 +274,7 @@ export function StorefrontSearchDropdown({
                   })}
                 </div>
               ) : (
-                <div className="py-6 text-center text-xs text-gray-500">
+                <div className="py-6 text-center text-base text-gray-500">
                   Không tìm thấy sản phẩm khớp với &quot;{debouncedQuery}&quot;
                 </div>
               )}
@@ -264,7 +287,7 @@ export function StorefrontSearchDropdown({
                   onExecuteSearch(debouncedQuery);
                   setIsOpen(false);
                 }}
-                className="mt-2 flex w-full items-center justify-center gap-1.5 bg-[var(--sf-primary)] py-3 text-xs font-bold text-white transition hover:opacity-90"
+                className="mt-2 flex w-full items-center justify-center gap-1.5 bg-[var(--sf-primary)] py-3 text-base font-bold text-white transition hover:opacity-90"
               >
                 <span>Xem tất cả kết quả cho &quot;{debouncedQuery}&quot;</span>
                 <ChevronRight className="size-4" />
@@ -277,14 +300,14 @@ export function StorefrontSearchDropdown({
               {recentSearches.length > 0 && (
                 <div>
                   <div className="mb-2.5 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--sf-primary)]">
+                    <div className="flex items-center gap-1.5 text-base font-bold text-[var(--sf-primary)]">
                       <Clock className="size-3.5" />
                       <span>Recent Searches</span>
                     </div>
                     <button
                       type="button"
                       onClick={clearAllRecent}
-                      className="text-[11px] font-semibold text-[var(--sf-primary)] hover:underline"
+                      className="text-base font-semibold text-[var(--sf-primary)] hover:underline"
                     >
                       Clear All
                     </button>
@@ -294,7 +317,7 @@ export function StorefrontSearchDropdown({
                       <span
                         key={term}
                         onClick={() => handleSelectKeyword(term)}
-                        className="inline-flex cursor-pointer items-center gap-1.5 border border-[#d8d8d5] px-3 py-1 text-xs text-gray-700 transition hover:border-[var(--sf-primary)]"
+                        className="inline-flex cursor-pointer items-center gap-1.5 border border-[#d8d8d5] px-3 py-1 text-base text-gray-700 transition hover:border-[var(--sf-primary)]"
                       >
                         <span className="truncate max-w-[140px] sm:max-w-[200px]">
                           {term}
@@ -315,7 +338,7 @@ export function StorefrontSearchDropdown({
 
               {/* 2. Popular Right Now (Xu hướng tìm kiếm) */}
               <div>
-                <div className="mb-2.5 flex items-center gap-1.5 text-xs font-bold text-[var(--sf-primary)]">
+                <div className="mb-2.5 flex items-center gap-1.5 text-base font-bold text-[var(--sf-primary)]">
                   <TrendingUp className="size-3.5" />
                   <span>Popular Right Now</span>
                 </div>
@@ -325,7 +348,7 @@ export function StorefrontSearchDropdown({
                       key={keyword}
                       type="button"
                       onClick={() => handleSelectKeyword(keyword)}
-                      className="cursor-pointer border border-[#d8d8d5] bg-white px-3.5 py-1.5 text-xs font-medium text-gray-700 transition hover:border-[var(--sf-primary)] hover:text-[var(--sf-primary)]"
+                      className="cursor-pointer border border-[#d8d8d5] bg-white px-3.5 py-1.5 text-base font-medium text-gray-700 transition hover:border-[var(--sf-primary)] hover:text-[var(--sf-primary)]"
                     >
                       {keyword}
                     </button>
