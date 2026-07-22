@@ -15,6 +15,7 @@ export const RetailConfigSchema = z.object({
       "market",
       "editorial",
       "specialist",
+      "orebi",
       "classic",
       "ecommerce",
       "restaurant",
@@ -37,6 +38,8 @@ export const RetailConfigSchema = z.object({
       logo_asset_id: z.string().optional(),
       banner_url: optionalUrl,
       banner_asset_id: z.string().optional(),
+      banner_urls: z.array(z.string().url()).max(5).optional(),
+      banner_asset_ids: z.array(z.string()).max(5).optional(),
     })
     .optional(),
   announcement: z
@@ -51,6 +54,7 @@ export const RetailConfigSchema = z.object({
       hero_subtitle: z.string().max(240).optional(),
       hero_cta_label: z.string().max(40).optional(),
       show_hero: z.boolean().optional(),
+      show_hero_slider: z.boolean().optional(),
       show_categories: z.boolean().optional(),
       show_featured_products: z.boolean().optional(),
       featured_heading: z.string().max(80).optional(),
@@ -85,6 +89,19 @@ export const RetailConfigSchema = z.object({
       show_contact: z.boolean().optional(),
       show_business_hours: z.boolean().optional(),
       show_powered_by: z.boolean().optional(),
+      show_newsletter: z.boolean().optional(),
+      newsletter_title: z.string().max(80).optional(),
+      newsletter_placeholder: z.string().max(100).optional(),
+      newsletter_button_label: z.string().max(40).optional(),
+      company_title: z.string().max(120).optional(),
+      contact_email: z.string().email().or(z.literal("")).optional(),
+      about_title: z.string().max(80).optional(),
+      about_links: z.string().max(1200).optional(),
+      support_title: z.string().max(80).optional(),
+      support_links: z.string().max(1200).optional(),
+      policy_title: z.string().max(80).optional(),
+      policy_links: z.string().max(1200).optional(),
+      copyright_text: z.string().max(160).optional(),
       policy_text: z.string().max(240).optional(),
     })
     .optional(),
@@ -92,6 +109,7 @@ export const RetailConfigSchema = z.object({
     .object({
       facebook_url: optionalUrl,
       instagram_url: optionalUrl,
+      youtube_url: optionalUrl,
       tiktok_url: optionalUrl,
       zalo_url: optionalUrl,
     })

@@ -57,8 +57,8 @@ export function InfoStoreViewV2() {
         ))}
       </div>
       <div
-        className={`h-full min-w-0 w-full bg-white rounded-md ${
-          tab === "online" ? "p-8 overflow-hidden" : "p-8"
+        className={`h-full min-w-0 w-full rounded-md ${
+          tab === "online" ? "p-0 overflow-y-auto bg-[#f3f5f5]" : "p-8 overflow-y-auto bg-white"
         }`}
       >
         {tab === "store" && <InfoStore />}

@@ -126,6 +126,10 @@ export default async function SubdomainPage({ params }: PageProps) {
   }
 
   return (
-    <StorefrontClient store={storeData.store} products={storeData.products} />
+    <StorefrontClient
+      store={storeData.store}
+      products={storeData.products}
+      initialPagination={storeData.pagination}
+    />
   );
 }

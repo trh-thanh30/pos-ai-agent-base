@@ -133,7 +133,8 @@ export function InfoOnlineStore() {
   useEffect(() => {
     if (!currentStore?.id) return;
     getStoreDetail();
-  }, [currentStore?.id, getStoreDetail]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStore?.id]);
 
   useEffect(() => {
     if (!store) return;
@@ -171,19 +172,26 @@ export function InfoOnlineStore() {
     [config.brand.logo_asset_id, config.brand.logo_url],
   );
 
-  const bannerAssets = useMemo<UploadedAsset[]>(
-    () =>
-      config.brand.banner_url
-        ? [
-            {
-              id: config.brand.banner_asset_id || "legacy-banner",
-              url: config.brand.banner_url,
-              original_name: "Ảnh bìa cửa hàng",
-            },
-          ]
-        : [],
-    [config.brand.banner_asset_id, config.brand.banner_url],
-  );
+  const bannerAssets = useMemo<UploadedAsset[]>(() => {
+    const urls = config.brand.banner_urls?.length
+      ? config.brand.banner_urls
+      : config.brand.banner_url
+        ? [config.brand.banner_url]
+        : [];
+    return urls.map((url, index) => ({
+      id:
+        config.brand.banner_asset_ids?.[index] ||
+        (index === 0 ? config.brand.banner_asset_id : undefined) ||
+        `legacy-banner-${index}`,
+      url,
+      original_name: `Ảnh hero ${index + 1}`,
+    }));
+  }, [
+    config.brand.banner_asset_id,
+    config.brand.banner_asset_ids,
+    config.brand.banner_url,
+    config.brand.banner_urls,
+  ]);
 
   const handleCheckSubdomain = async () => {
     if (!subdomain.trim()) {
@@ -287,7 +295,7 @@ export function InfoOnlineStore() {
   };
 
   return (
-    <div className="-m-8 min-h-[calc(100vh-8rem)] bg-[#f3f5f5]">
+    <div className="min-h-full bg-[#f3f5f5]">
       <header className="sticky top-0 z-20 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-[#dce1e1] bg-white px-5 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="grid size-9 shrink-0 place-items-center rounded-md bg-[#17211f] text-white">
@@ -569,7 +577,7 @@ export function InfoOnlineStore() {
                         </button>
                       ))}
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid min-w-0 grid-cols-2 gap-3">
                       <ColorField
                         label="Màu chính"
                         value={config.brand.primary_color}
@@ -675,11 +683,11 @@ export function InfoOnlineStore() {
                     />
                   </SettingGroup>
 
-                  <SettingGroup title="Ảnh bìa">
+                  <SettingGroup title="Ảnh hero slider (tối đa 5 ảnh)">
                     <ImageUpload
                       label=""
                       folder="storefront/banner"
-                      maxFiles={1}
+                      maxFiles={5}
                       value={bannerAssets}
                       onChange={(assets) => {
                         const asset = assets[0];
@@ -689,6 +697,8 @@ export function InfoOnlineStore() {
                             ...current.brand,
                             banner_url: asset?.url,
                             banner_asset_id: asset?.id,
+                            banner_urls: assets.map((item) => item.url),
+                            banner_asset_ids: assets.map((item) => item.id),
                           },
                         }));
                       }}
@@ -701,12 +711,12 @@ export function InfoOnlineStore() {
                 <div className="grid gap-6">
                   <SettingGroup title="Hero">
                     <ToggleRow
-                      label="Hiển thị hero"
-                      checked={config.home.show_hero}
-                      onChange={(show_hero) =>
+                      label="Hiển thị hero slider"
+                      checked={config.home.show_hero_slider}
+                      onChange={(show_hero_slider) =>
                         updateConfig((current) => ({
                           ...current,
-                          home: { ...current.home, show_hero },
+                          home: { ...current.home, show_hero_slider },
                         }))
                       }
                     />
@@ -746,6 +756,19 @@ export function InfoOnlineStore() {
                   </SettingGroup>
 
                   <SettingGroup title="Khu vực sản phẩm">
+                    <ToggleRow
+                      label="Hiển thị các khu vực sản phẩm"
+                      checked={config.home.show_featured_products}
+                      onChange={(show_featured_products) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          home: {
+                            ...current.home,
+                            show_featured_products,
+                          },
+                        }))
+                      }
+                    />
                     <TextField
                       label="Tiêu đề"
                       maxLength={80}
@@ -980,6 +1003,16 @@ export function InfoOnlineStore() {
                 <div className="grid gap-6">
                   <SettingGroup title="Chân trang">
                     <ToggleRow
+                      label="Đăng ký nhận tin"
+                      checked={config.footer.show_newsletter}
+                      onChange={(show_newsletter) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, show_newsletter },
+                        }))
+                      }
+                    />
+                    <ToggleRow
                       label="Thông tin liên hệ"
                       checked={config.footer.show_contact}
                       onChange={(show_contact) =>
@@ -1020,6 +1053,153 @@ export function InfoOnlineStore() {
                         updateConfig((current) => ({
                           ...current,
                           footer: { ...current.footer, policy_text },
+                        }))
+                      }
+                    />
+                    <TextField
+                      label="Tên doanh nghiệp ở footer"
+                      value={config.footer.company_title}
+                      placeholder="Để trống để dùng tên cửa hàng"
+                      maxLength={120}
+                      onChange={(company_title) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, company_title },
+                        }))
+                      }
+                    />
+                    <TextField
+                      label="Email liên hệ"
+                      value={config.footer.contact_email}
+                      placeholder="hello@cuahang.vn"
+                      maxLength={160}
+                      onChange={(contact_email) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, contact_email },
+                        }))
+                      }
+                    />
+                    <TextField
+                      label="Dòng bản quyền"
+                      value={config.footer.copyright_text}
+                      placeholder="Để trống để tạo tự động"
+                      maxLength={160}
+                      onChange={(copyright_text) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, copyright_text },
+                        }))
+                      }
+                    />
+                  </SettingGroup>
+
+                  <SettingGroup title="Form nhận tin">
+                    <TextField
+                      label="Tiêu đề"
+                      value={config.footer.newsletter_title}
+                      maxLength={80}
+                      onChange={(newsletter_title) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, newsletter_title },
+                        }))
+                      }
+                    />
+                    <TextField
+                      label="Placeholder email"
+                      value={config.footer.newsletter_placeholder}
+                      maxLength={100}
+                      onChange={(newsletter_placeholder) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: {
+                            ...current.footer,
+                            newsletter_placeholder,
+                          },
+                        }))
+                      }
+                    />
+                    <TextField
+                      label="Nhãn nút gửi"
+                      value={config.footer.newsletter_button_label}
+                      maxLength={40}
+                      onChange={(newsletter_button_label) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: {
+                            ...current.footer,
+                            newsletter_button_label,
+                          },
+                        }))
+                      }
+                    />
+                  </SettingGroup>
+
+                  <SettingGroup title="Các cột liên kết">
+                    <TextField
+                      label="Tiêu đề cột giới thiệu"
+                      value={config.footer.about_title}
+                      maxLength={80}
+                      onChange={(about_title) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, about_title },
+                        }))
+                      }
+                    />
+                    <TextAreaField
+                      label="Link giới thiệu — mỗi dòng: Tên | URL"
+                      value={config.footer.about_links}
+                      maxLength={1200}
+                      onChange={(about_links) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, about_links },
+                        }))
+                      }
+                    />
+                    <TextField
+                      label="Tiêu đề cột hỗ trợ"
+                      value={config.footer.support_title}
+                      maxLength={80}
+                      onChange={(support_title) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, support_title },
+                        }))
+                      }
+                    />
+                    <TextAreaField
+                      label="Link hỗ trợ — mỗi dòng: Tên | URL"
+                      value={config.footer.support_links}
+                      maxLength={1200}
+                      onChange={(support_links) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, support_links },
+                        }))
+                      }
+                    />
+                    <TextField
+                      label="Tiêu đề cột chính sách"
+                      value={config.footer.policy_title}
+                      maxLength={80}
+                      onChange={(policy_title) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, policy_title },
+                        }))
+                      }
+                    />
+                    <TextAreaField
+                      label="Link chính sách — mỗi dòng: Tên | URL"
+                      value={config.footer.policy_links}
+                      maxLength={1200}
+                      onChange={(policy_links) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          footer: { ...current.footer, policy_links },
                         }))
                       }
                     />
@@ -1064,6 +1244,20 @@ export function InfoOnlineStore() {
                           social: {
                             ...current.social,
                             tiktok_url: tiktok_url || undefined,
+                          },
+                        }))
+                      }
+                    />
+                    <TextField
+                      label="YouTube"
+                      value={config.social.youtube_url || ""}
+                      placeholder="https://youtube.com/@..."
+                      onChange={(youtube_url) =>
+                        updateConfig((current) => ({
+                          ...current,
+                          social: {
+                            ...current.social,
+                            youtube_url: youtube_url || undefined,
                           },
                         }))
                       }
@@ -1186,7 +1380,7 @@ function SettingGroup({
   children: React.ReactNode;
 }) {
   return (
-    <section className="grid gap-3">
+    <section className="grid min-w-0 gap-3">
       <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#77827f]">
         {title}
       </h3>
@@ -1253,7 +1447,7 @@ function TextField({
   maxLength?: number;
 }) {
   return (
-    <label className="grid gap-1.5 text-xs font-semibold text-[#34413d]">
+    <label className="grid min-w-0 gap-1.5 text-xs font-semibold text-[#34413d]">
       <span className="flex justify-between gap-2">
         {label}
         {maxLength && (
@@ -1267,7 +1461,7 @@ function TextField({
         maxLength={maxLength}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="h-10 rounded-md border border-[#cfd6d4] px-3 text-sm font-normal outline-none transition focus:border-[#0d7666] focus:ring-2 focus:ring-[#0d7666]/10"
+        className="h-10 w-full min-w-0 rounded-md border border-[#cfd6d4] px-3 text-sm font-normal outline-none transition focus:border-[#0d7666] focus:ring-2 focus:ring-[#0d7666]/10"
       />
     </label>
   );
@@ -1285,7 +1479,7 @@ function TextAreaField({
   maxLength?: number;
 }) {
   return (
-    <label className="grid gap-1.5 text-xs font-semibold text-[#34413d]">
+    <label className="grid min-w-0 gap-1.5 text-xs font-semibold text-[#34413d]">
       <span className="flex justify-between gap-2">
         {label}
         {maxLength && (
@@ -1299,7 +1493,7 @@ function TextAreaField({
         maxLength={maxLength}
         rows={4}
         onChange={(event) => onChange(event.target.value)}
-        className="resize-none rounded-md border border-[#cfd6d4] p-3 text-sm font-normal leading-5 outline-none transition focus:border-[#0d7666] focus:ring-2 focus:ring-[#0d7666]/10"
+        className="w-full min-w-0 resize-none rounded-md border border-[#cfd6d4] p-3 text-sm font-normal leading-5 outline-none transition focus:border-[#0d7666] focus:ring-2 focus:ring-[#0d7666]/10"
       />
     </label>
   );
@@ -1315,19 +1509,19 @@ function ColorField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="grid gap-1.5 text-xs font-semibold text-[#34413d]">
+    <label className="grid min-w-0 gap-1.5 text-xs font-semibold text-[#34413d]">
       {label}
-      <span className="flex h-10 items-center gap-2 rounded-md border border-[#cfd6d4] bg-white p-1.5">
+      <span className="flex h-10 min-w-0 items-center gap-1.5 rounded-md border border-[#cfd6d4] bg-white p-1.5">
         <input
           type="color"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="size-7 cursor-pointer border-0 bg-transparent p-0"
+          className="size-7 shrink-0 cursor-pointer border-0 bg-transparent p-0"
         />
         <input
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="min-w-0 flex-1 bg-transparent text-xs font-normal uppercase outline-none"
+          className="w-0 min-w-0 flex-1 bg-transparent text-xs font-normal uppercase outline-none"
         />
       </span>
     </label>
@@ -1346,12 +1540,12 @@ function SelectField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="grid gap-1.5 text-xs font-semibold text-[#34413d]">
+    <label className="grid min-w-0 gap-1.5 text-xs font-semibold text-[#34413d]">
       {label}
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-10 rounded-md border border-[#cfd6d4] bg-white px-3 text-sm font-normal outline-none focus:border-[#0d7666]"
+        className="h-10 w-full min-w-0 rounded-md border border-[#cfd6d4] bg-white px-3 text-sm font-normal outline-none focus:border-[#0d7666]"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>
@@ -1364,7 +1558,7 @@ function SelectField({
 }
 
 function TemplateThumbnail({
-  id,
+  id: _id,
   palette,
 }: {
   id: StorefrontTemplateId;
@@ -1380,52 +1574,21 @@ function TemplateThumbnail({
           />
           <span className="h-1 w-8 rounded bg-black/10" />
         </div>
-        {id === "editorial" ? (
-          <div className="grid h-[calc(100%-12px)] grid-cols-[1.2fr_0.8fr]">
-            <div style={{ background: palette[0] }} className="p-2">
-              <div className="mt-2 h-1.5 w-12 bg-white/75" />
-              <div className="mt-1 h-1 w-8 bg-white/35" />
-              <div className="mt-2 h-2 w-5 bg-white" />
-            </div>
-            <div className="grid grid-cols-2 gap-1 p-1.5">
-              {[1, 2, 3, 4].map((item) => (
-                <span key={item} style={{ background: palette[2] }} />
-              ))}
-            </div>
+        <div className="h-[calc(100%-12px)]">
+          <div style={{ background: palette[2] }} className="h-7 p-1.5">
+            <div className="h-1.5 w-16 bg-black/20" />
+            <div className="mt-1 h-1 w-10 bg-black/10" />
           </div>
-        ) : id === "specialist" ? (
-          <div className="grid h-[calc(100%-12px)] grid-cols-[0.7fr_1.3fr] gap-1.5 p-1.5">
-            <div style={{ background: palette[2] }} className="p-1">
-              <div className="h-1 w-7 bg-black/15" />
-              <div className="mt-1 h-1 w-9 bg-black/10" />
-            </div>
-            <div className="grid grid-cols-3 gap-1">
-              {[1, 2, 3].map((item) => (
-                <span
-                  key={item}
-                  className="border border-black/5"
-                  style={{ background: palette[2] }}
-                />
-              ))}
-            </div>
+          <div className="grid grid-cols-4 gap-1 p-1.5">
+            {[1, 2, 3, 4].map((item) => (
+              <span
+                key={item}
+                className="h-7 border border-black/5"
+                style={{ background: palette[2] }}
+              />
+            ))}
           </div>
-        ) : (
-          <div className="h-[calc(100%-12px)]">
-            <div style={{ background: palette[0] }} className="h-7 p-1.5">
-              <div className="h-1.5 w-16 bg-white/75" />
-              <div className="mt-1 h-1 w-10 bg-white/35" />
-            </div>
-            <div className="grid grid-cols-4 gap-1 p-1.5">
-              {[1, 2, 3, 4].map((item) => (
-                <span
-                  key={item}
-                  className="h-7 border border-black/5"
-                  style={{ background: palette[2] }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

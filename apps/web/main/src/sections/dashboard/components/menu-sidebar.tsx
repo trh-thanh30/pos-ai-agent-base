@@ -194,10 +194,10 @@ export default function MenuSidebar({
         },
       ],
     },
-    {
-      groupLabel: 'Kế toán và thuế',
-      items: [],
-    },
+    // {
+    //   groupLabel: 'Kế toán và thuế',
+    //   items: [],
+    // },
   ];
 
   return (

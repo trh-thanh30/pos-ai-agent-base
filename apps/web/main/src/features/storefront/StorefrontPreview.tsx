@@ -1,16 +1,9 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import {
-  Menu,
-  PackageCheck,
-  Plus,
-  Search,
-  ShieldCheck,
-  ShoppingBag,
-} from "lucide-react";
-import React from "react";
-import { StorefrontConfig } from "./config";
+import { Menu, Search, ShoppingCart, UserRound } from "lucide-react";
+import type { CSSProperties } from "react";
+import type { StorefrontConfig } from "./config";
 
 interface StorefrontPreviewProps {
   config: StorefrontConfig;
@@ -18,32 +11,28 @@ interface StorefrontPreviewProps {
   storeDescription?: string | null;
 }
 
-const SAMPLE_PRODUCTS = [
-  {
-    name: "Sản phẩm tuyển chọn",
-    price: "289.000đ",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Phiên bản mới",
-    price: "459.000đ",
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Lựa chọn bán chạy",
-    price: "179.000đ",
-    image:
-      "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Bộ sưu tập mùa mới",
-    price: "329.000đ",
-    image:
-      "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=500&auto=format&fit=crop&q=80",
-  },
-];
+const PRODUCTS = [
+  [
+    "Sản phẩm tuyển chọn",
+    "289.000đ",
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80",
+  ],
+  [
+    "Phiên bản mới",
+    "459.000đ",
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80",
+  ],
+  [
+    "Lựa chọn bán chạy",
+    "179.000đ",
+    "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=80",
+  ],
+  [
+    "Bộ sưu tập mùa mới",
+    "329.000đ",
+    "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=500&auto=format&fit=crop&q=80",
+  ],
+] as const;
 
 const FALLBACK_BANNER =
   "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1400&auto=format&fit=crop&q=80";
@@ -53,6 +42,12 @@ export default function StorefrontPreview({
   storeName,
   storeDescription,
 }: StorefrontPreviewProps) {
+  const previewBanners = config.brand.banner_urls?.length
+    ? config.brand.banner_urls
+    : config.brand.banner_url
+      ? [config.brand.banner_url]
+      : [FALLBACK_BANNER];
+  const banner = previewBanners[0];
   const radius =
     config.brand.radius === "sharp"
       ? "0px"
@@ -65,6 +60,12 @@ export default function StorefrontPreview({
       : config.brand.font_pair === "friendly"
         ? '"Trebuchet MS", "Avenir Next", sans-serif'
         : '"Avenir Next", "Gill Sans", sans-serif';
+  const ratioClass =
+    config.catalog.image_ratio === "portrait"
+      ? "aspect-[4/5]"
+      : config.catalog.image_ratio === "landscape"
+        ? "aspect-[4/3]"
+        : "aspect-square";
   const style = {
     "--preview-primary": config.brand.primary_color,
     "--preview-accent": config.brand.accent_color,
@@ -72,7 +73,7 @@ export default function StorefrontPreview({
     "--preview-text": config.brand.text_color,
     "--preview-radius": radius,
     "--preview-heading": headingFont,
-  } as React.CSSProperties;
+  } as CSSProperties;
 
   return (
     <div
@@ -80,287 +81,194 @@ export default function StorefrontPreview({
       className="min-h-full overflow-hidden bg-[var(--preview-bg)] text-[var(--preview-text)]"
     >
       {config.announcement.enabled && (
-        <div className="bg-[var(--preview-accent)] px-4 py-2 text-center text-[10px] font-bold text-white">
+        <div className="bg-[var(--preview-accent)] px-4 py-1.5 text-center text-[8px] font-bold text-white">
           {config.announcement.text}
         </div>
       )}
-      <header className="flex h-14 items-center justify-between border-b border-black/10 bg-white px-4">
-        <div className="flex min-w-0 items-center gap-2.5">
-          {config.brand.logo_url ? (
+      <header className="flex h-14 items-center justify-between border-b border-black/10 px-5">
+        <div className="flex items-center gap-2">
+          {config.brand.logo_url && (
             <img
               src={config.brand.logo_url}
               alt=""
-              className="size-8 object-contain"
-              style={{ borderRadius: radius }}
+              className="max-h-7 max-w-20 object-contain"
             />
-          ) : (
-            <div
-              className="grid size-8 place-items-center bg-[var(--preview-primary)] text-xs font-bold text-white"
-              style={{ borderRadius: radius }}
-            >
-              {storeName.slice(0, 1).toUpperCase()}
-            </div>
           )}
-          <span
-            className="truncate text-sm font-bold"
-            style={{ fontFamily: headingFont }}
+          <strong
+            className="text-xs"
+            style={{ fontFamily: "var(--preview-heading)" }}
           >
             {storeName || "Cửa hàng của bạn"}
-          </span>
+          </strong>
         </div>
-        <div className="flex items-center gap-1">
-          <Search className="size-4 text-black/45" />
-          <ShoppingBag className="ml-2 size-4" />
-          <Menu className="ml-2 size-4 lg:hidden" />
+        <nav className="hidden gap-4 text-[8px] font-semibold text-black/55 sm:flex">
+          <span>Trang chủ</span>
+          <span>Sản phẩm</span>
+          <span>Ưu đãi</span>
+        </nav>
+        <div className="flex gap-3">
+          <UserRound className="size-3.5" />
+          <ShoppingCart className="size-3.5" />
         </div>
       </header>
-
-      {config.template_id === "editorial" ? (
-        <EditorialPreview
-          config={config}
-          banner={config.brand.banner_url || FALLBACK_BANNER}
-        />
-      ) : config.template_id === "specialist" ? (
-        <SpecialistPreview config={config} />
-      ) : (
-        <MarketPreview config={config} storeDescription={storeDescription} />
-      )}
-
-      <footer className="mt-8 border-t border-black/10 bg-white px-5 py-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-bold">{storeName}</p>
-            <p className="mt-1 text-[9px] text-black/45">
-              {config.footer.policy_text}
-            </p>
-          </div>
-          {config.footer.show_powered_by && (
-            <span className="text-[9px] font-semibold text-[var(--preview-primary)]">
-              Powered by NexPOS
-            </span>
-          )}
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-function MarketPreview({
-  config,
-  storeDescription,
-}: {
-  config: StorefrontConfig;
-  storeDescription?: string | null;
-}) {
-  return (
-    <>
-      <section className="bg-[var(--preview-primary)] px-5 py-7 text-white">
-        <p className="text-[8px] font-bold uppercase tracking-[0.14em] text-white/65">
-          Chọn nhanh, nhận hàng tiện
-        </p>
-        <h1
-          className="mt-1.5 max-w-sm text-2xl font-bold leading-tight"
-          style={{ fontFamily: "var(--preview-heading)" }}
-        >
-          {config.home.hero_title}
-        </h1>
-        <p className="mt-2 line-clamp-2 max-w-md text-[10px] leading-4 text-white/70">
-          {config.home.hero_subtitle || storeDescription}
-        </p>
+      <div className="flex h-10 items-center gap-3 bg-black/5 px-5 text-[8px] text-black/55">
+        {config.home.show_categories && (
+          <>
+            <Menu className="size-3" />
+            <b>Danh mục</b>
+          </>
+        )}
         {config.catalog.show_search && (
           <div
-            className="mt-4 flex h-9 items-center gap-2 bg-white px-3 text-[10px] text-black/40"
+            className="mx-auto flex h-6 w-1/2 items-center gap-2 bg-white px-2"
             style={{ borderRadius: "var(--preview-radius)" }}
           >
-            <Search className="size-3.5" /> Bạn đang cần tìm gì?
+            <Search className="size-3" /> Tìm sản phẩm
           </div>
         )}
-      </section>
-      <ProductArea config={config} columns="grid-cols-2 lg:grid-cols-4" dense />
-    </>
-  );
-}
+      </div>
 
-function EditorialPreview({
-  config,
-  banner,
-}: {
-  config: StorefrontConfig;
-  banner: string;
-}) {
-  return (
-    <>
-      {config.home.show_hero && (
-        <section className="relative flex min-h-64 items-end overflow-hidden bg-neutral-900 px-6 py-7 text-white">
+      {config.home.show_hero_slider && (
+        <section className="relative flex min-h-60 items-center overflow-hidden px-6 py-8">
           <img
             src={banner}
             alt=""
-            className="absolute inset-0 size-full object-cover opacity-55"
+            className="absolute inset-0 size-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/35" />
-          <div className="relative max-w-sm">
-            <p className="text-[8px] font-semibold uppercase tracking-[0.2em] text-white/65">
-              New collection
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/75 to-transparent" />
+          <div className="relative max-w-[55%]">
+            <p className="text-[7px] uppercase tracking-[0.18em] text-black/50">
+              Bộ sưu tập mới
             </p>
             <h1
-              className="mt-2 text-3xl leading-none"
+              className="mt-2 text-2xl font-bold leading-none tracking-[-0.04em]"
               style={{ fontFamily: "var(--preview-heading)" }}
             >
               {config.home.hero_title}
             </h1>
-            <p className="mt-2 line-clamp-2 text-[10px] leading-4 text-white/70">
-              {config.home.hero_subtitle}
+            <p className="mt-2 line-clamp-2 text-[8px] leading-4 text-black/55">
+              {config.home.hero_subtitle || storeDescription}
             </p>
-            <button className="mt-4 bg-white px-4 py-2 text-[9px] font-bold text-neutral-950">
+            <button
+              className="mt-3 bg-[var(--preview-primary)] px-4 py-2 text-[8px] font-bold text-white"
+              style={{ borderRadius: "var(--preview-radius)" }}
+            >
               {config.home.hero_cta_label}
             </button>
           </div>
+          {previewBanners.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1">
+              {previewBanners.map((_, index) => (
+                <span
+                  key={index}
+                  className={`h-1 ${index === 0 ? "w-6 bg-[var(--preview-primary)]" : "w-3 bg-white/60"}`}
+                />
+              ))}
+            </div>
+          )}
         </section>
       )}
-      <ProductArea config={config} columns="grid-cols-2 lg:grid-cols-3" />
-    </>
-  );
-}
 
-function SpecialistPreview({ config }: { config: StorefrontConfig }) {
-  return (
-    <>
-      <section className="grid gap-5 bg-white px-5 py-7 lg:grid-cols-[1fr_180px] lg:items-center">
-        <div>
-          <div className="inline-flex items-center gap-1.5 bg-[var(--preview-primary)]/8 px-2 py-1 text-[8px] font-bold text-[var(--preview-primary)]">
-            <ShieldCheck className="size-3" /> Thông tin minh bạch
-          </div>
-          <h1
-            className="mt-2 max-w-md text-2xl font-bold leading-tight"
-            style={{ fontFamily: "var(--preview-heading)" }}
-          >
-            {config.home.hero_title}
-          </h1>
-          <p className="mt-2 line-clamp-2 text-[10px] leading-4 text-black/50">
-            {config.home.hero_subtitle}
-          </p>
-        </div>
-        <div className="grid grid-cols-2 border border-black/10 bg-[var(--preview-bg)]">
-          {[ShieldCheck, PackageCheck, Search, ShoppingBag].map(
-            (Icon, index) => (
-              <div
-                key={index}
-                className="grid aspect-square place-items-center border-b border-r border-black/10"
-              >
-                <Icon className="size-4 text-[var(--preview-primary)]" />
-              </div>
-            ),
-          )}
-        </div>
+      <section className="grid grid-cols-3 border-b border-black/10 px-5 py-3 text-center text-[7px] text-black/50">
+        <span>2 năm bảo hành</span>
+        <span>Giao hàng nhanh</span>
+        <span>Đổi trả 30 ngày</span>
       </section>
-      <ProductArea
-        config={config}
-        columns="grid-cols-2 lg:grid-cols-3"
-        specialist
-      />
-    </>
-  );
-}
 
-function ProductArea({
-  config,
-  columns,
-  dense = false,
-  specialist = false,
-}: {
-  config: StorefrontConfig;
-  columns: string;
-  dense?: boolean;
-  specialist?: boolean;
-}) {
-  const ratioClass =
-    config.catalog.image_ratio === "portrait"
-      ? "aspect-[4/5]"
-      : config.catalog.image_ratio === "landscape"
-        ? "aspect-[4/3]"
-        : "aspect-square";
-  return (
-    <section className="px-5 py-7">
-      <div className="flex items-end justify-between border-b border-black/10 pb-3">
-        <div>
-          <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-[var(--preview-primary)]">
-            Khám phá
-          </p>
+      {config.home.show_featured_products && (
+        <section className="px-5 py-7">
           <h2
-            className="mt-1 text-lg font-bold"
+            className="mb-4 text-lg font-bold tracking-[-0.04em]"
             style={{ fontFamily: "var(--preview-heading)" }}
           >
             {config.home.featured_heading}
           </h2>
-        </div>
-        <span className="text-[9px] text-black/40">24 sản phẩm</span>
-      </div>
-      {config.catalog.show_category_filter && (
-        <div className="my-3 flex gap-1.5 overflow-hidden">
-          {["Tất cả", "Bán chạy", "Mới về"].map((label, index) => (
-            <span
-              key={label}
-              className={`shrink-0 border px-2.5 py-1 text-[8px] font-bold ${
-                index === 0
-                  ? "border-[var(--preview-primary)] bg-[var(--preview-primary)] text-white"
-                  : "border-black/10 bg-white text-black/45"
-              }`}
-              style={{ borderRadius: "var(--preview-radius)" }}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-      )}
-      <div className={`grid gap-3 ${columns}`}>
-        {SAMPLE_PRODUCTS.map((product) => (
-          <article
-            key={product.name}
-            className={
-              specialist || dense
-                ? "overflow-hidden border border-black/10 bg-white"
-                : "overflow-hidden bg-transparent"
-            }
-            style={{ borderRadius: "var(--preview-radius)" }}
-          >
-            <div className={`${ratioClass} overflow-hidden bg-black/5`}>
-              <img
-                src={product.image}
-                alt=""
-                className="size-full object-cover"
-              />
-            </div>
-            <div className={specialist || dense ? "p-2.5" : "pt-2.5"}>
-              {specialist && (
-                <span className="text-[7px] font-bold uppercase text-[var(--preview-primary)]">
-                  Còn hàng
-                </span>
-              )}
-              <p className="mt-0.5 truncate text-[10px] font-bold">
-                {product.name}
-              </p>
-              {config.catalog.show_product_description && (
-                <p className="mt-1 line-clamp-1 text-[8px] text-black/40">
-                  Mô tả ngắn giúp khách hiểu sản phẩm.
-                </p>
-              )}
-              <div className="mt-2 flex items-center justify-between gap-1">
-                <strong className="text-[10px] text-[var(--preview-primary)]">
-                  {product.price}
-                </strong>
-                {config.catalog.quick_add && (
-                  <span
-                    className="grid size-6 place-items-center bg-[var(--preview-primary)] text-white"
-                    style={{ borderRadius: "var(--preview-radius)" }}
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {PRODUCTS.map(([name, price, image]) => (
+              <article
+                key={name}
+                className="border border-black/10 bg-white p-2"
+                style={{ borderRadius: "var(--preview-radius)" }}
+              >
+                <div
+                  className={`relative ${ratioClass} overflow-hidden bg-[#f3f3f3]`}
+                >
+                  <img src={image} alt="" className="size-full object-cover" />
+                  <span className="absolute left-2 top-2 bg-[var(--preview-primary)] px-2 py-1 text-[6px] font-bold text-white">
+                    MỚI
+                  </span>
+                </div>
+                <div className="mt-2 flex justify-between gap-2 text-[8px]">
+                  <b
+                    className="truncate"
+                    style={{ fontFamily: "var(--preview-heading)" }}
                   >
-                    <Plus className="size-3" />
+                    {name}
+                  </b>
+                  <span className="shrink-0 text-[var(--preview-primary)]">
+                    {price}
+                  </span>
+                </div>
+                {config.catalog.show_product_description && (
+                  <p className="mt-1 text-[7px] text-black/40">
+                    Sản phẩm chọn lọc
+                  </p>
+                )}
+                {config.catalog.quick_add && (
+                  <span className="mt-2 block text-right text-[6px] font-bold text-[var(--preview-primary)]">
+                    + Thêm nhanh
                   </span>
                 )}
-              </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <footer className="border-t border-black/10 bg-white text-[7px] text-black/50">
+        {config.footer.show_newsletter && (
+          <div className="flex items-center gap-3 border-b border-black/10 px-5 py-3">
+            <b className="text-black">{config.footer.newsletter_title}</b>
+            <div className="h-6 flex-1 border border-black/10 px-2 leading-6 text-black/35">
+              {config.footer.newsletter_placeholder}
             </div>
-          </article>
-        ))}
-      </div>
-    </section>
+            <span className="bg-[var(--preview-primary)] px-3 py-2 font-bold text-white">
+              {config.footer.newsletter_button_label}
+            </span>
+          </div>
+        )}
+        <div className="grid grid-cols-4 gap-4 px-5 py-6">
+          <div>
+            <b className="text-black">
+              {config.footer.company_title || storeName}
+            </b>
+            <p className="mt-2 line-clamp-4 leading-3">
+              {storeDescription || "Thông tin cửa hàng và địa chỉ liên hệ."}
+            </p>
+          </div>
+          {[
+            [config.footer.about_title, config.footer.about_links],
+            [config.footer.support_title, config.footer.support_links],
+            [config.footer.policy_title, config.footer.policy_links],
+          ].map(([title, links]) => (
+            <div key={title}>
+              <b className="text-black">{title}</b>
+              <p className="mt-2 line-clamp-4 leading-3">
+                {links
+                  .split("\n")
+                  .filter(Boolean)
+                  .map((line) => `• ${line.split("|")[0]}`)
+                  .join("\n")}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-black/10 bg-black/[0.03] px-5 py-3 text-center">
+          {config.footer.copyright_text ||
+            `Copyright © ${new Date().getFullYear()} ${storeName}.`}
+          {config.footer.show_powered_by && " Powered by NexPOS"}
+        </div>
+      </footer>
+    </div>
   );
 }

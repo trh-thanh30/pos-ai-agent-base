@@ -59,6 +59,16 @@ export class StoreController {
   }
 
   @Public()
+  @Get('subdomain/:subdomain/products/:productId')
+  @ApiSuccess('Lấy chi tiết sản phẩm cửa hàng thành công!')
+  getStorefrontProduct(
+    @Param('subdomain') subdomain: string,
+    @Param('productId') productId: string,
+  ) {
+    return this.storeService.getStorefrontProduct(subdomain, productId);
+  }
+
+  @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('subdomain/:subdomain/orders')
   @ApiSuccess('Tạo đơn hàng từ website thành công!')

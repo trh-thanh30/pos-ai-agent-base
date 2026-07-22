@@ -29,8 +29,8 @@ const useToast = ({ options }: UseToastProps = {}): UseToast => {
     ...options,
   });
 
-  const showToastByType = useCallback(
-    (type: ToastType) => (message: string, options?: ExternalToast) => {
+  const showToast = useCallback(
+    (type: ToastType, message: string, options?: ExternalToast) => {
       const mergedOptions = {
         ...toastOptions,
         ...options,
@@ -46,6 +46,31 @@ const useToast = ({ options }: UseToastProps = {}): UseToast => {
     [toastOptions]
   );
 
+  const showInfoToast = useCallback(
+    (message: string, options?: ExternalToast) => showToast("info", message, options),
+    [showToast]
+  );
+
+  const showSuccessToast = useCallback(
+    (message: string, options?: ExternalToast) => showToast("success", message, options),
+    [showToast]
+  );
+
+  const showWarningToast = useCallback(
+    (message: string, options?: ExternalToast) => showToast("warning", message, options),
+    [showToast]
+  );
+
+  const showErrorToast = useCallback(
+    (message: string, options?: ExternalToast) => showToast("error", message, options),
+    [showToast]
+  );
+
+  const showDefaultToast = useCallback(
+    (message: string, options?: ExternalToast) => showToast("default", message, options),
+    [showToast]
+  );
+
   const setToastOptionsCallback = useCallback(
     (options: ExternalToast) => {
       setToastOptions({
@@ -57,11 +82,11 @@ const useToast = ({ options }: UseToastProps = {}): UseToast => {
   );
 
   return {
-    showInfoToast: showToastByType("info"),
-    showSuccessToast: showToastByType("success"),
-    showWarningToast: showToastByType("warning"),
-    showErrorToast: showToastByType("error"),
-    showDefaultToast: showToastByType("default"),
+    showInfoToast,
+    showSuccessToast,
+    showWarningToast,
+    showErrorToast,
+    showDefaultToast,
     setToastOptions: setToastOptionsCallback,
   };
 };

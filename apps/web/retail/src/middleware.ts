@@ -13,8 +13,14 @@ export function middleware(req: NextRequest) {
   }
 
   const isDashboard = pathname.startsWith('/dashboard');
+  const isRoot = pathname === '/';
   const refreshToken = req.cookies.get('refresh_token');
   const mainUrl = process.env.NEXT_PUBLIC_MAIN_URL || 'http://localhost:3001';
+
+  // Redirect root / → /dashboard
+  if (isRoot) {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  }
 
   // Nếu chưa đăng nhập mà vào dashboard → redirect về login (main app)
   if (!refreshToken && isDashboard) {

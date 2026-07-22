@@ -80,5 +80,6 @@ export interface StorefrontTemplateProps {
   onCategoryChange: (categoryId: string) => void;
   onSearchChange: (query: string) => void;
   onAddProduct: (product: StorefrontProduct) => void;
+  onSelectProduct?: (product: StorefrontProduct) => void;
   onScrollToProducts: () => void;
 }

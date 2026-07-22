@@ -1,8 +1,4 @@
-export const STOREFRONT_TEMPLATE_IDS = [
-  "market",
-  "editorial",
-  "specialist",
-] as const;
+export const STOREFRONT_TEMPLATE_IDS = ["orebi"] as const;
 
 export type StorefrontTemplateId = (typeof STOREFRONT_TEMPLATE_IDS)[number];
 export type StorefrontFontPair = "modern" | "editorial" | "friendly";
@@ -20,6 +16,8 @@ export interface StorefrontBrandConfig {
   logo_asset_id?: string;
   banner_url?: string;
   banner_asset_id?: string;
+  banner_urls?: string[];
+  banner_asset_ids?: string[];
 }
 
 export interface StorefrontAnnouncementConfig {
@@ -32,6 +30,7 @@ export interface StorefrontHomeConfig {
   hero_subtitle: string;
   hero_cta_label: string;
   show_hero: boolean;
+  show_hero_slider: boolean;
   show_categories: boolean;
   show_featured_products: boolean;
   featured_heading: string;
@@ -61,12 +60,26 @@ export interface StorefrontFooterConfig {
   show_contact: boolean;
   show_business_hours: boolean;
   show_powered_by: boolean;
+  show_newsletter: boolean;
+  newsletter_title: string;
+  newsletter_placeholder: string;
+  newsletter_button_label: string;
+  company_title: string;
+  contact_email: string;
+  about_title: string;
+  about_links: string;
+  support_title: string;
+  support_links: string;
+  policy_title: string;
+  policy_links: string;
+  copyright_text: string;
   policy_text: string;
 }
 
 export interface StorefrontSocialConfig {
   facebook_url?: string;
   instagram_url?: string;
+  youtube_url?: string;
   tiktok_url?: string;
   zalo_url?: string;
 }
@@ -128,31 +141,13 @@ export const STOREFRONT_TEMPLATES: Array<{
   palette: [string, string, string];
 }> = [
   {
-    id: "market",
-    name: "Market",
-    eyebrow: "Nhanh và rõ",
+    id: "orebi",
+    name: "Orebi Store",
+    eyebrow: "Tối giản và thương mại",
     description:
-      "Mật độ sản phẩm cao, tìm kiếm nổi bật và thao tác thêm hàng thật nhanh.",
-    recommendedFor: "Tạp hóa, gia dụng, cửa hàng nhiều SKU",
-    palette: ["#0f766e", "#f59e0b", "#f8faf9"],
-  },
-  {
-    id: "editorial",
-    name: "Editorial",
-    eyebrow: "Tinh tế và giàu hình ảnh",
-    description:
-      "Ảnh lớn, khoảng trắng có chủ đích và nhịp trình bày như một tạp chí.",
-    recommendedFor: "Thời trang, mỹ phẩm, lifestyle",
-    palette: ["#18181b", "#be7c4d", "#f7f4ef"],
-  },
-  {
-    id: "specialist",
-    name: "Specialist",
-    eyebrow: "Chi tiết và đáng tin",
-    description:
-      "Tập trung variant, tồn kho và thông tin giúp khách chọn đúng sản phẩm.",
-    recommendedFor: "Điện tử, thể thao, mẹ và bé",
-    palette: ["#1d4ed8", "#ea580c", "#f8fafc"],
+      "Bố cục mua sắm cổ điển, hình ảnh lớn và danh mục sản phẩm dễ khám phá.",
+    recommendedFor: "Thời trang, gia dụng, phụ kiện và bán lẻ tổng hợp",
+    palette: ["#262626", "#6d6d6d", "#f5f5f3"],
   },
 ];
 
@@ -160,19 +155,19 @@ const TEMPLATE_DEFAULTS: Record<
   StorefrontTemplateId,
   Pick<StorefrontConfig, "brand" | "catalog">
 > = {
-  market: {
+  orebi: {
     brand: {
-      primary_color: "#0f766e",
-      accent_color: "#f59e0b",
-      background_color: "#f8faf9",
-      text_color: "#17201e",
-      font_pair: "friendly",
-      radius: "soft",
+      primary_color: "#262626",
+      accent_color: "#6d6d6d",
+      background_color: "#ffffff",
+      text_color: "#262626",
+      font_pair: "modern",
+      radius: "sharp",
     },
     catalog: {
       show_search: true,
       show_category_filter: true,
-      show_product_description: false,
+      show_product_description: true,
       show_stock_status: true,
       show_out_of_stock: true,
       quick_add: true,
@@ -180,50 +175,10 @@ const TEMPLATE_DEFAULTS: Record<
       products_per_page: 48,
     },
   },
-  editorial: {
-    brand: {
-      primary_color: "#18181b",
-      accent_color: "#be7c4d",
-      background_color: "#f7f4ef",
-      text_color: "#27231f",
-      font_pair: "editorial",
-      radius: "sharp",
-    },
-    catalog: {
-      show_search: true,
-      show_category_filter: true,
-      show_product_description: true,
-      show_stock_status: false,
-      show_out_of_stock: true,
-      quick_add: false,
-      image_ratio: "portrait",
-      products_per_page: 24,
-    },
-  },
-  specialist: {
-    brand: {
-      primary_color: "#1d4ed8",
-      accent_color: "#ea580c",
-      background_color: "#f8fafc",
-      text_color: "#172033",
-      font_pair: "modern",
-      radius: "soft",
-    },
-    catalog: {
-      show_search: true,
-      show_category_filter: true,
-      show_product_description: true,
-      show_stock_status: true,
-      show_out_of_stock: true,
-      quick_add: true,
-      image_ratio: "square",
-      products_per_page: 36,
-    },
-  },
 };
 
 export function getDefaultStorefrontConfig(
-  templateId: StorefrontTemplateId = "market",
+  templateId: StorefrontTemplateId = "orebi",
 ): StorefrontConfig {
   const template = TEMPLATE_DEFAULTS[templateId];
   return {
@@ -236,15 +191,15 @@ export function getDefaultStorefrontConfig(
       text: "Miễn phí giao hàng cho đơn đủ điều kiện",
     },
     home: {
-      hero_title: "Sản phẩm tốt cho những ngày thật đẹp",
+      hero_title: "Bộ sưu tập mới",
       hero_subtitle:
-        "Khám phá bộ sưu tập được cửa hàng chọn lọc và đặt hàng ngay hôm nay.",
-      hero_cta_label: "Khám phá sản phẩm",
-      show_hero: templateId !== "market",
+        "Khám phá những sản phẩm được chọn lọc dành riêng cho bạn.",
+      hero_cta_label: "Mua ngay",
+      show_hero: true,
+      show_hero_slider: true,
       show_categories: true,
       show_featured_products: true,
-      featured_heading:
-        templateId === "editorial" ? "Được chọn cho bạn" : "Sản phẩm nổi bật",
+      featured_heading: "Sản phẩm nổi bật",
     },
     catalog: { ...template.catalog },
     checkout: {
@@ -259,6 +214,21 @@ export function getDefaultStorefrontConfig(
       show_contact: true,
       show_business_hours: true,
       show_powered_by: true,
+      show_newsletter: true,
+      newsletter_title: "Đăng ký nhận tin",
+      newsletter_placeholder: "Nhập email của bạn",
+      newsletter_button_label: "Gửi ngay",
+      company_title: "",
+      contact_email: "",
+      about_title: "Về chúng tôi",
+      about_links: "Giới thiệu|#\nLiên hệ|#\nTin tức|#\nHệ thống cửa hàng|#",
+      support_title: "Hỗ trợ khách hàng",
+      support_links:
+        "Câu hỏi thường gặp|#\nHướng dẫn đặt hàng|#\nMua hàng trả góp|#",
+      policy_title: "Chính sách",
+      policy_links:
+        "Chính sách bảo hành|#\nChính sách đổi trả và hoàn tiền|#\nĐiều khoản dịch vụ|#\nChính sách bảo mật|#",
+      copyright_text: "",
       policy_text: "Đổi trả theo chính sách của cửa hàng.",
     },
     social: {},
@@ -267,13 +237,21 @@ export function getDefaultStorefrontConfig(
 }
 
 function normalizeTemplateId(templateId?: string): StorefrontTemplateId {
-  if (templateId === "editorial" || templateId === "ecommerce") {
-    return "editorial";
-  }
-  if (templateId === "specialist") {
-    return "specialist";
-  }
-  return "market";
+  void templateId;
+  return "orebi";
+}
+
+function cleanUrl(url?: string): string | undefined {
+  if (!url || typeof url !== "string" || !url.trim()) return undefined;
+  return url.trim();
+}
+
+function cleanUrls(urls?: string[]): string[] {
+  if (!Array.isArray(urls)) return [];
+  return urls
+    .map((url) => cleanUrl(url))
+    .filter((url): url is string => Boolean(url))
+    .slice(0, 5);
 }
 
 export function normalizeStorefrontConfig(
@@ -282,10 +260,28 @@ export function normalizeStorefrontConfig(
   const templateId = normalizeTemplateId(input?.template_id);
   const defaults = getDefaultStorefrontConfig(templateId);
   const legacyPrimary = input?.primary_color;
-  const legacyLogo = input?.logo_url;
-  const legacyBanner = input?.banner_url;
-  const legacyFacebook = input?.facebook_url;
-  const legacyTiktok = input?.tiktok_url;
+  const legacyLogo = cleanUrl(input?.logo_url);
+  const legacyBanner = cleanUrl(input?.banner_url);
+  const legacyFacebook = cleanUrl(input?.facebook_url);
+  const legacyTiktok = cleanUrl(input?.tiktok_url);
+
+  const logoUrl = cleanUrl(input?.brand?.logo_url) || legacyLogo;
+  const configuredBannerUrls = cleanUrls(input?.brand?.banner_urls);
+  const bannerUrl =
+    cleanUrl(input?.brand?.banner_url) ||
+    legacyBanner ||
+    configuredBannerUrls[0];
+  const bannerUrls =
+    configuredBannerUrls.length > 0
+      ? configuredBannerUrls
+      : bannerUrl
+        ? [bannerUrl]
+        : [];
+  const facebookUrl = cleanUrl(input?.social?.facebook_url) || legacyFacebook;
+  const instagramUrl = cleanUrl(input?.social?.instagram_url);
+  const youtubeUrl = cleanUrl(input?.social?.youtube_url);
+  const tiktokUrl = cleanUrl(input?.social?.tiktok_url) || legacyTiktok;
+  const zaloUrl = cleanUrl(input?.social?.zalo_url);
 
   const config: StorefrontConfig = {
     ...defaults,
@@ -300,8 +296,10 @@ export function normalizeStorefrontConfig(
         input?.brand?.primary_color ||
         legacyPrimary ||
         defaults.brand.primary_color,
-      logo_url: input?.brand?.logo_url || legacyLogo,
-      banner_url: input?.brand?.banner_url || legacyBanner,
+      logo_url: logoUrl,
+      banner_url: bannerUrl,
+      banner_urls: bannerUrls,
+      banner_asset_ids: input?.brand?.banner_asset_ids?.slice(0, 5),
     },
     announcement: {
       ...defaults.announcement,
@@ -310,6 +308,7 @@ export function normalizeStorefrontConfig(
     home: {
       ...defaults.home,
       ...input?.home,
+      show_hero: input?.home?.show_hero ?? true,
     },
     catalog: {
       ...defaults.catalog,
@@ -326,8 +325,11 @@ export function normalizeStorefrontConfig(
     social: {
       ...defaults.social,
       ...input?.social,
-      facebook_url: input?.social?.facebook_url || legacyFacebook,
-      tiktok_url: input?.social?.tiktok_url || legacyTiktok,
+      facebook_url: facebookUrl,
+      instagram_url: instagramUrl,
+      youtube_url: youtubeUrl,
+      tiktok_url: tiktokUrl,
+      zalo_url: zaloUrl,
     },
     seo: {
       ...defaults.seo,

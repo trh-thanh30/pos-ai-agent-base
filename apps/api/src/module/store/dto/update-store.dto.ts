@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsHexColor,
   IsIn,
@@ -12,7 +14,11 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+
+const transformEmptyStringToUndefined = Transform(({ value }) =>
+  typeof value === 'string' && !value.trim() ? undefined : value,
+);
 
 class StorefrontBrandDto {
   @IsOptional()
@@ -40,6 +46,7 @@ class StorefrontBrandDto {
   radius?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   logo_url?: string;
 
@@ -48,12 +55,25 @@ class StorefrontBrandDto {
   logo_asset_id?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   banner_url?: string;
 
   @IsOptional()
   @IsString()
   banner_asset_id?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(5)
+  @IsUrl({ require_protocol: true }, { each: true })
+  banner_urls?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(5)
+  @IsString({ each: true })
+  banner_asset_ids?: string[];
 }
 
 class StorefrontAnnouncementDto {
@@ -86,6 +106,10 @@ class StorefrontHomeDto {
   @IsOptional()
   @IsBoolean()
   show_hero?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  show_hero_slider?: boolean;
 
   @IsOptional()
   @IsBoolean()
@@ -178,6 +202,70 @@ class StorefrontFooterDto {
   show_powered_by?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  show_newsletter?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  newsletter_title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  newsletter_placeholder?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  newsletter_button_label?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  company_title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  contact_email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  about_title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1200)
+  about_links?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  support_title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1200)
+  support_links?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  policy_title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1200)
+  policy_links?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  copyright_text?: string;
+
+  @IsOptional()
   @IsString()
   @MaxLength(240)
   policy_text?: string;
@@ -185,18 +273,27 @@ class StorefrontFooterDto {
 
 class StorefrontSocialDto {
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   facebook_url?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   instagram_url?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
+  @IsUrl({ require_protocol: true })
+  youtube_url?: string;
+
+  @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   tiktok_url?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   zalo_url?: string;
 }
@@ -228,6 +325,7 @@ export class RetailConfigDto {
     'market',
     'editorial',
     'specialist',
+    'orebi',
     'classic',
     'ecommerce',
     'restaurant',
@@ -239,18 +337,22 @@ export class RetailConfigDto {
   primary_color?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   logo_url?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   banner_url?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   facebook_url?: string;
 
   @IsOptional()
+  @transformEmptyStringToUndefined
   @IsUrl({ require_protocol: true })
   tiktok_url?: string;
 

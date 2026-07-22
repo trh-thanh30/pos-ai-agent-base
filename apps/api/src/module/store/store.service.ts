@@ -40,6 +40,8 @@ type RetailConfig = {
     logo_asset_id?: string;
     banner_url?: string;
     banner_asset_id?: string;
+    banner_urls?: string[];
+    banner_asset_ids?: string[];
   };
   announcement?: {
     enabled?: boolean;
@@ -50,6 +52,7 @@ type RetailConfig = {
     hero_subtitle?: string;
     hero_cta_label?: string;
     show_hero?: boolean;
+    show_hero_slider?: boolean;
     show_categories?: boolean;
     show_featured_products?: boolean;
     featured_heading?: string;
@@ -76,11 +79,25 @@ type RetailConfig = {
     show_contact?: boolean;
     show_business_hours?: boolean;
     show_powered_by?: boolean;
+    show_newsletter?: boolean;
+    newsletter_title?: string;
+    newsletter_placeholder?: string;
+    newsletter_button_label?: string;
+    company_title?: string;
+    contact_email?: string;
+    about_title?: string;
+    about_links?: string;
+    support_title?: string;
+    support_links?: string;
+    policy_title?: string;
+    policy_links?: string;
+    copyright_text?: string;
     policy_text?: string;
   };
   social?: {
     facebook_url?: string;
     instagram_url?: string;
+    youtube_url?: string;
     tiktok_url?: string;
     zalo_url?: string;
   };
@@ -415,6 +432,73 @@ export class StoreService {
     };
   }
 
+  async getStorefrontProduct(subdomain: string, productId: string) {
+    const store = await this.prismaService.store.findUnique({
+      where: { subdomain: subdomain.trim().toLowerCase() },
+      select: {
+        id: true,
+        retail_config: true,
+      },
+    });
+
+    if (!store) {
+      throw new NotFoundError(
+        'Cửa hàng không tồn tại hoặc chưa cấu hình website bán hàng.',
+      );
+    }
+
+    const retailConfig = (store.retail_config || {}) as RetailConfig;
+    if (retailConfig.enabled !== true) {
+      throw new NotFoundError('Cửa hàng chưa kích hoạt website bán hàng.');
+    }
+
+    const product = await this.prismaService.product.findFirst({
+      where: {
+        id: productId,
+        store_id: store.id,
+        product_status: product_status.ACTIVE,
+        is_deleted: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        image_url: true,
+        categories: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        variant: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            sku: true,
+            variant_stocks: {
+              where: {
+                store_id: store.id,
+              },
+              select: {
+                onHand: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundError('Sản phẩm không tồn tại hoặc đã ngừng bán.');
+    }
+
+    return {
+      ...product,
+      price: product.variant[0]?.price || 0,
+    };
+  }
+
   async createStorefrontOrder(
     subdomain: string,
     dto: CreateStorefrontOrderDto,
@@ -677,15 +761,19 @@ export class StoreService {
   private sanitizeRetailConfig(config: RetailConfig): RetailConfig {
     const sanitized = JSON.parse(JSON.stringify(config)) as RetailConfig;
     const templateAliases: Record<string, string> = {
-      classic: 'market',
-      ecommerce: 'editorial',
+      classic: 'orebi',
+      ecommerce: 'orebi',
+      market: 'orebi',
+      editorial: 'orebi',
+      specialist: 'orebi',
+      restaurant: 'orebi',
     };
     sanitized.schema_version = 2;
     sanitized.enabled = config.enabled === true;
     sanitized.template_id =
       templateAliases[config.template_id || ''] ||
       config.template_id ||
-      'market';
+      'orebi';
 
     if (sanitized.brand) {
       sanitized.primary_color = sanitized.brand.primary_color;

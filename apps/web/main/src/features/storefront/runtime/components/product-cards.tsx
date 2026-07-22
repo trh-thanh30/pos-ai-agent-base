@@ -1,7 +1,9 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import { Plus, ShoppingBag } from "lucide-react";
+import type { MouseEvent } from "react";
+import { useState } from "react";
+import { Eye, Heart, RefreshCw, ShoppingCart } from "lucide-react";
 import type { StorefrontConfig } from "../../config";
 import type { StorefrontProduct } from "../types";
 import {
@@ -11,175 +13,139 @@ import {
   getProductVariant,
 } from "../utils";
 
-function ProductImage({
-  product,
-  ratio,
-}: {
-  product: StorefrontProduct;
-  ratio: "square" | "portrait" | "landscape";
-}) {
-  const ratioClass =
-    ratio === "portrait"
-      ? "aspect-[4/5]"
-      : ratio === "landscape"
-        ? "aspect-[4/3]"
-        : "aspect-square";
-  return (
-    <div className={`${ratioClass} overflow-hidden bg-black/5`}>
-      <img
-        src={product.image_url || FALLBACK_PRODUCT_IMAGE}
-        alt={product.name}
-        className="size-full object-cover transition duration-500 group-hover:scale-[1.035]"
-      />
-    </div>
-  );
-}
-
 interface ProductCardProps {
   product: StorefrontProduct;
   config: StorefrontConfig;
   onAdd: (product: StorefrontProduct) => void;
+  onSelectProduct?: (product: StorefrontProduct) => void;
+  badge?: string;
 }
 
-export function MarketProductCard({
+export function OrebiProductCard({
   product,
   config,
   onAdd,
+  onSelectProduct,
+  badge = "Mới",
 }: ProductCardProps) {
+  const [imageLoading, setImageLoading] = useState(true);
   const variant = getProductVariant(product);
   const stock = getProductStock(product);
+  const category = product.categories?.[0]?.name;
+  const ratioClass =
+    config.catalog.image_ratio === "portrait"
+      ? "aspect-[4/5]"
+      : config.catalog.image_ratio === "landscape"
+        ? "aspect-[4/3]"
+        : "aspect-square";
+  const productHref = `/products/${encodeURIComponent(product.id)}`;
+  const handleProductLink = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (
+      !onSelectProduct ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    event.preventDefault();
+    onSelectProduct(product);
+  };
+
   return (
     <article
-      className="group flex min-w-0 flex-col overflow-hidden border border-black/10 bg-white transition hover:-translate-y-0.5 hover:border-[var(--sf-primary)]/40 hover:shadow-lg"
+      className="group flex h-full min-w-0 flex-col border border-[#ecece9] bg-white p-3 text-[var(--sf-text)] transition duration-300 hover:-translate-y-1 hover:border-[#d8d8d5] hover:shadow-[0_16px_40px_rgba(38,38,38,0.08)] sm:p-4 lg:p-5"
       style={{ borderRadius: "var(--sf-radius)" }}
     >
-      <ProductImage product={product} ratio={config.catalog.image_ratio} />
-      <div className="flex flex-1 flex-col p-3">
-        <p className="line-clamp-2 min-h-10 text-sm font-bold leading-5">
-          {product.name}
-        </p>
-        {config.catalog.show_stock_status && (
-          <span
-            className={`mt-1 text-[11px] font-semibold ${
-              stock > 0 ? "text-emerald-700" : "text-amber-700"
-            }`}
-          >
-            {stock > 0 ? `Còn hàng${stock ? ` · ${stock}` : ""}` : "Liên hệ"}
+      <div
+        className={`relative ${ratioClass} overflow-hidden bg-transparent`}
+        style={{ borderRadius: "var(--sf-radius)" }}
+      >
+        <a
+          href={productHref}
+          onClick={handleProductLink}
+          className="block size-full cursor-pointer"
+          aria-label={`Xem ${product.name}`}
+        >
+          {imageLoading && (
+            <span className="absolute inset-0 grid place-items-center bg-white/85">
+              <span className="size-8 animate-spin rounded-full border-2 border-[#e7e7e3] border-t-[var(--sf-primary)]" />
+              <span className="sr-only">Đang tải ảnh {product.name}</span>
+            </span>
+          )}
+          <img
+            src={product.image_url || FALLBACK_PRODUCT_IMAGE}
+            alt={product.name}
+            draggable={false}
+            onLoad={() => setImageLoading(false)}
+            onError={() => setImageLoading(false)}
+            className={`size-full object-contain p-2 transition duration-700 ease-out group-hover:scale-[1.04] sm:p-3 ${imageLoading ? "opacity-0" : "opacity-100"}`}
+          />
+        </a>
+
+        {(stock > 0 || config.catalog.show_stock_status) && (
+          <span className="absolute left-4 top-4 bg-[var(--sf-primary)] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+            {stock > 0 ? badge : "Hết hàng"}
           </span>
         )}
-        <div className="mt-auto flex items-end justify-between gap-2 pt-3">
-          <strong className="text-sm text-[var(--sf-primary)]">
-            {formatCurrency(variant.price)}
-          </strong>
-          <button
-            onClick={() => onAdd(product)}
-            aria-label={`Thêm ${product.name} vào giỏ`}
-            className="grid size-9 shrink-0 place-items-center bg-[var(--sf-primary)] text-white"
-            style={{ borderRadius: "var(--sf-radius)" }}
-          >
-            <Plus className="size-4" />
-          </button>
+
+        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-white/95 px-4 py-3 backdrop-blur-sm transition-transform duration-300 group-hover:translate-y-0">
+          <div className="grid gap-2 text-xs font-semibold text-[#767676] lg:text-sm">
+            {config.catalog.quick_add && (
+              <button
+                type="button"
+                onClick={() => onAdd(product)}
+                disabled={stock <= 0}
+                className="flex items-center justify-end gap-3 transition hover:text-[var(--sf-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Thêm vào giỏ <ShoppingCart className="size-4" />
+              </button>
+            )}
+            <a
+              href={productHref}
+              onClick={handleProductLink}
+              className="flex items-center justify-end gap-3 transition hover:text-[var(--sf-primary)]"
+            >
+              Xem chi tiết <Eye className="size-4" />
+            </a>
+            <span className="flex items-center justify-end gap-3">
+              Yêu thích <Heart className="size-4" />
+            </span>
+            <span className="flex items-center justify-end gap-3">
+              So sánh <RefreshCw className="size-4" />
+            </span>
+          </div>
         </div>
       </div>
-    </article>
-  );
-}
 
-export function EditorialProductCard({
-  product,
-  config,
-  onAdd,
-}: ProductCardProps) {
-  const variant = getProductVariant(product);
-  return (
-    <article className="group min-w-0">
-      <div className="relative">
-        <ProductImage product={product} ratio={config.catalog.image_ratio} />
-        <button
-          onClick={() => onAdd(product)}
-          className="absolute bottom-3 right-3 grid size-11 place-items-center bg-white text-neutral-950 opacity-100 shadow-lg transition hover:bg-[var(--sf-accent)] hover:text-white lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100"
-          aria-label={`Chọn ${product.name}`}
-        >
-          <ShoppingBag className="size-4" />
-        </button>
-      </div>
-      <div className="mt-4 flex items-start justify-between gap-4">
-        <div className="min-w-0">
+      <a
+        href={productHref}
+        onClick={handleProductLink}
+        className="mt-4 flex w-full flex-1 flex-col px-1 pb-1 text-left"
+      >
+        <div className="flex items-start justify-between gap-3">
           <h3
-            className="truncate text-base"
+            className="line-clamp-2 min-h-10 text-sm font-bold leading-5 transition group-hover:text-[var(--sf-primary)] sm:text-base lg:min-h-14 lg:text-lg lg:leading-7"
             style={{ fontFamily: "var(--sf-heading)" }}
           >
             {product.name}
           </h3>
-          {config.catalog.show_product_description && (
-            <p className="mt-1 line-clamp-2 text-xs leading-5 text-black/48">
-              {product.description || "Một lựa chọn được cửa hàng đề xuất."}
-            </p>
-          )}
+          <span className="shrink-0 text-xs font-semibold text-[var(--sf-primary)] sm:text-sm lg:text-base">
+            {formatCurrency(variant.price)}
+          </span>
         </div>
-        <strong className="shrink-0 text-sm">
-          {formatCurrency(variant.price)}
-        </strong>
-      </div>
+        {config.catalog.show_product_description && (
+          <p className="mt-auto line-clamp-1 pt-2 text-xs leading-5 text-[#767676] lg:text-sm">
+            {category || product.description || "Sản phẩm chọn lọc"}
+          </p>
+        )}
+      </a>
     </article>
   );
 }
 
-export function SpecialistProductCard({
-  product,
-  config,
-  onAdd,
-}: ProductCardProps) {
-  const variant = getProductVariant(product);
-  const stock = getProductStock(product);
-  return (
-    <article
-      className="group overflow-hidden border border-black/10 bg-white transition hover:border-[var(--sf-primary)]/45 hover:shadow-md"
-      style={{ borderRadius: "var(--sf-radius)" }}
-    >
-      <ProductImage product={product} ratio={config.catalog.image_ratio} />
-      <div className="p-4">
-        <div className="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[0.08em]">
-          <span className="text-[var(--sf-primary)]">
-            {product.categories?.[0]?.name || "Sản phẩm"}
-          </span>
-          {config.catalog.show_stock_status && (
-            <span className={stock > 0 ? "text-emerald-700" : "text-amber-700"}>
-              {stock > 0 ? "Còn hàng" : "Liên hệ"}
-            </span>
-          )}
-        </div>
-        <h3 className="mt-2 line-clamp-2 min-h-11 text-base font-bold leading-[1.4]">
-          {product.name}
-        </h3>
-        {config.catalog.show_product_description && (
-          <p className="mt-2 line-clamp-2 min-h-10 text-xs leading-5 text-black/48">
-            {product.description || "Thông tin chi tiết đang được cập nhật."}
-          </p>
-        )}
-        <div className="mt-4 border-t border-black/8 pt-4">
-          <div className="flex items-center justify-between">
-            <strong className="text-base text-[var(--sf-primary)]">
-              {product.variant && product.variant.length > 1 && (
-                <span className="mr-1 text-[10px] font-normal text-black/40">
-                  Từ
-                </span>
-              )}
-              {formatCurrency(variant.price)}
-            </strong>
-            <span className="text-[11px] text-black/40">
-              {product.variant?.length || 1} lựa chọn
-            </span>
-          </div>
-          <button
-            onClick={() => onAdd(product)}
-            className="mt-3 h-10 w-full border border-[var(--sf-primary)] text-xs font-bold text-[var(--sf-primary)] transition hover:bg-[var(--sf-primary)] hover:text-white"
-            style={{ borderRadius: "var(--sf-radius)" }}
-          >
-            Chọn sản phẩm
-          </button>
-        </div>
-      </div>
-    </article>
-  );
-}
+// Giữ tên export cũ để các view chuyển đổi độc lập mà không nhân bản card.
+export const MarketProductCard = OrebiProductCard;
+export const EditorialProductCard = OrebiProductCard;
+export const SpecialistProductCard = OrebiProductCard;
